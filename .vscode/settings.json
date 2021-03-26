@@ -1,0 +1,8 @@
+{
+    "files.associations": {
+        "cstdarg": "cpp",
+        "xiosbase": "cpp",
+        "cinttypes": "cpp",
+        "cstdint": "cpp"
+    }
+}
