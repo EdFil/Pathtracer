@@ -4,8 +4,13 @@
 
 class Color {
 public:
-    uint8_t r, g, b, a;
+    union {
+        struct {
+            uint8_t r, g, b, a;
+        };
+        uint32_t rgba;
+    };
 
     Color() : r(0), g(0), b(0), a(0) {}
-    Color(uint8_t r, uint8_t g, uint8_t b, uint8_t a) : r(r), g(g), b(b), a(a) {}
+    Color(uint8_t _r, uint8_t _g, uint8_t _b, uint8_t _a) : r(_r), g(_g), b(_b), a(_a) {}
 };

@@ -1,14 +1,16 @@
 #pragma once
 
-class Color;
+#include "Window.hpp"
 
-class Window;
+class Color;
 struct SDL_Renderer;
+struct SDL_Surface;
+struct SDL_Texture;
 typedef void* SDL_GLContext;
 
 struct RenderParams {};
 
-class Renderer {
+class Renderer : public WindowsEventObserver {
 public:
     Renderer(Window& window);
     ~Renderer();
@@ -19,8 +21,12 @@ public:
     void postRender();
     void destroy();
 
+    void onEventCalled(const WindowEventType& type, const WindowEvent& event) override;
+
 private:
     Window& _window;
     SDL_Renderer* _renderer = nullptr;
+    SDL_Surface* _surface = nullptr;
+    SDL_Texture* _texture = nullptr;
     SDL_GLContext _context = nullptr;
 };

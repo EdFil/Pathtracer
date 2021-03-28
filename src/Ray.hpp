@@ -1,13 +1,17 @@
 #pragma once
 
-#include "Vec3.hpp"
+#include "Vec3f.hpp"
 
 class Ray {
 public:
-    Vec3 origin;
-    Vec3 dir;
+    Ray() = default;
+    Ray(Vec3f origin, Vec3f dir) : _origin(origin), _dir(dir) {}
 
-    Ray(Vec3 origin, Vec3 dir) : origin(origin), dir(dir) {}
+    const Vec3f& origin() const { return _origin; }
+    const Vec3f& dir() const { return _dir; }
+    Vec3f at(float t) { return _origin + t * _dir; }
 
-    Vec3 at(float t) { return origin + t * dir; }
+private:
+    Vec3f _origin{0.0f};
+    Vec3f _dir{0.0f};
 };

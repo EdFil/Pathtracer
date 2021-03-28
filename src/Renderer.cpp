@@ -30,45 +30,65 @@ bool Renderer::init(RenderParams) {
         LOG_ERROR("[Renderer] Could not initialize GLAD");
         return false;
     }
+    
+    Vec2i size = _window.size();
+    _texture = SDL_CreateTexture(_renderer, SDL_PIXELFORMAT_RGBA8888, SDL_TEXTUREACCESS_STREAMING, size.x, size.y);
+    if (_texture == nullptr || SDL_LockTextureToSurface(_texture, nullptr, &_surface) != 0) {
+        LOG_ERROR("[Renderer] Could not create surface texture. %s", SDL_GetError());
+        return false;
+    }
+
+    _window.subscribe(*this);
 
     LOG("[RenderingDeviceGL] OpenGL version %d.%d", GLVersion.major, GLVersion.minor);
     return true;
 }
 
 void Renderer::preRender() {
-    static float rCounter = 0;
-    static float gCounter = 0;
-    static float bCounter = 0;
-
-    int value = rand() % 100;
-    if (value < 33) {
-        rCounter += 0.001f;
-    } else if (value < 66) {
-        gCounter += 0.001f;
-    } else {
-        bCounter += 0.001f;
-    }
-
-    short r = abs(sin(rCounter) * 255);
-    short g = abs(sin(gCounter) * 255);
-    short b = abs(sin(bCounter) * 255);
-
-    SDL_SetRenderDrawColor(_renderer, r, g, b, SDL_ALPHA_OPAQUE);
+    SDL_SetRenderDrawColor(_renderer, 0, 0, 0, SDL_ALPHA_OPAQUE);
     SDL_RenderClear(_renderer);
+
+    if (SDL_UpdateTexture(_texture, nullptr, _surface->pixels, _surface->pitch) != 0) {
+        LOG_ERROR("Cannot update texture. %s", SDL_GetError());
+    }
+    SDL_RenderCopy(_renderer, _texture, nullptr, nullptr);
 }
 
 void Renderer::postRender() {
+    
     SDL_RenderPresent(_renderer);
 }
 
 void Renderer::drawPixel(const Color& color, int x, int y) {
-    SDL_SetRenderDrawColor(_renderer, color.r, color.g, color.b, color.a);
-    SDL_RenderDrawPoint(_renderer, x, y);
+    uint32_t* pixels = (uint32_t*)_surface->pixels;
+    pixels[(y * _surface->w) + x] = color.rgba;
 }
 
 void Renderer::destroy() {
+    _window.unsubscribe(*this);
+
+    SDL_DestroyTexture(_texture);
     SDL_GL_DeleteContext(_context);
     SDL_DestroyRenderer(_renderer);
 
     _context = _renderer = nullptr;
+}
+
+void Renderer::onEventCalled(const WindowEventType& type, const WindowEvent& event) {
+    if (event.window.window() != _window.window()) return;
+    
+    const WindowEventData& data = event.data;
+    if (type == WindowEventType::Resize) {
+        SDL_Surface* surface = nullptr;
+        SDL_Texture* texture = SDL_CreateTexture(_renderer, SDL_PIXELFORMAT_RGBA8888, SDL_TEXTUREACCESS_STREAMING, data.size.x, data.size.y);
+        if (texture == nullptr || SDL_LockTextureToSurface(texture, nullptr, &surface) != 0) {
+            LOG_ERROR("[Renderer] Could not create surface texture. %s", SDL_GetError());
+            SDL_DestroyTexture(texture);
+        } else {
+            SDL_DestroyTexture(_texture);
+            _texture = texture;
+            _surface = surface;
+        }
+
+    }
 }

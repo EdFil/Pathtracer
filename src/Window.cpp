@@ -21,8 +21,8 @@ bool Window::init(const WindowParams& params) {
     }
 
     // Create OSWindow
-    _sdlWindow = SDL_CreateWindow(params.name, SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, params.width,
-                                  params.height, SDL_WINDOW_SHOWN | SDL_WINDOW_RESIZABLE | SDL_WINDOW_OPENGL);
+    uint32_t flags = SDL_WINDOW_SHOWN | SDL_WINDOW_RESIZABLE | SDL_WINDOW_OPENGL;
+    _sdlWindow = SDL_CreateWindow(params.name, SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, params.width, params.height, flags);
     if (_sdlWindow == nullptr) {
         LOG_ERROR("[SDL] Could not create a SDL OSWindow. %s", SDL_GetError());
         return false;
@@ -36,12 +36,14 @@ void Window::onSDLEvent(const SDL_WindowEvent& event) {
     LOG("[Window::onSDLEvent] %s", stringifyWindowEventID(windowEventID));
 
     switch (windowEventID) {
+        case SDL_WINDOWEVENT_RESIZED: {
+            WindowEvent event(*this);
+            event.data.size = size();
+            _eventDispatcher.signal(WindowEventType::Resize, event);
+            break;
+        }
+
         case SDL_WINDOWEVENT_CLOSE:
-            break;
-
-        case SDL_WINDOWEVENT_RESIZED:
-            break;
-
         case SDL_WINDOWEVENT_NONE:
         case SDL_WINDOWEVENT_SHOWN:
         case SDL_WINDOWEVENT_HIDDEN:
@@ -57,7 +59,21 @@ void Window::onSDLEvent(const SDL_WindowEvent& event) {
         case SDL_WINDOWEVENT_FOCUS_LOST:
         case SDL_WINDOWEVENT_TAKE_FOCUS:
         case SDL_WINDOWEVENT_HIT_TEST:
+            /* Ignore */
             break;
     }
 }
 
+Vec2i Window::size() const {
+    Vec2i size;
+    SDL_GetWindowSize(_sdlWindow, &size.x, &size.y);
+    return size;
+}
+
+void Window::subscribe(WindowsEventObserver& observer) {
+    _eventDispatcher.subscribe(observer);
+}
+
+void Window::unsubscribe(WindowsEventObserver& observer) {
+    _eventDispatcher.unsubscribe(observer);
+}
