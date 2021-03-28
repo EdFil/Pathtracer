@@ -4,10 +4,11 @@
 #include "Color.hpp"
 #include "Logger.hpp"
 #include "Renderer.hpp"
+#include "Scene.hpp"
 #include "Sphere.hpp"
 #include "Window.hpp"
 
-int main(int argc, char *argv[]) {
+int main(int argc, char* argv[]) {
     Logger::init();
 
     if (SDL_Init(SDL_INIT_VIDEO | SDL_INIT_TIMER) != 0) {
@@ -17,9 +18,10 @@ int main(int argc, char *argv[]) {
 
     Window window;
     Renderer renderer(window);
+    Scene scene(renderer);
     Sphere sphere(Vec3f(0.0f, 0.0f, 0.0f), 1.0f);
 
-    bool isRunning = window.init() && renderer.init();
+    bool isRunning = window.init() && renderer.init() && scene.init();
 
     while (isRunning) {
         SDL_Event sdlEvent;
@@ -38,6 +40,7 @@ int main(int argc, char *argv[]) {
         }
 
         renderer.preRender();
+        scene.draw();
         renderer.postRender();
     }
 

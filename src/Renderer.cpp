@@ -74,6 +74,10 @@ void Renderer::destroy() {
     _context = _renderer = nullptr;
 }
 
+Vec2i Renderer::bufferSize() const {
+    return _window.size();
+}
+
 void Renderer::onEventCalled(const WindowEventType& type, const WindowEvent& event) {
     if (event.window.window() != _window.window()) return;
     

@@ -21,6 +21,7 @@ public:
     void postRender();
     void destroy();
 
+    Vec2i bufferSize() const;
     void onEventCalled(const WindowEventType& type, const WindowEvent& event) override;
 
 private:

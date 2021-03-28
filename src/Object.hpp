@@ -10,5 +10,8 @@ struct hit_record {
 };
 
 class Object {
+public:
+    virtual ~Object() = default;
+
     virtual bool hit(const Ray& ray, float min, float max, hit_record& rec) = 0;
 };
