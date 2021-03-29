@@ -7,10 +7,10 @@ message("==== Glad ====")
 set(OpenGL_GL_PREFERENCE "GLVND")
 find_package(OpenGL REQUIRED)
 
-add_library(Glad STATIC "include/glad/glad.h" "src/glad.c")
-target_include_directories(Glad PUBLIC "include")
+add_library(glad STATIC "include/glad/glad.h" "src/glad.c")
+target_include_directories(glad PUBLIC "include")
 
-target_link_libraries(Glad 
+target_link_libraries(glad 
     PUBLIC ${OPENGL_LIBRARIES}
 )
 
