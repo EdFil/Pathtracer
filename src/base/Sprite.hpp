@@ -1,5 +1,12 @@
 #pragma once
 
-class Sprite {
+class Mesh;
+class Program;
 
+class Sprite {
+public:
+
+private:
+    Mesh _mesh;
+    Program _program;
 };
