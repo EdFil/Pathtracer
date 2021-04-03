@@ -3,6 +3,11 @@
         "cstdarg": "cpp",
         "xiosbase": "cpp",
         "cinttypes": "cpp",
-        "cstdint": "cpp"
+        "cstdint": "cpp",
+        "ios": "cpp",
+        "istream": "cpp",
+        "ostream": "cpp",
+        "xstring": "cpp",
+        "xutility": "cpp"
     }
 }

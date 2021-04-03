@@ -2,19 +2,20 @@
 
 #include "rendering/Program.hpp"
 
+#include <glad/glad.h>
+
 class ShaderGL;
 class Device;
 
 class ProgramGL : public Program {
 public:
-    ProgramGL(const std::string& vertexShader, const std::string& fragmentShader);
     ~ProgramGL();
 
-private:
-    uint32_t _id;
-    ShaderGL* _vertexShader;
-    ShaderGL* _fragmentShader;
+    bool init(const Shader& vertexShader, const Shader& fragmentShader) override;
+    bool setShader(const Shader& vertexShader) override;
+    void bind() const override;
 
-    void createProgram(Device& device);
+private:
+    bool linkProgram(unsigned int handle);
     void deleteProgram();
 };

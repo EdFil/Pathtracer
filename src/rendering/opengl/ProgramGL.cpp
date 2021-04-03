@@ -1,41 +1,84 @@
 #include "rendering/OpenGL/ProgramGL.hpp"
 
 #include <glad/glad.h>
+#include <cassert>
+#include "Logger.hpp"
 #include "rendering/RenderingDevice.hpp"
-#include "rendering/OpenGL/ShaderGL.hpp"
-
-ProgramGL::ProgramGL(const std::string& vertexShader, const std::string& fragmentShader) : Program(vertexShader, fragmentShader) {
-    
-}
+#include "rendering/Shader.hpp"
 
 ProgramGL::~ProgramGL() {
+    if (_handle != 0) {
+        glDeleteProgram(_handle);
+    }
 }
 
-void ProgramGL::createProgram(Device& device) {
-    //_vertexShader = (ShaderGL*)device.createShader(Shader::Type::Vertex, _vertexShaderSource);
-    //_fragmentShader = (ShaderGL*)device.createShader(Shader::Type::Fragment, _fragmentShaderSource);
+bool ProgramGL::init(const Shader& vertexShader, const Shader& fragmentShader) {
+    assert(vertexShader.type() == Shader::Type::Vertex);
+    assert(fragmentShader.type() == Shader::Type::Fragment);
 
-    //_id = glCreateProgram();
-    //if (_id == 0) {
-    //    LOG_ERROR("Error creating program");
-    //    return;
-    //}
+    GLuint handle = glCreateProgram();
+    if (handle == 0) {
+        LOG_ERROR("[ProgramGL] Error creating program. glError[%d]", glGetError());
+        return false;
+    }
 
-    //glAttachShader(_id, _vertexShader->id());
-    //glAttachShader(_id, _fragmentShader->id());
-    //glLinkProgram(_id);
+    glAttachShader(handle, vertexShader.handle());
+    glAttachShader(handle, fragmentShader.handle());
 
-    //GLint status = 0;
-    //glGetProgramiv(_id, GL_LINK_STATUS, &status);
-    //if (GL_FALSE == status) {
-    //    LOG_ERROR("{}: failed to link program");
-    //    deleteProgram();
-    //}
+    GLenum value = glGetError();
+    while (value != GL_NO_ERROR) {
+        LOG_ERROR("GL ERROR: %d", value);
+        value = glGetError();
+    };
+    
+    if (!linkProgram(handle)) {
+        return false;
+    }
+
+    _handle = handle;
+    _vertexShader = &vertexShader;
+    _fragmentShader = &fragmentShader;
+    return true;
+}
+
+bool ProgramGL::setShader(const Shader& shader) {
+    if (_handle == 0) {
+        LOG_ERROR("[ProgramGL] Cannot set shader when handle is invalid. Init was not called or failed.");
+        return false;
+    }
+
+    glAttachShader(_handle, shader.handle());
+    if (!linkProgram(_handle)) {
+        return false;
+    }
+
+    if (shader.type() == Shader::Type::Vertex) {
+        _vertexShader = &shader;
+    } else {
+        _fragmentShader = &shader;
+    }
+    return true;
+}
+
+void ProgramGL::bind() const {
+    glUseProgram(_handle);
+}
+
+bool ProgramGL::linkProgram(unsigned int handle) {
+    glLinkProgram(handle);
+    
+    GLint status = 0;
+    glGetProgramiv(handle, GL_LINK_STATUS, &status);
+    if (status == GL_FALSE) {
+        char infoLog[512];
+        glGetProgramInfoLog(handle, sizeof(infoLog), NULL, infoLog);
+        LOG_ERROR("[ProgramGL] Error linking program. %s", infoLog);
+        return false;
+    }
+
+    return true;
 }
 
 void ProgramGL::deleteProgram() {
-    if (_id) {
-        glDeleteProgram(_id);
-        _id = 0;
-    }
+
 }

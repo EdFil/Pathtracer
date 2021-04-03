@@ -23,10 +23,6 @@ BufferGL::~BufferGL() {
     if (_buffer != nullptr) {
         glDeleteBuffers(1, _buffer);
     }
-
-    if (_data != nullptr) {
-        delete _data;
-    }
 }
 
 void BufferGL::updateData(void* data, uint32_t size) {
@@ -38,13 +34,5 @@ void BufferGL::updateData(void* data, uint32_t size) {
             glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, *_buffer);
             glBufferData(GL_ELEMENT_ARRAY_BUFFER, size, data, toGLUsage(_usage));
         }
-
-        bool shouldReallocate = data == nullptr || _dataSize < size;
-        if (shouldReallocate) {
-            if (_data != nullptr) delete[] _data;
-            _data = new char[size];
-        }
-
-        memcpy(_data, data, size);
-        _dataSize = size;
     }
+}

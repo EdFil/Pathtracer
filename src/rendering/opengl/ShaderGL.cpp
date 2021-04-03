@@ -1,10 +1,6 @@
-
-#include <glad/glad.h>
-#include <SDL_opengl.h>
-#include <SDL_stdinc.h>
-#include "Logger.hpp"
-
 #include "rendering/OpenGL/ShaderGL.hpp"
+
+#include "Logger.hpp"
 
 namespace {
 GLenum convertShaderType(Shader::Type type) {
@@ -14,55 +10,56 @@ GLenum convertShaderType(Shader::Type type) {
         case Shader::Type::Fragment:
             return GL_FRAGMENT_SHADER;
         default:
-            LOG_ERROR("Unsuported shader type %s", type);
+            LOG_ERROR("Unsuported shader type %d", type);
             return GL_INVALID_ENUM;
     }
 }
 }  // namespace
 
-ShaderGL::ShaderGL(Type type, const std::string& source) : Shader(type, source) {
-    compileShader();
-}
-
 ShaderGL::~ShaderGL() {
-    deleteShader();
+    if (_handle != 0) {
+        glDeleteShader(_handle);
+    }
 }
 
-void ShaderGL::compileShader() {
-    GLenum shaderType = convertShaderType(_type);
-    const GLchar* sourceData = _source.data();
-    
-    _id = glCreateShader(shaderType);
-    if (_id == 0) {
-
-        return;
+bool ShaderGL::init(Type type, const char* source) {
+    GLenum shaderType = convertShaderType(type);
+    GLuint handle = glCreateShader(shaderType);
+    if (handle == 0) {
+        LOG_ERROR("[ShaderGL] Failed to create shader object: %d", glGetError());
+        return false;
     }
 
-    glShaderSource(_id, 1, &sourceData, nullptr);
-    glCompileShader(_id);
+    if (!compileShader(handle, source)) {
+        return false;
+    }
+
+    _handle = handle;
+    _type = type;
+    return true;
+}
+
+bool ShaderGL::reload(const char* source) {
+    if (_handle == 0) {
+        LOG_ERROR("[ShaderGL] Cannot reload shader when handle is invalid. Init was not called or failed.");
+        return false;
+    }
+
+    return compileShader(_handle, source);
+}
+
+bool ShaderGL::compileShader(unsigned int handle, const char* source) const {
+    glShaderSource(handle, 1, &source, nullptr);
+    glCompileShader(handle);
 
     GLint status = 0;
-    glGetShaderiv(_id, GL_COMPILE_STATUS, &status);
+    glGetShaderiv(handle, GL_COMPILE_STATUS, &status);
     if (!status) {
-        LOG_ERROR("Failed to compile shader:\n %s", _source.data());
-        printGLError();
-        deleteShader();
+        char infoLog[512];
+        glGetShaderInfoLog(handle, sizeof(infoLog), NULL, infoLog);
+        LOG_ERROR("[ShaderGL] Failed to compile shader:\n%s\n%s", infoLog, source);
+        return false;
     }
-}
 
-void ShaderGL::deleteShader() {
-    if (_id != 0) {
-        glDeleteShader(_id);
-        _id = 0;
-    }
-}
-
-void ShaderGL::printGLError() const {
-    GLint logLength = 0;
-    glGetShaderiv(_id, GL_INFO_LOG_LENGTH, &logLength);
-    
-    char* log = SDL_stack_alloc(char, logLength);
-    glGetShaderInfoLog(_id, logLength, nullptr, log);
-    LOG_ERROR("%s", log);
-    SDL_stack_free(log);
+    return true;
 }

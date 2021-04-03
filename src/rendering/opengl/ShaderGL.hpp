@@ -2,17 +2,15 @@
 
 #include "rendering/Shader.hpp"
 
+#include <glad/glad.h>
+
 class ShaderGL : public Shader {
 public:
-    ShaderGL(Type type, const std::string& source);
     ~ShaderGL();
 
-    uint32_t id() const { return _id; }
+    bool init(Type type, const char* source) override;
+    bool reload(const char* source) override;
 
 private:
-    uint32_t _id;
-
-    void compileShader();
-    void deleteShader();
-    void printGLError() const;
+    bool compileShader(unsigned int handle, const char* source) const;
 };

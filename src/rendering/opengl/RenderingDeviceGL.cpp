@@ -6,12 +6,16 @@
 #include <glad/glad.h>
 
 #include "Logger.hpp"
-#include "rendering/OpenGL/ProgramGL.hpp"
-#include "rendering/OpenGL/RenderingDeviceInfoGL.hpp"
-#include "rendering/OpenGL/ShaderGL.hpp"
-#include "rendering/OpenGL/ShaderManagerGL.hpp"
+#include "rendering/opengl/ProgramGL.hpp"
+#include "rendering/opengl/RenderingDeviceInfoGL.hpp"
+#include "rendering/opengl/ShaderGL.hpp"
+#include "rendering/opengl/ShaderManagerGL.hpp"
+
+#include "rendering/opengl/BufferGL.hpp"
 
 #include "SDL_video.h"
+
+Shader* shader = nullptr;
 
 RenderingDeviceGL::RenderingDeviceGL(SDL_Window* window) : _window(window), _context(nullptr) {
 }
@@ -33,6 +37,7 @@ bool RenderingDeviceGL::init() {
     wasSuccess &= _renderingDeviceInfo.init();
     _renderingDeviceInfo.printInfo();
     wasSuccess &= _shaderManager.init();
+    wasSuccess &= _programManager.init(_shaderManager);
     if (!wasSuccess) return false;
 
     // Setup Dear ImGui context
@@ -45,6 +50,24 @@ bool RenderingDeviceGL::init() {
     int width, height;
     SDL_GetWindowSize(_window, &width, &height);
     glViewport(0, 0, width, height);
+
+    float vertices[] = {
+        0.0f,  0.5f,  0.0f,  // Vertex 1 (X, Y)
+        0.5f,  -0.5f, 0.0f,  // Vertex 2 (X, Y)
+        -0.5f, -0.5f, 0.0f   // Vertex 3 (X, Y)
+    };
+
+    GLuint vao;
+    glGenVertexArrays(1, &vao);
+    glBindVertexArray(vao);
+
+    GLuint vbo;
+    glGenBuffers(1, &vbo);  // Generate 1 buffer
+    glBindBuffer(GL_ARRAY_BUFFER, vbo);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
+
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
+    glEnableVertexAttribArray(0);
 
     return wasSuccess;
 }
@@ -67,6 +90,20 @@ void RenderingDeviceGL::preRender() {
 }
 
 void RenderingDeviceGL::postRender() {
+    if (Program* program = _programManager.program(Programs::k_positionColor)) {
+        program->bind();
+    }
+    glDrawArrays(GL_TRIANGLES, 0, 3);
+
     ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
     SDL_GL_SwapWindow(_window);
 }
+
+Shader* RenderingDeviceGL::createShader(const std::string& name, Shader::Type type, const char* source) {
+    return _shaderManager.createShader(name, type, source);
+}
+
+Program* RenderingDeviceGL::createProgram(const std::string& name, const Shader& vertexShader, const Shader& fragmentShader) {
+    return _programManager.createProgram(name, vertexShader, fragmentShader);
+}
+

@@ -1,20 +1,20 @@
 #pragma once
 
 #include <string>
-#include <vector>
 
 class Program;
-class Renderer;
+class Shader;
+class ShaderManager;
+
+namespace Programs {
+extern const char* k_positionColor;
+}
 
 class ProgramManager {
 public:
-    ProgramManager(Renderer& renderer);
+    ~ProgramManager() = default;
 
-    bool init();
-
-    Program* createProgram(const std::string& vertexShader, const std::string& fragmentShader);
-
-private:
-    Renderer& _renderer;
-    std::vector<Program*> _programs;
+    virtual bool init(const ShaderManager& shaderManager) = 0;
+    virtual Program* createProgram(const std::string& name, const Shader& vertex, const Shader& fragment) = 0;
+    virtual Program* program(const std::string& name) = 0;
 };

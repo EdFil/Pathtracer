@@ -7,6 +7,4 @@ class Sprite {
 public:
 
 private:
-    Mesh _mesh;
-    Program _program;
 };

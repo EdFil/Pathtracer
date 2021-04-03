@@ -2,8 +2,8 @@
 
 #include "rendering/ShaderManager.hpp"
 
-#include <vector>
-#include <memory>
+#include <map>
+#include <string>
 
 class ShaderGL;
 
@@ -12,8 +12,9 @@ public:
     ~ShaderManagerGL();
 
     bool init() override;
-    Shader* createShader(Shader::Type type, const std::string& source) override;
+    Shader* createShader(const std::string& name, Shader::Type type, const char* source) override;
+    Shader* shader(const std::string& name) const override;
 
 private:
-    std::vector<std::unique_ptr<ShaderGL>> _instances;
+    std::map<std::string, ShaderGL*> _shaders;
 };
