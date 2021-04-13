@@ -16,6 +16,7 @@
 #include "SDL_video.h"
 
 Shader* shader = nullptr;
+Buffer* buffer = nullptr;
 
 RenderingDeviceGL::RenderingDeviceGL(SDL_Window* window) : _window(window), _context(nullptr) {
 }
@@ -57,17 +58,10 @@ bool RenderingDeviceGL::init() {
         -0.5f, -0.5f, 0.0f   // Vertex 3 (X, Y)
     };
 
-    GLuint vao;
-    glGenVertexArrays(1, &vao);
-    glBindVertexArray(vao);
-
-    GLuint vbo;
-    glGenBuffers(1, &vbo);  // Generate 1 buffer
-    glBindBuffer(GL_ARRAY_BUFFER, vbo);
-    glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
-
-    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
-    glEnableVertexAttribArray(0);
+	Buffer::Params params;
+	params.data = vertices;
+	params.size = sizeof(vertices);
+	buffer = _bufferManager.createBuffer(params);
 
     return wasSuccess;
 }
@@ -93,7 +87,7 @@ void RenderingDeviceGL::postRender() {
     if (Program* program = _programManager.program(Programs::k_positionColor)) {
         program->bind();
     }
-    glDrawArrays(GL_TRIANGLES, 0, 3);
+	glDrawArrays(GL_TRIANGLES, 0, 3);
 
     ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
     SDL_GL_SwapWindow(_window);
@@ -105,5 +99,10 @@ Shader* RenderingDeviceGL::createShader(const std::string& name, Shader::Type ty
 
 Program* RenderingDeviceGL::createProgram(const std::string& name, const Shader& vertexShader, const Shader& fragmentShader) {
     return _programManager.createProgram(name, vertexShader, fragmentShader);
+}
+
+Buffer * RenderingDeviceGL::createBuffer(const Buffer::Params& params)
+{
+	return _bufferManager.createBuffer(params);
 }
 

@@ -4,15 +4,27 @@
 
 class Buffer {
 public:
-    enum class Type : uint8_t { Array, Indices };
-    enum class Usage : uint8_t { Stream, Static, Dynamic };
+	enum class DataLayout { Pos3 = 0 };
+    enum class Type { Array = 0, Indices };
+    enum class Usage { Static = 0, Stream, Dynamic };
 
-    Buffer(Type type, Usage usage) : _type(type), _usage(usage) {}
+	struct Params {
+		Buffer::DataLayout layout = Buffer::DataLayout::Pos3;
+		Buffer::Type type = Buffer::Type::Array;
+		Buffer::Usage usage = Buffer::Usage::Static;
+		void* data;
+		uint32_t size;
+	};
+
     virtual ~Buffer() = default;
 
-    virtual void updateData(void* data, uint32_t size) = 0;
+    virtual bool init(const Buffer::Params& params) = 0;
+	virtual bool updateData(void* data, uint32_t size) = 0;
+	virtual void bind() = 0;
+	virtual uint32_t id() const = 0;
 
 protected:
-    Type _type;
-    Usage _usage;
+	DataLayout _layout{DataLayout::Pos3};
+	Type _type{Type::Array};
+	Usage _usage{Usage::Static};
 };
