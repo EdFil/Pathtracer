@@ -13,6 +13,9 @@ set(CMAKE_CXX_STANDARD 11)
 set(CMAKE_INSTALL_MESSAGE LAZY)
 set(ENGINE_CMAKE_FOLDER ${CMAKE_CURRENT_SOURCE_DIR}/cmake)
 
+# Project Variables
+set(RESOURCES_DIR "${CMAKE_CURRENT_SOURCE_DIR}/res")
+
 # Dependencies
 add_subdirectory("libs/glad")
 add_subdirectory("libs/sdl2")
@@ -22,18 +25,35 @@ add_subdirectory("libs/imgui")
 set(SOURCE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/src")
 file(GLOB_RECURSE SOURCES "${SOURCE_DIR}/*.cpp" "${SOURCE_DIR}/*.hpp")
 
-add_executable(${PROJECT_NAME} ${SOURCES})
+# Glob all shader sources so that they also show in the IDEs
+set(SHADERS_DIR "${CMAKE_CURRENT_SOURCE_DIR}/res/shaders")
+file(GLOB_RECURSE SHADERS "${SHADERS_DIR}/*.frag" "${SHADERS_DIR}/*.vert")
+
+# Create our executable
+add_executable(${PROJECT_NAME} ${SOURCES} ${SHADERS})
 target_link_libraries(${PROJECT_NAME} glad SDL2::Core SDL2::Main imgui::imgui)
 target_include_directories(${PROJECT_NAME} PRIVATE ${SOURCE_DIR})
 
+# Warnings and project settings
 set_project_warnings(${PROJECT_NAME})
 enable_sanitizers(${PROJECT_NAME})
 set_property(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR} PROPERTY VS_STARTUP_PROJECT ${PROJECT_NAME})
+
+# Copy resources to build dir
+add_custom_command(
+  TARGET ${PROJECT_NAME} POST_BUILD
+  COMMAND ${CMAKE_COMMAND} -E copy_directory ${RESOURCES_DIR} "${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/res")
 
 # Source group generation for IDEs
 foreach(SOURCE IN ITEMS ${SOURCES})
   get_filename_component(SOURCE_PATH "${SOURCE}" PATH)
   file(RELATIVE_PATH SOURCE_PATH_REL "${SOURCE_DIR}/.." "${SOURCE_PATH}")
+  string(REPLACE "/" "\\" GROUP_PATH "${SOURCE_PATH_REL}")
+  source_group("${GROUP_PATH}" FILES "${SOURCE}")
+endforeach()
+foreach(SOURCE IN ITEMS ${SHADERS})
+  get_filename_component(SOURCE_PATH "${SOURCE}" PATH)
+  file(RELATIVE_PATH SOURCE_PATH_REL "${RESOURCES_DIR}/.." "${SOURCE_PATH}")
   string(REPLACE "/" "\\" GROUP_PATH "${SOURCE_PATH_REL}")
   source_group("${GROUP_PATH}" FILES "${SOURCE}")
 endforeach()

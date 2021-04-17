@@ -17,6 +17,6 @@ public:
     virtual ~ShaderManager() = default;
 
     virtual bool init() = 0;
-    virtual Shader* createShader(const std::string& name, Shader::Type type, const char* source) = 0;
+    virtual Shader* createShader(const std::string& name, Shader::Type type, const char* fileName) = 0;
     virtual Shader* shader(const std::string& name) const = 0;
 };

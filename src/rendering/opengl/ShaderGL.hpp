@@ -8,7 +8,7 @@ class ShaderGL : public Shader {
 public:
     ~ShaderGL();
 
-    bool init(Type type, const char* source) override;
+    bool init(Type type, const char* fileName) override;
     bool reload(const char* source) override;
 
 private:

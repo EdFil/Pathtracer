@@ -38,5 +38,7 @@ void Renderer::setRenderingAPI(rendering::API renderingAPI) {
             break;
     }
 
-    _renderingDevice->init();
+    if (!_renderingDevice->init()) {
+        _renderingDevice = nullptr;
+    }
 }

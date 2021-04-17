@@ -9,9 +9,11 @@
 #include "Scene.hpp"
 #include "Sphere.hpp"
 #include "Window.hpp"
+#include "file/FileManager.hpp"
 
 int main(int argc, char* argv[]) {
     Logger::init();
+    FileManager::init();
 
     SDL_LogSetAllPriority(SDL_LogPriority::SDL_LOG_PRIORITY_VERBOSE);
     if (SDL_Init(SDL_INIT_VIDEO | SDL_INIT_TIMER) != 0) {
@@ -51,6 +53,7 @@ int main(int argc, char* argv[]) {
         renderer.postRender();
     }
 
+    FileManager::destroy();
     Logger::destroy();
 
     return 0;

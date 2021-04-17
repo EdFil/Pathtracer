@@ -1,6 +1,7 @@
 #include "rendering/OpenGL/ShaderGL.hpp"
 
 #include "Logger.hpp"
+#include "file/FileManager.hpp"
 
 namespace {
 GLenum convertShaderType(Shader::Type type) {
@@ -22,7 +23,7 @@ ShaderGL::~ShaderGL() {
     }
 }
 
-bool ShaderGL::init(Type type, const char* source) {
+bool ShaderGL::init(Type type, const char* fileName) {
     GLenum shaderType = convertShaderType(type);
     GLuint handle = glCreateShader(shaderType);
     if (handle == 0) {
@@ -30,7 +31,9 @@ bool ShaderGL::init(Type type, const char* source) {
         return false;
     }
 
-    if (!compileShader(handle, source)) {
+    std::vector<char> fileData = FileManager::instance()->loadFile(fileName);
+    if (fileData.empty() || !compileShader(handle, fileData.data())) {
+        LOG_ERROR("[ShaderGL] Could not init shader \"%s\"", fileName);
         return false;
     }
 

@@ -12,7 +12,7 @@ public:
     ~ShaderManagerGL();
 
     bool init() override;
-    Shader* createShader(const std::string& name, Shader::Type type, const char* source) override;
+    Shader* createShader(const std::string& name, Shader::Type type, const char* fileName) override;
     Shader* shader(const std::string& name) const override;
 
 private:
