@@ -53,7 +53,7 @@ std::vector<char> FileManager::loadFile(const char fileName[]) const {
         std::rewind(fp);
 
         contents.resize(size + 1);
-        std::fread(contents.data(), size, size, fp);
+        std::fread(contents.data(), sizeof(char), size, fp);
         std::fclose(fp);
         contents[size] = '\0';
     } else {
