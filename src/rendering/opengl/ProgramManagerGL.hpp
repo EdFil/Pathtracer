@@ -13,7 +13,7 @@ public:
 
     bool init(const ShaderManager& shaderManager) override;
     Program* createProgram(const std::string& name, const Shader& vertexShader, const Shader& fragmentShader) override;
-    Program* program(const std::string& name) override;
+    Program* program(const std::string& name) const override;
 
 private:
     std::map<std::string, ProgramGL*> _programs;

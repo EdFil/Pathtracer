@@ -21,6 +21,7 @@ public:
     void postRender() override;
 
     Shader* createShader(const std::string& name, Shader::Type type, const char* source) override;
+    Program* getProgram(const std::string& name) const override;
     Program* createProgram(const std::string& name, const Shader& vertexShader, const Shader& fragmentShader) override;
     Buffer* createBuffer(const Buffer::Params& params) override;
 

@@ -3,6 +3,7 @@
 #include <memory>
 
 #include "rendering/Types.hpp"
+#include "base/Mesh.hpp"
 
 struct SDL_Window;
 class RenderingDevice;
@@ -13,6 +14,8 @@ public:
     ~Renderer();
 
     bool init(SDL_Window* window);
+
+    Mesh* createMesh(const Mesh::Params& params);
 
     void preRender();
     void postRender();

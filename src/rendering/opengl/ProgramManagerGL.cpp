@@ -16,7 +16,7 @@ bool ProgramManagerGL::init(const ShaderManager& shaderManager) {
     Shader* positionColorVertex = shaderManagerGL.shader(Shaders::Vertex::k_positionColor);
     Shader* positionColorFragment = shaderManagerGL.shader(Shaders::Fragment::k_positionColor);
     if (positionColorVertex != nullptr && positionColorFragment != nullptr) {
-        allCreated |= createProgram(Programs::k_positionColor, *positionColorVertex, *positionColorFragment) != nullptr;
+        allCreated |= createProgram(Program::k_positionColor, *positionColorVertex, *positionColorFragment) != nullptr;
     } else {
         allCreated = false;
     }
@@ -40,7 +40,7 @@ Program* ProgramManagerGL::createProgram(const std::string& name, const Shader& 
     return program;
 }
 
-Program* ProgramManagerGL::program(const std::string& name) {
+Program* ProgramManagerGL::program(const std::string& name) const {
     auto it = _programs.find(name);
     if (it != _programs.cend()) {
         return it->second;

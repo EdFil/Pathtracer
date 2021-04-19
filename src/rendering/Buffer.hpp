@@ -4,7 +4,7 @@
 
 class Buffer {
 public:
-	enum class DataLayout { Pos3 = 0 };
+	enum class DataLayout { Pos3 = 0, Pos3Norm3, Pos3Norm3Uv2 };
     enum class Type { Array = 0, Indices };
     enum class Usage { Static = 0, Stream, Dynamic };
 

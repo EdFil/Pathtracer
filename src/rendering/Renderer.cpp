@@ -21,6 +21,16 @@ bool Renderer::init(SDL_Window* window) {
     return _renderingDevice.get() != nullptr;
 }
 
+Mesh* Renderer::createMesh(const Mesh::Params& params) {
+    Mesh* mesh = new Mesh();
+    if (!mesh->init(*_renderingDevice, params)) {
+        delete mesh;
+        return nullptr;
+    }
+
+    return mesh;
+}
+
 void Renderer::preRender() {
     _renderingDevice->preRender();
 }

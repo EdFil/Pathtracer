@@ -4,6 +4,8 @@ class Shader;
 
 class Program {
 public:
+    static const char* k_positionColor;
+
     virtual ~Program() = default;
 
     virtual bool init(const Shader& vertexShader, const Shader& fragmentShader) = 0;
