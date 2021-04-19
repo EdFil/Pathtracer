@@ -2,10 +2,10 @@
 
 #include "rendering/RenderingDevice.hpp"
 
+#include "rendering/opengl/BufferManagerGL.hpp"
+#include "rendering/opengl/ProgramManagerGL.hpp"
 #include "rendering/opengl/RenderingDeviceInfoGL.hpp"
 #include "rendering/opengl/ShaderManagerGL.hpp"
-#include "rendering/opengl/ProgramManagerGL.hpp"
-#include "rendering/opengl/BufferManagerGL.hpp"
 
 struct SDL_Window;
 struct SDL_Renderer;
@@ -22,7 +22,7 @@ public:
 
     Shader* createShader(const std::string& name, Shader::Type type, const char* source) override;
     Program* createProgram(const std::string& name, const Shader& vertexShader, const Shader& fragmentShader) override;
-	Buffer* createBuffer(const Buffer::Params& params) override;
+    Buffer* createBuffer(const Buffer::Params& params) override;
 
     RenderingDeviceInfo* deviceInfo() override { return &_renderingDeviceInfo; }
     ShaderManager* shaderManager() override { return &_shaderManager; }
@@ -33,5 +33,5 @@ private:
     RenderingDeviceInfoGL _renderingDeviceInfo;
     ShaderManagerGL _shaderManager;
     ProgramManagerGL _programManager;
-	BufferManagerGL _bufferManager;
+    BufferManagerGL _bufferManager;
 };

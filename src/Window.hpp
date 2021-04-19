@@ -1,7 +1,7 @@
 #pragma once
 
-#include "Vec2i.hpp"
 #include "EventDispatcher.hpp"
+#include "Vec2i.hpp"
 
 class Window;
 struct SDL_Window;

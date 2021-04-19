@@ -11,7 +11,7 @@ ProgramManagerGL::~ProgramManagerGL() {
 
 bool ProgramManagerGL::init(const ShaderManager& shaderManager) {
     const ShaderManagerGL& shaderManagerGL = (const ShaderManagerGL&)shaderManager;
-    
+
     bool allCreated = true;
     Shader* positionColorVertex = shaderManagerGL.shader(Shaders::Vertex::k_positionColor);
     Shader* positionColorFragment = shaderManagerGL.shader(Shaders::Fragment::k_positionColor);

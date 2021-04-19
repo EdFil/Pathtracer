@@ -58,10 +58,10 @@ bool RenderingDeviceGL::init() {
         -0.5f, -0.5f, 0.0f   // Vertex 3 (X, Y)
     };
 
-	Buffer::Params params;
-	params.data = vertices;
-	params.size = sizeof(vertices);
-	buffer = _bufferManager.createBuffer(params);
+    Buffer::Params params;
+    params.data = vertices;
+    params.size = sizeof(vertices);
+    buffer = _bufferManager.createBuffer(params);
 
     return wasSuccess;
 }
@@ -87,7 +87,7 @@ void RenderingDeviceGL::postRender() {
     if (Program* program = _programManager.program(Programs::k_positionColor)) {
         program->bind();
     }
-	glDrawArrays(GL_TRIANGLES, 0, 3);
+    glDrawArrays(GL_TRIANGLES, 0, 3);
 
     ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
     SDL_GL_SwapWindow(_window);
@@ -101,8 +101,6 @@ Program* RenderingDeviceGL::createProgram(const std::string& name, const Shader&
     return _programManager.createProgram(name, vertexShader, fragmentShader);
 }
 
-Buffer * RenderingDeviceGL::createBuffer(const Buffer::Params& params)
-{
-	return _bufferManager.createBuffer(params);
+Buffer* RenderingDeviceGL::createBuffer(const Buffer::Params& params) {
+    return _bufferManager.createBuffer(params);
 }
-

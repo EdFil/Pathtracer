@@ -6,4 +6,4 @@ enum class API { Invalid, OpenGL };
 
 enum class ShaderType { Vertex, Fragment };
 
-}  // namespace renderer
+}  // namespace rendering

@@ -27,6 +27,6 @@ const char* RenderingDeviceInfoGL::version() const {
 }
 
 void RenderingDeviceInfoGL::printInfo() const {
-    LOG("API: OpenGL\nMax Vertex Attributes: %d\nMax Texture Size: %d\nVendor: %s\nRenderer: %s\nVersion: %s",
-        _maxVertexAttributes, _maxTextureSize, vendor(), renderer(), version());
+    LOG("API: OpenGL\nMax Vertex Attributes: %d\nMax Texture Size: %d\nVendor: %s\nRenderer: %s\nVersion: %s", _maxVertexAttributes, _maxTextureSize, vendor(),
+        renderer(), version());
 }

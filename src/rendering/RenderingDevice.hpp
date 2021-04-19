@@ -2,8 +2,8 @@
 
 #include <string>
 
-#include "rendering/Shader.hpp"
 #include "rendering/Buffer.hpp"
+#include "rendering/Shader.hpp"
 
 class RenderingDeviceInfo;
 class ShaderManager;
@@ -17,7 +17,7 @@ public:
 
     virtual Shader* createShader(const std::string& name, Shader::Type type, const char* source) = 0;
     virtual Program* createProgram(const std::string& name, const Shader& vertexShader, const Shader& fragmentShader) = 0;
-	virtual Buffer* createBuffer(const Buffer::Params& params) = 0;
+    virtual Buffer* createBuffer(const Buffer::Params& params) = 0;
 
     virtual RenderingDeviceInfo* deviceInfo() = 0;
     virtual ShaderManager* shaderManager() = 0;

@@ -5,6 +5,5 @@ class Program;
 
 class Sprite {
 public:
-
 private:
 };

@@ -9,7 +9,7 @@ namespace {
 const int k_maxSizeLogMessage = 4096;
 const char k_loggerFileName[] = "log.txt";
 Logger* s_instance = nullptr;
-}
+}  // namespace
 
 bool Logger::init() {
     destroy();
@@ -38,8 +38,7 @@ void Logger::log(const char* fileName, int lineNumber, const char* format, ...) 
     va_end(args);
 
     usedBytes += 2;
-    if (usedBytes > sizeof(buffer))
-        usedBytes = sizeof(buffer) - 2;
+    if (usedBytes > sizeof(buffer)) usedBytes = sizeof(buffer) - 2;
 
     buffer[usedBytes - 2] = '\n';
     buffer[usedBytes - 1] = '\0';

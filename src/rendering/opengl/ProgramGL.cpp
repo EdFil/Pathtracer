@@ -30,7 +30,7 @@ bool ProgramGL::init(const Shader& vertexShader, const Shader& fragmentShader) {
         LOG_ERROR("GL ERROR: %d", value);
         value = glGetError();
     };
-    
+
     if (!linkProgram(handle)) {
         return false;
     }
@@ -66,7 +66,7 @@ void ProgramGL::bind() const {
 
 bool ProgramGL::linkProgram(unsigned int handle) {
     glLinkProgram(handle);
-    
+
     GLint status = 0;
     glGetProgramiv(handle, GL_LINK_STATUS, &status);
     if (status == GL_FALSE) {
@@ -80,5 +80,4 @@ bool ProgramGL::linkProgram(unsigned int handle) {
 }
 
 void ProgramGL::deleteProgram() {
-
 }
