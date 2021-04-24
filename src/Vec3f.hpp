@@ -129,7 +129,7 @@ public:
 
     float length_squared() const { return x * x + y * y + z * z; }
 
-    float length() const { return std::sqrtf(length_squared()); }
+    float length() const { return sqrtf(length_squared()); }
 
     void normalize() {
         float len = length();

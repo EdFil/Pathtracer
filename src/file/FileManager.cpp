@@ -36,7 +36,7 @@ FileManager* FileManager::instance() {
 FileManager::FileManager() {
     char* basePath = SDL_GetBasePath();
     if (basePath != nullptr) {
-        _rootDir.assign(basePath);
+        _rootDir.assign(std::string(basePath) + "../../");
         SDL_free(basePath);
     }
 }

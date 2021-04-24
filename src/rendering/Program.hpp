@@ -4,7 +4,9 @@ class Shader;
 
 class Program {
 public:
-    static const char* k_positionColor;
+    static const char* k_position;
+    static const char* k_positionTexture;
+    static const char* k_positionNormalTexture;
 
     virtual ~Program() = default;
 

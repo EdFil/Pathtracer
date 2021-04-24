@@ -11,7 +11,7 @@ add_library(glad STATIC "include/glad/glad.h" "src/glad.c")
 target_include_directories(glad PUBLIC "include")
 
 target_link_libraries(glad 
-    PUBLIC ${OPENGL_LIBRARIES}
+    PUBLIC ${OPENGL_LIBRARIES} ${CMAKE_DL_LIBS}
 )
 
 # Print Glad version

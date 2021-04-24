@@ -5,6 +5,8 @@
 
 class Program;
 class ProgramGL;
+class ShaderManager;
+class ShaderManagerGL;
 class Shader;
 
 class ProgramManagerGL : public ProgramManager {
@@ -17,4 +19,6 @@ public:
 
 private:
     std::map<std::string, ProgramGL*> _programs;
+
+    bool createProgram(const ShaderManagerGL& shaderManager, const char* programName, const char* vertexName, const char* fragmentName);
 };

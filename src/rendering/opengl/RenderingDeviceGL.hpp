@@ -10,6 +10,7 @@
 struct SDL_Window;
 struct SDL_Renderer;
 typedef void* SDL_GLContext;
+class Mesh;
 
 class RenderingDeviceGL : public RenderingDevice {
 public:
@@ -17,20 +18,24 @@ public:
     ~RenderingDeviceGL();
 
     bool init() override;
-    void preRender() override;
+    void preRender(Camera* camera) override;
     void postRender() override;
 
     Shader* createShader(const std::string& name, Shader::Type type, const char* source) override;
     Program* getProgram(const std::string& name) const override;
     Program* createProgram(const std::string& name, const Shader& vertexShader, const Shader& fragmentShader) override;
     Buffer* createBuffer(const Buffer::Params& params) override;
+    Texture* createTexture(const char* filePath, const Texture::Params& params) override;
+
+    void render(Mesh* mesh, Program* program) override;
 
     RenderingDeviceInfo* deviceInfo() override { return &_renderingDeviceInfo; }
     ShaderManager* shaderManager() override { return &_shaderManager; }
 
 private:
-    SDL_Window* _window;
+    SDL_Window* _window = nullptr;
     SDL_GLContext _context;
+    BufferGL* _cameraBuffer = nullptr;
     RenderingDeviceInfoGL _renderingDeviceInfo;
     ShaderManagerGL _shaderManager;
     ProgramManagerGL _programManager;

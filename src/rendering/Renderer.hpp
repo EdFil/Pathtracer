@@ -2,20 +2,24 @@
 
 #include <memory>
 
-#include "rendering/Types.hpp"
 #include "base/Mesh.hpp"
+#include "rendering/Types.hpp"
 
 struct SDL_Window;
 class RenderingDevice;
+class Camera;
+class Program;
 
 class Renderer {
 public:
     Renderer();
     ~Renderer();
 
-    bool init(SDL_Window* window);
+    bool init(SDL_Window* window, Camera* _camera);
 
     Mesh* createMesh(const Mesh::Params& params);
+
+    void render(Mesh* mesh, Program* program);
 
     void preRender();
     void postRender();
@@ -24,6 +28,7 @@ public:
     void setRenderingAPI(rendering::API renderingAPI);
 
 private:
+    Camera* _camera;
     SDL_Window* _sdlWindow;
     std::unique_ptr<RenderingDevice> _renderingDevice;
 };

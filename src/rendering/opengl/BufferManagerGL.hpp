@@ -2,7 +2,7 @@
 
 #include <map>
 
-#include "rendering\opengl\BufferGL.hpp"
+#include "rendering/opengl/BufferGL.hpp"
 
 class BufferManagerGL {
 public:

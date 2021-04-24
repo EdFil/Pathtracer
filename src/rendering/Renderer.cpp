@@ -1,17 +1,22 @@
 #include "rendering/Renderer.hpp"
 
 #include "Logger.hpp"
-
+#include "rendering/opengl/RenderingDeviceGL.hpp"
 #include "rendering/Types.hpp"
-#include "rendering/OpenGL/RenderingDeviceGL.hpp"
 
 Renderer::Renderer() = default;
 Renderer::~Renderer() = default;
 
-bool Renderer::init(SDL_Window* window) {
+bool Renderer::init(SDL_Window* window, Camera* camera) {
     _sdlWindow = window;
     if (_sdlWindow == nullptr) {
         LOG_ERROR("[Renderer] Cannot initialize a renderer with an invalid window reference");
+        return false;
+    }
+
+    _camera = camera;
+    if (_camera == nullptr) {
+        LOG_ERROR("[Renderer] Cannot initialize a renderer with an invalid camera reference");
         return false;
     }
 
@@ -31,8 +36,12 @@ Mesh* Renderer::createMesh(const Mesh::Params& params) {
     return mesh;
 }
 
+void Renderer::render(Mesh* mesh, Program* program) {
+    _renderingDevice->render(mesh, program);
+}
+
 void Renderer::preRender() {
-    _renderingDevice->preRender();
+    _renderingDevice->preRender(_camera);
 }
 
 void Renderer::postRender() {

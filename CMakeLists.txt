@@ -9,7 +9,7 @@ include(cmake/StaticAnalyzers.cmake)
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY_DEBUG ${CMAKE_BINARY_DIR}/bin)
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY_RELEASE ${CMAKE_BINARY_DIR}/bin)
-set(CMAKE_CXX_STANDARD 11)
+set(CMAKE_CXX_STANDARD 14)
 set(CMAKE_INSTALL_MESSAGE LAZY)
 set(ENGINE_CMAKE_FOLDER ${CMAKE_CURRENT_SOURCE_DIR}/cmake)
 
@@ -20,10 +20,14 @@ set(RESOURCES_DIR "${CMAKE_CURRENT_SOURCE_DIR}/res")
 add_subdirectory("libs/glad")
 add_subdirectory("libs/sdl2")
 add_subdirectory("libs/imgui")
+add_subdirectory("libs/stb")
+set(BUILD_STATIC_LIBS TRUE)
+add_subdirectory("libs/glm")
 
 # Get lazy and glob all sources
 set(SOURCE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/src")
 file(GLOB_RECURSE SOURCES "${SOURCE_DIR}/*.cpp" "${SOURCE_DIR}/*.hpp")
+list(APPEND SOURCES "${CMAKE_CURRENT_SOURCE_DIR}/Pathtracer.natvis")
 
 # Glob all shader sources so that they also show in the IDEs
 set(SHADERS_DIR "${CMAKE_CURRENT_SOURCE_DIR}/res/shaders")
@@ -31,7 +35,7 @@ file(GLOB_RECURSE SHADERS "${SHADERS_DIR}/*.frag" "${SHADERS_DIR}/*.vert")
 
 # Create our executable
 add_executable(${PROJECT_NAME} ${SOURCES} ${SHADERS})
-target_link_libraries(${PROJECT_NAME} glad SDL2::Core SDL2::Main imgui::imgui)
+target_link_libraries(${PROJECT_NAME} glad SDL2::Core SDL2::Main imgui::imgui stb::stb glm::glm_static)
 target_include_directories(${PROJECT_NAME} PRIVATE ${SOURCE_DIR})
 
 # Warnings and project settings

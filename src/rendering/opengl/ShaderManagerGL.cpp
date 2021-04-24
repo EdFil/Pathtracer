@@ -1,8 +1,8 @@
-#include "rendering/OpenGL/ShaderManagerGL.hpp"
+#include "rendering/opengl/ShaderManagerGL.hpp"
 
 #include <fstream>
 
-#include "rendering/OpenGL/ShaderGL.hpp"
+#include "rendering/opengl/ShaderGL.hpp"
 
 ShaderManagerGL::~ShaderManagerGL() {
     for (auto& keyValuePair : _shaders) {
@@ -11,8 +11,12 @@ ShaderManagerGL::~ShaderManagerGL() {
 }
 
 bool ShaderManagerGL::init() {
-    bool allCreated = createShader(Shaders::Vertex::k_positionColor, Shader::Type::Vertex, "shaders/opengl/pos3.vert") != nullptr;
-    allCreated |= createShader(Shaders::Fragment::k_positionColor, Shader::Type::Fragment, "shaders/opengl/pos3.frag") != nullptr;
+    bool allCreated = createShader(Shaders::Vertex::k_position, Shader::Type::Vertex, "shaders/opengl/pos3.vert") != nullptr;
+    allCreated |= createShader(Shaders::Fragment::k_position, Shader::Type::Fragment, "shaders/opengl/pos3.frag") != nullptr;
+    allCreated |= createShader(Shaders::Vertex::k_positionTexture, Shader::Type::Vertex, "shaders/opengl/pos3uv2.vert") != nullptr;
+    allCreated |= createShader(Shaders::Fragment::k_positionTexture, Shader::Type::Fragment, "shaders/opengl/pos3uv2.frag") != nullptr;
+    allCreated |= createShader(Shaders::Vertex::k_positionNormalTexture, Shader::Type::Vertex, "shaders/opengl/pos3norm3uv2.vert") != nullptr;
+    allCreated |= createShader(Shaders::Fragment::k_positionNormalTexture, Shader::Type::Fragment, "shaders/opengl/pos3norm3uv2.frag") != nullptr;
 
     return allCreated;
 }

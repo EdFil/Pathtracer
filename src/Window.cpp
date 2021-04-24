@@ -33,7 +33,6 @@ bool Window::init(const WindowParams& params) {
 
 void Window::onSDLEvent(const SDL_WindowEvent& event) {
     SDL_WindowEventID windowEventID = (SDL_WindowEventID)event.event;
-    LOG("[Window::onSDLEvent] %s", stringifyWindowEventID(windowEventID));
 
     switch (windowEventID) {
         case SDL_WINDOWEVENT_RESIZED: {

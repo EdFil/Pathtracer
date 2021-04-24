@@ -5,10 +5,14 @@
 
 namespace Shaders {
 namespace Vertex {
-    extern const char* k_positionColor;
+    extern const char* k_position;
+    extern const char* k_positionTexture;
+    extern const char* k_positionNormalTexture;
 }
 namespace Fragment {
-    extern const char* k_positionColor;
+    extern const char* k_position;
+    extern const char* k_positionTexture;
+    extern const char* k_positionNormalTexture;
 }
 }  // namespace Shaders
 

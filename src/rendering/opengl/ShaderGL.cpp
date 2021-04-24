@@ -1,4 +1,4 @@
-#include "rendering/OpenGL/ShaderGL.hpp"
+#include "rendering/opengl/ShaderGL.hpp"
 
 #include "Logger.hpp"
 #include "file/FileManager.hpp"

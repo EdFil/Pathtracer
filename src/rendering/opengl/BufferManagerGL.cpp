@@ -1,4 +1,4 @@
-#include "rendering\opengl\BufferManagerGL.hpp"
+#include "rendering/opengl/BufferManagerGL.hpp"
 
 Buffer* BufferManagerGL::createBuffer(const Buffer::Params& params) {
     BufferGL* buffer = new BufferGL();

@@ -13,14 +13,10 @@ bool ProgramManagerGL::init(const ShaderManager& shaderManager) {
     const ShaderManagerGL& shaderManagerGL = (const ShaderManagerGL&)shaderManager;
 
     bool allCreated = true;
-    Shader* positionColorVertex = shaderManagerGL.shader(Shaders::Vertex::k_positionColor);
-    Shader* positionColorFragment = shaderManagerGL.shader(Shaders::Fragment::k_positionColor);
-    if (positionColorVertex != nullptr && positionColorFragment != nullptr) {
-        allCreated |= createProgram(Program::k_positionColor, *positionColorVertex, *positionColorFragment) != nullptr;
-    } else {
-        allCreated = false;
-    }
-
+    allCreated |= createProgram(shaderManagerGL, Program::k_position, Shaders::Vertex::k_position, Shaders::Fragment::k_position);
+    allCreated |= createProgram(shaderManagerGL, Program::k_positionTexture, Shaders::Vertex::k_positionTexture, Shaders::Fragment::k_positionTexture);
+    allCreated |= createProgram(shaderManagerGL, Program::k_positionNormalTexture, Shaders::Vertex::k_positionNormalTexture, Shaders::Fragment::k_positionNormalTexture);
+    
     return allCreated;
 }
 
@@ -47,4 +43,14 @@ Program* ProgramManagerGL::program(const std::string& name) const {
     }
 
     return nullptr;
+}
+
+bool ProgramManagerGL::createProgram(const ShaderManagerGL& shaderManager, const char* programName, const char* vertexName, const char* fragmentName) {
+    Shader* vertexShader = shaderManager.shader(vertexName);
+    Shader* fragmentShader = shaderManager.shader(fragmentName);
+    
+    if (vertexShader != nullptr && fragmentShader != nullptr) {
+        return createProgram(programName, *vertexShader, *fragmentShader) != nullptr;
+    }
+    return false;
 }

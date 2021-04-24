@@ -43,7 +43,7 @@ void Logger::log(const char* fileName, int lineNumber, const char* format, ...) 
     buffer[usedBytes - 2] = '\n';
     buffer[usedBytes - 1] = '\0';
 
-    printf(buffer);
+    printf("%s", buffer);
     s_instance->_logFile.write(buffer, usedBytes - 1);
     s_instance->_logFile.flush();
 }

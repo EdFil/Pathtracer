@@ -1,9 +1,26 @@
 #include "base/Mesh.hpp"
 
 #include <vector>
+#include <cstring>
 
 #include "Logger.hpp"
 #include "rendering/RenderingDevice.hpp"
+
+namespace {
+	void packData(std::vector<float>& vec, const VectorView<float>& data, size_t& index) {
+		if (!data.empty()) {
+			memcpy(vec.data() + index, data.cbegin(), sizeof(float) * data.size());
+			index += data.size();
+		}
+	}
+
+	void setAttribute(Buffer* buffer, VectorView<float> data, unsigned int size, unsigned int& attribute, unsigned int& dataBegin) {
+		if (!data.empty()) {
+			buffer->updateAttribute(attribute++, size, 0, dataBegin);
+			dataBegin += data.size();
+		}
+	}
+}
 
 bool Mesh::init(RenderingDevice& renderingDevice, const Mesh::Params& params) {
     if (params.vertices.empty()) {
@@ -12,35 +29,31 @@ bool Mesh::init(RenderingDevice& renderingDevice, const Mesh::Params& params) {
     }
 
     Buffer::Params bufferParams;
+
     std::vector<float> unifiedData;
-    if (!params.normals.empty() && !params.uvs.empty()) {
-        bufferParams.layout = Buffer::DataLayout::Pos3Norm3Uv2;
-        unifiedData.resize(params.vertices.size() + params.normals.size() + params.uvs.size());
-        for (size_t vertexIndex = 0, uvIndex = 0; vertexIndex < params.vertices.size() && uvIndex < params.uvs.size(); vertexIndex += 3, uvIndex += 2) {
-            memcpy(unifiedData.data() + vertexIndex, params.vertices.cbegin() + vertexIndex, sizeof(float) * 3);
-            memcpy(unifiedData.data() + vertexIndex, params.normals.cbegin() + vertexIndex, sizeof(float) * 3);
-            memcpy(unifiedData.data() + vertexIndex, params.uvs.cbegin() + vertexIndex, sizeof(float) * 2);
-        }
+	size_t currentIndex = 0;
+	unifiedData.resize(params.vertices.size() + params.normals.size() + params.uvs.size());
+	packData(unifiedData, params.vertices, currentIndex);
+	packData(unifiedData, params.normals, currentIndex);
+	packData(unifiedData, params.uvs, currentIndex);
 
-    } else if (!params.normals.empty()) {
-        bufferParams.layout = Buffer::DataLayout::Pos3Norm3;
-        unifiedData.resize(params.vertices.size() + params.normals.size());
-        for (size_t vertexIndex = 0; vertexIndex < params.vertices.size(); vertexIndex += 3) {
-            memcpy(unifiedData.data() + vertexIndex, params.vertices.cbegin() + vertexIndex, sizeof(float) * 3);
-            memcpy(unifiedData.data() + vertexIndex, params.normals.cbegin() + vertexIndex, sizeof(float) * 3);
-        }
-    } else {
-        unifiedData.resize(params.vertices.size());
-        memcpy(unifiedData.data(), params.vertices.cbegin(), sizeof(float) * params.vertices.size());
-    }
-
-    bufferParams.data = unifiedData.data();
-    bufferParams.size = unifiedData.size() * sizeof(float);
     _buffer = renderingDevice.createBuffer(bufferParams);
     if (_buffer == nullptr) {
         LOG_ERROR("[Mesh] init: Rendering buffer creation failed");
         return false;
     }
+
+	if (!_buffer->updateData(unifiedData.data(), unifiedData.size() * sizeof(float))) {
+		LOG_ERROR("[Mesh] init: Could not set vertex data to GPU");
+		return false;
+	}
+
+	_count = params.vertices.size() / 3;
+	unsigned int attribute = 0;
+	unsigned int dataBegin = 0;
+	setAttribute(_buffer, params.vertices, 3, attribute, dataBegin);
+	setAttribute(_buffer, params.normals, 3, attribute, dataBegin);
+	setAttribute(_buffer, params.uvs, 2, attribute, dataBegin);
 
     return true;
 }

@@ -1,4 +1,4 @@
-#include "rendering/OpenGL/ProgramGL.hpp"
+#include "rendering/opengl/ProgramGL.hpp"
 
 #include <glad/glad.h>
 #include <cassert>
@@ -38,6 +38,7 @@ bool ProgramGL::init(const Shader& vertexShader, const Shader& fragmentShader) {
     _handle = handle;
     _vertexShader = &vertexShader;
     _fragmentShader = &fragmentShader;
+
     return true;
 }
 

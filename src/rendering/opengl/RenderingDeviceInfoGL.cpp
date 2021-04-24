@@ -1,4 +1,4 @@
-#include "rendering/OpenGL/RenderingDeviceInfoGL.hpp"
+#include "rendering/opengl/RenderingDeviceInfoGL.hpp"
 
 #include <glad/glad.h>
 

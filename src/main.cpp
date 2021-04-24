@@ -3,15 +3,17 @@
 
 #include <backends/imgui_impl_sdl.h>
 #include <imgui.h>
+#include "Camera.hpp"
 #include "Color.hpp"
 #include "Logger.hpp"
 #include "Scene.hpp"
 #include "Sphere.hpp"
 #include "Window.hpp"
 #include "file/FileManager.hpp"
+#include "rendering/Program.hpp"
 #include "rendering/Renderer.hpp"
 #include "rendering/RenderingDevice.hpp"
-#include "rendering/Program.hpp"
+#include "rendering/Texture.hpp"
 
 #include "glad/glad.h"
 
@@ -22,24 +24,51 @@ int main(int argc, char* argv[]) {
     SDL_LogSetAllPriority(SDL_LogPriority::SDL_LOG_PRIORITY_VERBOSE);
     if (SDL_Init(SDL_INIT_VIDEO | SDL_INIT_TIMER) != 0) {
         LOG_ERROR("[SDL] Could not initialize! SDL_Error: %s", SDL_GetError());
-        return false;
+        return -1;
     }
 
     Window window;
     Renderer renderer;
+    Camera camera;
     Scene scene(renderer);
+
     Sphere sphere(Vec3f(0.0f, 0.0f, 0.0f), 1.0f);
 
-    bool isRunning = window.init() && renderer.init(window.window()) && scene.init();
+    bool isRunning = window.init() && renderer.init(window.window(), &camera) && scene.init();
+
+    Texture* texture = renderer.renderingDevice()->createTexture("textures/sample.jpg", {});
 
     std::vector<float> vertices{
-        0.0f,  0.5f,  0.0f,  // Vertex 1 (X, Y)
-        0.5f,  -0.5f, 0.0f,  // Vertex 2 (X, Y)
-        -0.5f, -0.5f, 0.0f   // Vertex 3 (X, Y)
+        -0.5f, 0.5f,  0.0f, //
+        -0.5f, -0.5f, 0.0f, //
+        0.5f,  -0.5f, 0.0f, //
+        0.5f,  0.5f,  0.0f, //
+        -0.5f, 0.5f,  0.0f, //
+        0.5f,  -0.5f, 0.0f  //
+    };
+
+    std::vector<float> normals{
+        0.0f, 0.0f, 1.0f, //
+        0.0f, 0.0f, 1.0f, //
+        0.0f, 0.0f, 1.0f, //
+        0.0f, 0.0f, 1.0f, //
+        0.0f, 0.0f, 1.0f, //
+        0.0f, 0.0f, 1.0f  //
+    };
+
+    std::vector<float> uvs{
+         0.0f, 1.0f,  //
+         0.0f, 0.0f,  //
+         1.0f, 0.0f,  //
+        1.0f, 1.0f,  //
+        0.0f, 1.0f,  //
+        1.0f, 0.0f   //
     };
 
     Mesh::Params meshParams;
     meshParams.vertices = VectorView<float>(vertices.data(), vertices.size());
+    meshParams.normals = VectorView<float>(normals.data(), normals.size());
+    meshParams.uvs = VectorView<float>(uvs.data(), uvs.size());
     Mesh* mesh = renderer.createMesh(meshParams);
 
     while (isRunning) {
@@ -62,12 +91,12 @@ int main(int argc, char* argv[]) {
 
         renderer.preRender();
         ImGui::ShowDemoWindow();
-        
+
         // <Hacky stuff to test the mesh class>
-        if (Program* program = renderer.renderingDevice()->getProgram(Program::k_positionColor)) {
-            program->bind();
+        if (Program* program = renderer.renderingDevice()->getProgram(Program::k_positionNormalTexture)) {
+            texture->bind();
+            renderer.render(mesh, program);
         }
-        glDrawArrays(GL_TRIANGLES, 0, 9);
         // </Hacky stuff to test the mesh class>
 
         scene.draw();

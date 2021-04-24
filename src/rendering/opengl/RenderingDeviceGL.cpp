@@ -1,4 +1,4 @@
-#include "rendering/OpenGL/RenderingDeviceGL.hpp"
+#include "rendering/opengl/RenderingDeviceGL.hpp"
 
 #include <SDL_render.h>
 #include <backends/imgui_impl_opengl3.h>
@@ -6,16 +6,18 @@
 #include <glad/glad.h>
 
 #include "Logger.hpp"
+#include "rendering/opengl/BufferGL.hpp"
 #include "rendering/opengl/ProgramGL.hpp"
 #include "rendering/opengl/RenderingDeviceInfoGL.hpp"
 #include "rendering/opengl/ShaderGL.hpp"
 #include "rendering/opengl/ShaderManagerGL.hpp"
+#include "rendering/opengl/TextureGL.hpp"
 
-#include "rendering/opengl/BufferGL.hpp"
+#include "base/Mesh.hpp"
 
 #include "SDL_video.h"
 
-RenderingDeviceGL::RenderingDeviceGL(SDL_Window* window) : _window(window), _context(nullptr) {
+RenderingDeviceGL::RenderingDeviceGL(SDL_Window* window) : _window(window) {
 }
 
 bool RenderingDeviceGL::init() {
@@ -36,7 +38,10 @@ bool RenderingDeviceGL::init() {
     _renderingDeviceInfo.printInfo();
     wasSuccess &= _shaderManager.init();
     wasSuccess &= _programManager.init(_shaderManager);
-    if (!wasSuccess) return false;
+    if (!wasSuccess) {
+        LOG_ERROR("Initial manager initalization failed");
+        return false;
+    }
 
     // Setup Dear ImGui context
     IMGUI_CHECKVERSION();
@@ -45,11 +50,19 @@ bool RenderingDeviceGL::init() {
     ImGui_ImplSDL2_InitForOpenGL(_window, _context);
     ImGui_ImplOpenGL3_Init();
 
+    Buffer::Params params;
+    params.type = Buffer::Type::Constant;
+    _cameraBuffer = (BufferGL*)createBuffer(params);
+    if (_cameraBuffer == nullptr) {
+        LOG_ERROR("Could not create camera buffer");
+        return false;
+    }
+
     int width, height;
     SDL_GetWindowSize(_window, &width, &height);
     glViewport(0, 0, width, height);
 
-    return wasSuccess;
+    return true;
 }
 
 RenderingDeviceGL::~RenderingDeviceGL() {
@@ -60,7 +73,7 @@ RenderingDeviceGL::~RenderingDeviceGL() {
     SDL_GL_DeleteContext(_context);
 }
 
-void RenderingDeviceGL::preRender() {
+void RenderingDeviceGL::preRender(Camera* camera) {
     ImGui_ImplOpenGL3_NewFrame();
     ImGui_ImplSDL2_NewFrame(_window);
     ImGui::NewFrame();
@@ -88,4 +101,21 @@ Program* RenderingDeviceGL::createProgram(const std::string& name, const Shader&
 
 Buffer* RenderingDeviceGL::createBuffer(const Buffer::Params& params) {
     return _bufferManager.createBuffer(params);
+}
+
+Texture* RenderingDeviceGL::createTexture(const char* filePath, const Texture::Params& params) {
+    TextureGL* texture = new TextureGL();
+    if (!texture->init(filePath, params)) {
+        delete texture;
+        return nullptr;
+    }
+
+    return texture;
+}
+
+void RenderingDeviceGL::render(Mesh* mesh, Program* program) {
+    ((BufferGL*)mesh->buffer())->bind();
+    ((ProgramGL*)program)->bind();
+
+    glDrawArrays(GL_TRIANGLES, 0, mesh->count());
 }
