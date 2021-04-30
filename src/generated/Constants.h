@@ -1,5 +1,5 @@
 #pragma once
 
 namespace Constants {
-    extern char* ResourcesDir;
+    extern char ResourcesDir[];
 }
