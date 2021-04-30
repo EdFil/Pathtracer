@@ -15,6 +15,7 @@ set(ENGINE_CMAKE_FOLDER ${CMAKE_CURRENT_SOURCE_DIR}/cmake)
 
 # Project Variables
 set(RESOURCES_DIR "${CMAKE_CURRENT_SOURCE_DIR}/res")
+set(SOURCE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/src")
 
 # Dependencies
 add_subdirectory("libs/glad")
@@ -24,8 +25,10 @@ add_subdirectory("libs/stb")
 set(BUILD_STATIC_LIBS TRUE)
 add_subdirectory("libs/glm")
 
+# Generate constants file
+configure_file(${SOURCE_DIR}/generated/Constants.cpp.in ${SOURCE_DIR}/generated/Constants.cpp)
+
 # Get lazy and glob all sources
-set(SOURCE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/src")
 file(GLOB_RECURSE SOURCES "${SOURCE_DIR}/*.cpp" "${SOURCE_DIR}/*.hpp")
 list(APPEND SOURCES "${CMAKE_CURRENT_SOURCE_DIR}/Pathtracer.natvis")
 
@@ -34,7 +37,7 @@ set(SHADERS_DIR "${CMAKE_CURRENT_SOURCE_DIR}/res/shaders")
 file(GLOB_RECURSE SHADERS "${SHADERS_DIR}/*.frag" "${SHADERS_DIR}/*.vert")
 
 # Create our executable
-add_executable(${PROJECT_NAME} ${SOURCES} ${SHADERS})
+add_executable(${PROJECT_NAME} ${SOURCES} ${SHADERS} src/generated/Constants.cpp.in)
 target_link_libraries(${PROJECT_NAME} glad SDL2::Core SDL2::Main imgui::imgui stb::stb glm::glm_static)
 target_include_directories(${PROJECT_NAME} PRIVATE ${SOURCE_DIR})
 

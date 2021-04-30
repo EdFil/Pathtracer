@@ -1,0 +1,3 @@
+#include "generated/Constants.h"
+
+char* Constants::ResourcesDir = "@RESOURCES_DIR@";

@@ -1,12 +1,10 @@
 #include "FileManager.hpp"
 
 #include <SDL_filesystem.h>
-#include <sys/stat.h>
-#include <fstream>
 
 #include "Logger.hpp"
+#include "generated/Constants.h"
 
-#define RESOURCES_FOLDER "res"
 #define MAX_PATH 512
 
 #ifdef _WIN32
@@ -35,10 +33,7 @@ FileManager* FileManager::instance() {
 
 FileManager::FileManager() {
     char* basePath = SDL_GetBasePath();
-    if (basePath != nullptr) {
-        _rootDir.assign(std::string(basePath) + "../../");
-        SDL_free(basePath);
-    }
+    _rootDir = Constants::ResourcesDir;
 }
 
 std::vector<char> FileManager::loadFile(const char fileName[]) const {
@@ -64,7 +59,7 @@ std::vector<char> FileManager::loadFile(const char fileName[]) const {
 }
 
 void FileManager::fullPathForFile(const char fileName[], char* buffer, size_t bufferSize) const {
-    snprintf(buffer, bufferSize, "%s%s%s%s", _rootDir.c_str(), RESOURCES_FOLDER, FOLDER_SEP, fileName);
+    snprintf(buffer, bufferSize, "%s%s%s", _rootDir.c_str(), FOLDER_SEP, fileName);
 }
 
 void FileManager::setRootDir(const char rootDir[]) {

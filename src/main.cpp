@@ -76,7 +76,7 @@ int main(int argc, char* argv[]) {
         while (SDL_PollEvent(&sdlEvent) != 0) {
             ImGui_ImplSDL2_ProcessEvent(&sdlEvent);
 
-            if (sdlEvent.type == SDL_QUIT) {
+            if (sdlEvent.type == SDL_QUIT || (sdlEvent.type == SDL_KEYDOWN && sdlEvent.key.keysym.sym == SDLK_ESCAPE)) {
                 isRunning = false;
             } else if (sdlEvent.type == SDL_WINDOWEVENT) {
                 window.onSDLEvent(sdlEvent.window);
