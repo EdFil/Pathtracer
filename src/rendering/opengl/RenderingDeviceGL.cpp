@@ -50,9 +50,7 @@ bool RenderingDeviceGL::init() {
     ImGui_ImplSDL2_InitForOpenGL(_window, _context);
     ImGui_ImplOpenGL3_Init();
 
-    Buffer::Params params;
-    params.type = Buffer::Type::Constant;
-    _cameraBuffer = (BufferGL*)createBuffer(params);
+    _cameraBuffer = (BufferGL*)createBuffer(Buffer::Mode::UniformBlock);
     if (_cameraBuffer == nullptr) {
         LOG_ERROR("Could not create camera buffer");
         return false;
@@ -99,8 +97,8 @@ Program* RenderingDeviceGL::createProgram(const std::string& name, const Shader&
     return _programManager.createProgram(name, vertexShader, fragmentShader);
 }
 
-Buffer* RenderingDeviceGL::createBuffer(const Buffer::Params& params) {
-    return _bufferManager.createBuffer(params);
+Buffer* RenderingDeviceGL::createBuffer(const Buffer::Mode& mode) {
+    return _bufferManager.createBuffer(mode);
 }
 
 Texture* RenderingDeviceGL::createTexture(const char* filePath, const Texture::Params& params) {

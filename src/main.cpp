@@ -94,8 +94,9 @@ int main(int argc, char* argv[]) {
 
         // <Hacky stuff to test the mesh class>
         if (Program* program = renderer.renderingDevice()->getProgram(Program::k_positionNormalTexture)) {
+            program->bind();
             texture->bind();
-            renderer.render(mesh, program);
+            mesh->buffer()->bind();
         }
         // </Hacky stuff to test the mesh class>
 

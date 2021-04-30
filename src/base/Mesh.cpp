@@ -28,7 +28,11 @@ bool Mesh::init(RenderingDevice& renderingDevice, const Mesh::Params& params) {
         return false;
     }
 
-    Buffer::Params bufferParams;
+    _buffer = renderingDevice.createBuffer(Buffer::Mode::Vertex);
+    if (_buffer == nullptr) {
+        LOG_ERROR("[Mesh] init: Rendering buffer creation failed");
+        return false;
+    }
 
     std::vector<float> unifiedData;
 	size_t currentIndex = 0;
@@ -37,13 +41,8 @@ bool Mesh::init(RenderingDevice& renderingDevice, const Mesh::Params& params) {
 	packData(unifiedData, params.normals, currentIndex);
 	packData(unifiedData, params.uvs, currentIndex);
 
-    _buffer = renderingDevice.createBuffer(bufferParams);
-    if (_buffer == nullptr) {
-        LOG_ERROR("[Mesh] init: Rendering buffer creation failed");
-        return false;
-    }
-
-	if (!_buffer->updateData(unifiedData.data(), unifiedData.size() * sizeof(float))) {
+	buffer()->bind();
+	if (!_buffer->updateData(Buffer::Target::Array, Buffer::Usage::Static, unifiedData.data(), unifiedData.size() * sizeof(float))) {
 		LOG_ERROR("[Mesh] init: Could not set vertex data to GPU");
 		return false;
 	}

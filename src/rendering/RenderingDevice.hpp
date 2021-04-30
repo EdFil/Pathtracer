@@ -24,7 +24,7 @@ public:
     virtual Shader* createShader(const std::string& name, Shader::Type type, const char* source) = 0;
     virtual Program* getProgram(const std::string& name) const = 0;
     virtual Program* createProgram(const std::string& name, const Shader& vertexShader, const Shader& fragmentShader) = 0;
-    virtual Buffer* createBuffer(const Buffer::Params& params) = 0;
+    virtual Buffer* createBuffer(const Buffer::Mode& mode) = 0;
     virtual Texture* createTexture(const char* filePath, const Texture::Params& params) = 0;
 
     virtual void render(Mesh* mesh, Program* program) = 0;

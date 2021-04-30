@@ -6,7 +6,7 @@
 
 class BufferManagerGL {
 public:
-    Buffer* createBuffer(const Buffer::Params& params);
+    Buffer* createBuffer(const Buffer::Mode& mode);
     Buffer* buffer(uint32_t id) const;
 
 private:

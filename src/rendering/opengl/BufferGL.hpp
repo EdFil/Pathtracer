@@ -4,15 +4,19 @@
 
 class BufferGL final : public Buffer {
 public:
-    ~BufferGL();
+    ~BufferGL() override;
 
-    bool init(const Buffer::Params& params) override;
-    bool updateData(void* data, uint32_t size) override;
+    void init(Mode mode) override;
+    bool updateData(Target target, Usage usage, void* data, uint32_t sizeInBytes) override;
 	void updateAttribute(uint32_t index, uint32_t size, uint32_t stride, uint32_t dataBegin) override;
 
     void bind() override;
 
 private:
-    unsigned int _vbo = 0;
-    unsigned int _ibo = 0;
+    unsigned int _bufferObjects[2];
+
+    void generateBuffersFor(Mode mode);
+    void clearBuffersFor(Mode mode);
+    bool isTargetCompatibleWithCurrentMode(Target target) const;
+    unsigned int bufferForTarget(Target target);
 };

@@ -24,7 +24,7 @@ public:
     Shader* createShader(const std::string& name, Shader::Type type, const char* source) override;
     Program* getProgram(const std::string& name) const override;
     Program* createProgram(const std::string& name, const Shader& vertexShader, const Shader& fragmentShader) override;
-    Buffer* createBuffer(const Buffer::Params& params) override;
+    Buffer* createBuffer(const Buffer::Mode& mode) override;
     Texture* createTexture(const char* filePath, const Texture::Params& params) override;
 
     void render(Mesh* mesh, Program* program) override;

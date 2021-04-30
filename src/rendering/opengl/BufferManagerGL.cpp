@@ -1,8 +1,8 @@
 #include "rendering/opengl/BufferManagerGL.hpp"
 
-Buffer* BufferManagerGL::createBuffer(const Buffer::Params& params) {
+Buffer* BufferManagerGL::createBuffer(const Buffer::Mode& mode) {
     BufferGL* buffer = new BufferGL();
-    if (!buffer->init(params)) return nullptr;
+    buffer->init(mode);
 
     _buffers[buffer->id()] = buffer;
     return buffer;
