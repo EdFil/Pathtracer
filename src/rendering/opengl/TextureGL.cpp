@@ -17,9 +17,7 @@ bool TextureGL::init(const char* filePath, const Params& params) {
     char fullPath[512];
     FileManager::instance()->fullPathForFile(filePath, fullPath, sizeof(fullPath));
 
-    std::vector<char> fileData = FileManager::instance()->loadFile(filePath);
     int width, height, components;
-
     stbi_set_flip_vertically_on_load(true); 
     stbi_uc* decodedImageData = stbi_load(fullPath, &width, &height, &components, STBI_rgb_alpha);
     if (decodedImageData == nullptr) {

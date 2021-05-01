@@ -1,16 +1,16 @@
 #include "Camera.hpp"
 
-#include <glm/ext/matrix_transform.hpp>
-#include <glm/ext/matrix_clip_space.hpp>
-#include <glm/gtx/rotate_vector.hpp>
 #include <SDL_keyboard.h>
 #include <SDL_mouse.h>
+#include <glm/ext/matrix_clip_space.hpp>
+#include <glm/ext/matrix_transform.hpp>
+#include <glm/gtx/rotate_vector.hpp>
 
 #include "Logger.hpp"
 #include "rendering/RenderingDevice.hpp"
 
 namespace {
-    glm::vec3 k_worldUp{0.0f, 1.0f, 0.0f};
+glm::vec3 k_worldUp{0.0f, 1.0f, 0.0f};
 };
 
 bool Camera::init(RenderingDevice& renderingDevice) {
@@ -19,9 +19,6 @@ bool Camera::init(RenderingDevice& renderingDevice) {
         LOG_ERROR("[Camera] Could not create Uniform buffer object");
         return false;
     }
-
-    SDL_SetRelativeMouseMode(SDL_TRUE);
-    SDL_CaptureMouse(SDL_TRUE);
 
     _buffer->bind();
     updateUniformBuffer();
@@ -48,7 +45,7 @@ void Camera::update(float deltaTime) {
         _currentSpeed += _acceleration;
         if (_currentSpeed > _maxMovementSpeed) _currentSpeed = _maxMovementSpeed;
         _position += _forward * (movementDelta.z * _currentSpeed * deltaTime);
-        _position += _right * ( movementDelta.x * _currentSpeed * deltaTime);
+        _position += _right * (movementDelta.x * _currentSpeed * deltaTime);
         _position.y += movementDelta.y * _currentSpeed * deltaTime;
     } else {
         _currentSpeed = 0.0f;
@@ -83,6 +80,6 @@ glm::mat4x4 Camera::projMatrix() const {
 }
 
 void Camera::updateUniformBuffer() {
-    glm::mat4x4 uniformBlock[2] {viewMatrix(), projMatrix()};
+    glm::mat4x4 uniformBlock[2]{viewMatrix(), projMatrix()};
     _buffer->updateData(Buffer::Target::Uniform, Buffer::Usage::Static, uniformBlock, sizeof(uniformBlock));
 }

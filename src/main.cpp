@@ -40,27 +40,27 @@ int main(int argc, char* argv[]) {
     Texture* texture = renderer.renderingDevice()->createTexture("textures/sample.jpg", {});
 
     std::vector<float> vertices{
-        -0.5f, 0.5f,  0.0f, //
-        -0.5f, -0.5f, 0.0f, //
-        0.5f,  -0.5f, 0.0f, //
-        0.5f,  0.5f,  0.0f, //
-        -0.5f, 0.5f,  0.0f, //
-        0.5f,  -0.5f, 0.0f  //
+        -0.5f, 0.5f,  0.0f,  //
+        -0.5f, -0.5f, 0.0f,  //
+        0.5f,  -0.5f, 0.0f,  //
+        0.5f,  0.5f,  0.0f,  //
+        -0.5f, 0.5f,  0.0f,  //
+        0.5f,  -0.5f, 0.0f   //
     };
 
     std::vector<float> normals{
-        0.0f, 0.0f, 1.0f, //
-        0.0f, 0.0f, 1.0f, //
-        0.0f, 0.0f, 1.0f, //
-        0.0f, 0.0f, 1.0f, //
-        0.0f, 0.0f, 1.0f, //
-        0.0f, 0.0f, 1.0f  //
+        0.0f, 0.0f, 1.0f,  //
+        0.0f, 0.0f, 1.0f,  //
+        0.0f, 0.0f, 1.0f,  //
+        0.0f, 0.0f, 1.0f,  //
+        0.0f, 0.0f, 1.0f,  //
+        0.0f, 0.0f, 1.0f   //
     };
 
     std::vector<float> uvs{
-         0.0f, 1.0f,  //
-         0.0f, 0.0f,  //
-         1.0f, 0.0f,  //
+        0.0f, 1.0f,  //
+        0.0f, 0.0f,  //
+        1.0f, 0.0f,  //
         1.0f, 1.0f,  //
         0.0f, 1.0f,  //
         1.0f, 0.0f   //
@@ -102,6 +102,7 @@ int main(int argc, char* argv[]) {
         // <Hacky stuff to test the mesh class>
         if (Program* program = renderer.renderingDevice()->getProgram(Program::k_positionNormalTexture)) {
             program->bind();
+            program->setUniform("modelMatrix", glm::mat4(1.0f));
             texture->bind();
             renderer.renderingDevice()->render(mesh, program);
         }

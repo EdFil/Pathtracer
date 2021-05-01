@@ -14,10 +14,6 @@ out vec2 TexCoords;
 
 void main()
 {
-    mat4x4 mat = mat4x4(1.0f, 0.0f, 0.0f, 0.0f,
-                        0.0f, 1.0f, 0.0f, 0.0f,
-                        0.0f, 0.0f, 1.0f, 0.0f,
-                        0.0f, 0.0f, 0.0f, 1.0f);
     TexCoords = aTexCoords;
-    gl_Position =  projection * view *  vec4(aPosition, 1.0);
+    gl_Position =  projection * view * modelMatrix * vec4(aPosition, 1.0);
 }
