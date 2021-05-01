@@ -35,7 +35,6 @@ bool TextureGL::init(const char* filePath, const Params& params) {
     //glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
     //glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 
-    LOG("%d", glGetError());
     glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, decodedImageData);
     glGenerateMipmap(GL_TEXTURE_2D);
 

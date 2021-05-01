@@ -53,6 +53,6 @@ bool Mesh::init(RenderingDevice& renderingDevice, const Mesh::Params& params) {
 	setAttribute(_buffer, params.vertices, 3, attribute, dataBegin);
 	setAttribute(_buffer, params.normals, 3, attribute, dataBegin);
 	setAttribute(_buffer, params.uvs, 2, attribute, dataBegin);
-
+    buffer()->unbind();
     return true;
 }

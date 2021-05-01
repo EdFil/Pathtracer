@@ -96,7 +96,7 @@ int main(int argc, char* argv[]) {
         if (Program* program = renderer.renderingDevice()->getProgram(Program::k_positionNormalTexture)) {
             program->bind();
             texture->bind();
-            mesh->buffer()->bind();
+            renderer.renderingDevice()->render(mesh, program);
         }
         // </Hacky stuff to test the mesh class>
 

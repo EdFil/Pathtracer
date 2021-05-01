@@ -14,6 +14,7 @@ public:
     virtual bool updateData(Target target, Usage usage, void* data, uint32_t sizeInBytes) = 0;
 	virtual void updateAttribute(unsigned int index, unsigned int size, unsigned int stride, unsigned int dataBegin) = 0;
 	virtual void bind() = 0;
+    virtual void unbind() = 0;
     unsigned int id() const { return _handle; };
 
 protected:

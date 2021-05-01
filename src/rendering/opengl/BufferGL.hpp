@@ -11,6 +11,7 @@ public:
 	void updateAttribute(uint32_t index, uint32_t size, uint32_t stride, uint32_t dataBegin) override;
 
     void bind() override;
+    void unbind() override;
 
 private:
     unsigned int _bufferObjects[2];
