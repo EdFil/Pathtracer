@@ -1,8 +1,30 @@
 #pragma once
 
 #include <glm/fwd.hpp>
+#include <map>
+#include <string>
 
 class Shader;
+
+struct UniformData {
+    enum class Type { Undefined, Float, Mat4, Texture };
+    Type type;
+    unsigned int handle;
+
+    static unsigned int sizeInBytes(Type type) {
+        switch (type) {
+            case Type::Float:
+                return sizeof(float);
+            case Type::Texture:
+                return sizeof(void*);
+            case Type::Mat4:
+                return sizeof(float) * 16;
+            default:
+                assert(false);
+                return 4;
+        }
+    }
+};
 
 class Program {
 public:
@@ -26,12 +48,15 @@ public:
 
     virtual void bind() const = 0;
 
+    bool isValid() const { return _handle != 0; }
+    const std::map<std::string, UniformData>& activeUniforms() const { return _activeUniforms; }
     unsigned int handle() const { return _handle; }
     const Shader* vertexShader() const { return _vertexShader; }
     const Shader* fragmentShader() const { return _fragmentShader; }
 
 protected:
     unsigned int _handle;
+    std::map<std::string, UniformData> _activeUniforms;
     const Shader* _vertexShader = nullptr;
     const Shader* _fragmentShader = nullptr;
 };

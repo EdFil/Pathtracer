@@ -113,7 +113,7 @@ Texture* RenderingDeviceGL::createTexture(const char* filePath, const Texture::P
 
 void RenderingDeviceGL::render(Mesh* mesh, Program* program) {
     ((BufferGL*)mesh->buffer())->bind();
-    ((ProgramGL*)program)->bind();
+    //((ProgramGL*)program)->bind();
 
     glDrawArrays(GL_TRIANGLES, 0, mesh->count());
 }

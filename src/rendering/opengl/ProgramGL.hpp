@@ -2,9 +2,6 @@
 
 #include "rendering/Program.hpp"
 
-#include <map>
-#include <string>
-
 class ShaderGL;
 class Device;
 
@@ -26,7 +23,5 @@ public:
     void setUniform(const char* uniformName, const glm::mat4& value) override;
 
 private:
-    std::map<std::string, int> _uniformHandles;
-
     bool linkProgram(unsigned int handle);
 };

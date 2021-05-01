@@ -9,6 +9,7 @@
 #include "Sphere.hpp"
 #include "Window.hpp"
 #include "base/Camera.hpp"
+#include "base/Material.hpp"
 #include "file/FileManager.hpp"
 #include "rendering/Program.hpp"
 #include "rendering/Renderer.hpp"
@@ -72,6 +73,10 @@ int main(int argc, char* argv[]) {
     meshParams.uvs = VectorView<float>(uvs.data(), uvs.size());
     Mesh* mesh = renderer.createMesh(meshParams);
 
+    Material material;
+    material.init(renderer.renderingDevice()->getProgram(Program::k_positionNormalTexture));
+    material.setValue("modelMatrix", glm::mat4(1.0f));
+
     Uint32 previousTime = SDL_GetTicks();
     Uint32 currentTime = previousTime;
 
@@ -101,8 +106,7 @@ int main(int argc, char* argv[]) {
 
         // <Hacky stuff to test the mesh class>
         if (Program* program = renderer.renderingDevice()->getProgram(Program::k_positionNormalTexture)) {
-            program->bind();
-            program->setUniform("modelMatrix", glm::mat4(1.0f));
+            material.bind();
             texture->bind();
             renderer.renderingDevice()->render(mesh, program);
         }
