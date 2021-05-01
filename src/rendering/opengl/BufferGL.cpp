@@ -63,6 +63,10 @@ bool BufferGL::updateData(Target target, Usage usage, void *data, uint32_t sizeI
     return true;
 }
 
+void BufferGL::updateBufferRange(Buffer::Target target, unsigned int index, unsigned int offset, unsigned int size) {
+    glBindBufferRange(toGLTarget(target), index, _handle, offset, size);
+}
+
 void BufferGL::updateAttribute(uint32_t index, uint32_t size, uint32_t stride, uint32_t dataBegin) {
     glVertexAttribPointer(index, size, GL_FLOAT, GL_FALSE, stride, (void *) (dataBegin * sizeof(float)));
     glEnableVertexAttribArray(index);

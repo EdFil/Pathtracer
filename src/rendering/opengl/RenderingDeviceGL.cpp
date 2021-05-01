@@ -50,11 +50,11 @@ bool RenderingDeviceGL::init() {
     ImGui_ImplSDL2_InitForOpenGL(_window, _context);
     ImGui_ImplOpenGL3_Init();
 
-//    _cameraBuffer = (BufferGL*)createBuffer(Buffer::Mode::UniformBlock);
-//    if (_cameraBuffer == nullptr) {
-//        LOG_ERROR("Could not create camera buffer");
-//        return false;
-//    }
+    _cameraBuffer = (BufferGL*)createBuffer(Buffer::Mode::UniformBlock);
+    if (_cameraBuffer == nullptr) {
+        LOG_ERROR("Could not create camera buffer");
+        return false;
+    }
 
     int width, height;
     SDL_GetWindowSize(_window, &width, &height);

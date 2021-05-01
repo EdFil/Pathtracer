@@ -3,12 +3,12 @@
 
 #include <backends/imgui_impl_sdl.h>
 #include <imgui.h>
-#include "Camera.hpp"
 #include "Color.hpp"
 #include "Logger.hpp"
 #include "Scene.hpp"
 #include "Sphere.hpp"
 #include "Window.hpp"
+#include "base/Camera.hpp"
 #include "file/FileManager.hpp"
 #include "rendering/Program.hpp"
 #include "rendering/Renderer.hpp"
@@ -35,6 +35,7 @@ int main(int argc, char* argv[]) {
     Sphere sphere(Vec3f(0.0f, 0.0f, 0.0f), 1.0f);
 
     bool isRunning = window.init() && renderer.init(window.window(), &camera) && scene.init();
+    isRunning &= camera.init(*renderer.renderingDevice());
 
     Texture* texture = renderer.renderingDevice()->createTexture("textures/sample.jpg", {});
 
@@ -71,7 +72,12 @@ int main(int argc, char* argv[]) {
     meshParams.uvs = VectorView<float>(uvs.data(), uvs.size());
     Mesh* mesh = renderer.createMesh(meshParams);
 
+    Uint32 previousTime = SDL_GetTicks();
+    Uint32 currentTime = previousTime;
+
     while (isRunning) {
+        float deltaTime = (currentTime - previousTime) / 100.0f;
+
         SDL_Event sdlEvent;
         while (SDL_PollEvent(&sdlEvent) != 0) {
             ImGui_ImplSDL2_ProcessEvent(&sdlEvent);
@@ -89,6 +95,7 @@ int main(int argc, char* argv[]) {
             }
         }
 
+        camera.update(deltaTime);
         renderer.preRender();
         ImGui::ShowDemoWindow();
 
@@ -103,6 +110,9 @@ int main(int argc, char* argv[]) {
         scene.draw();
         ImGui::Render();
         renderer.postRender();
+
+        previousTime = currentTime;
+        currentTime = SDL_GetTicks();
     }
 
     FileManager::destroy();
