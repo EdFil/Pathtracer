@@ -12,6 +12,7 @@ public:
     bool init(Program* program);
 
     void bind();
+    bool setTexture(const char* uniformName, Texture* texture);
     bool setValue(const char* uniformName, const glm::mat4& value);
 
 private:

@@ -8,7 +8,7 @@
 struct SDL_Window;
 class RenderingDevice;
 class Camera;
-class Program;
+class Material;
 
 class Renderer {
 public:
@@ -19,7 +19,7 @@ public:
 
     Mesh* createMesh(const Mesh::Params& params);
 
-    void render(Mesh* mesh, Program* program);
+    void render(Mesh* mesh, Material* material);
 
     void preRender();
     void postRender();

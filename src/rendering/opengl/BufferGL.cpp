@@ -3,8 +3,8 @@
 #include <glad/glad.h>
 #include <cstring>
 
-#include "Logger.hpp"
 #include <cassert>
+#include "Logger.hpp"
 
 namespace {
 constexpr GLenum toGLUsage(Buffer::Usage usage) {
@@ -48,9 +48,10 @@ void BufferGL::init(Mode mode) {
     _mode = mode;
 }
 
-bool BufferGL::updateData(Target target, Usage usage, void *data, uint32_t sizeInBytes) {
-    if (data == nullptr && !isTargetCompatibleWithCurrentMode(target))
+bool BufferGL::updateData(Target target, Usage usage, const void *data, uint32_t sizeInBytes) {
+    if (data == nullptr && !isTargetCompatibleWithCurrentMode(target)) {
         return false;
+    }
 
     unsigned int bufferObject = bufferForTarget(target);
     if (bufferObject == 0) {
@@ -68,7 +69,7 @@ void BufferGL::updateBufferRange(Buffer::Target target, unsigned int index, unsi
 }
 
 void BufferGL::updateAttribute(uint32_t index, uint32_t size, uint32_t stride, uint32_t dataBegin) {
-    glVertexAttribPointer(index, size, GL_FLOAT, GL_FALSE, stride, (void *) (dataBegin * sizeof(float)));
+    glVertexAttribPointer(index, size, GL_FLOAT, GL_FALSE, stride, (void *)(dataBegin * sizeof(float)));
     glEnableVertexAttribArray(index);
 }
 
@@ -83,7 +84,7 @@ void BufferGL::unbind() {
 void BufferGL::generateBuffersFor(Mode mode) {
     glGenVertexArrays(1, &_handle);
     switch (mode) {
-        case Mode::Vertex: // fallthrough
+        case Mode::Vertex:  // fallthrough
         case Mode::UniformBlock:
             glGenBuffers(1, _bufferObjects);
             break;

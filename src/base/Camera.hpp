@@ -18,13 +18,13 @@ public:
 
 private:
     Buffer* _buffer;
-    glm::vec3 _position{0.0f, 0.0f, -1.0f};
+    glm::vec3 _position{0.0f, 0.0f, 3.0f};
 
     // Updated every frame and used to calculate forward vector. Using Euler representation (ZYX)
     float _xRotation = 0.0f;
     float _yRotation = 0.0f;
 
-    glm::vec3 _forward{0.0f, 0.0f, 1.0f};
+    glm::vec3 _forward{0.0f, 0.0f, -1.0f};
     glm::vec3 _right{1.0f, 0.0f, 0.0f};
     float _fov  = 45.0f;
     int _width = 640;

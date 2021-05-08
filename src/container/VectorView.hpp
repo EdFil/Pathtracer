@@ -2,7 +2,7 @@
 
 #include <cstddef>
 
-template<typename T>
+template <typename T>
 class VectorView {
 public:
     VectorView() = default;
@@ -10,12 +10,11 @@ public:
 
     size_t size() const { return _size; }
     bool empty() const { return _data == nullptr || _size == 0; }
-    
+
     const T* cbegin() const { return _data; }
     T* begin() { return _data; }
     const T* cend() const { return _data + _size; }
     T* end() const { return _data + _size; }
-
 
 private:
     const T* _data = nullptr;

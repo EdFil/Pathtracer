@@ -19,8 +19,7 @@ bool Camera::init(RenderingDevice& renderingDevice) {
         LOG_ERROR("[Camera] Could not create Uniform buffer object");
         return false;
     }
-
-    _buffer->bind();
+    SDL_SetRelativeMouseMode(SDL_TRUE);
     updateUniformBuffer();
     _buffer->updateBufferRange(Buffer::Target::Uniform, 0, 0, 2 * sizeof(glm::mat4x4));
     _buffer->unbind();

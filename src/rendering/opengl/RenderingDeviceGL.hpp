@@ -27,7 +27,7 @@ public:
     Buffer* createBuffer(const Buffer::Mode& mode) override;
     Texture* createTexture(const char* filePath, const Texture::Params& params) override;
 
-    void render(Mesh* mesh, Program* program) override;
+    void render(Mesh* mesh, Material* material) override;
 
     RenderingDeviceInfo* deviceInfo() override { return &_renderingDeviceInfo; }
     ShaderManager* shaderManager() override { return &_shaderManager; }

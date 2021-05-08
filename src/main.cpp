@@ -2,7 +2,10 @@
 #include <stdio.h>
 
 #include <backends/imgui_impl_sdl.h>
+#include <fast_obj.h>
 #include <imgui.h>
+#include <cstring>
+
 #include "Color.hpp"
 #include "Logger.hpp"
 #include "Scene.hpp"
@@ -31,51 +34,46 @@ int main(int argc, char* argv[]) {
     Window window;
     Renderer renderer;
     Camera camera;
-    Scene scene(renderer);
 
-    Sphere sphere(Vec3f(0.0f, 0.0f, 0.0f), 1.0f);
-
-    bool isRunning = window.init() && renderer.init(window.window(), &camera) && scene.init();
+    bool isRunning = window.init() && renderer.init(window.window(), &camera);
     isRunning &= camera.init(*renderer.renderingDevice());
 
-    Texture* texture = renderer.renderingDevice()->createTexture("textures/sample.jpg", {});
+    char fullPath[256];
+    FileManager::instance()->fullPathForFile("models/cube.obj", fullPath, sizeof(fullPath));
+    fastObjMesh* suzanne = fast_obj_read(fullPath);
 
-    std::vector<float> vertices{
-        -0.5f, 0.5f,  0.0f,  //
-        -0.5f, -0.5f, 0.0f,  //
-        0.5f,  -0.5f, 0.0f,  //
-        0.5f,  0.5f,  0.0f,  //
-        -0.5f, 0.5f,  0.0f,  //
-        0.5f,  -0.5f, 0.0f   //
+    struct Vertex {
+        float px, py, pz;
+        float tx, ty;
+        float nx, ny, nz;
     };
 
-    std::vector<float> normals{
-        0.0f, 0.0f, 1.0f,  //
-        0.0f, 0.0f, 1.0f,  //
-        0.0f, 0.0f, 1.0f,  //
-        0.0f, 0.0f, 1.0f,  //
-        0.0f, 0.0f, 1.0f,  //
-        0.0f, 0.0f, 1.0f   //
-    };
+#if 1
+    std::vector<Vertex> vertexData(suzanne->face_count * 3);
+    for (int i = 0; i < suzanne->face_count * 3; ++i) {
+        Vertex vertex;
 
-    std::vector<float> uvs{
-        0.0f, 1.0f,  //
-        0.0f, 0.0f,  //
-        1.0f, 0.0f,  //
-        1.0f, 1.0f,  //
-        0.0f, 1.0f,  //
-        1.0f, 0.0f   //
-    };
+        memcpy(&vertex.px, suzanne->positions + suzanne->indices[i].p * 3, sizeof(float) * 3);
+        memcpy(&vertex.tx, suzanne->texcoords + suzanne->indices[i].t * 2, sizeof(float) * 2);
+        memcpy(&vertex.nx, suzanne->normals + suzanne->indices[i].n * 3, sizeof(float) * 3);
+
+        vertexData.push_back(std::move(vertex));
+    }
 
     Mesh::Params meshParams;
-    meshParams.vertices = VectorView<float>(vertices.data(), vertices.size());
-    meshParams.normals = VectorView<float>(normals.data(), normals.size());
-    meshParams.uvs = VectorView<float>(uvs.data(), uvs.size());
+    meshParams.vertices = VectorView<float>(&vertexData[0].px, vertexData.size() * 8);
     Mesh* mesh = renderer.createMesh(meshParams);
+#else
+    std::vector<Vertex> vertexData(suzanne->position_count * 2);
+#endif
+
+    LOG("KB size = %f", (vertexData.size() * sizeof(vertexData[0]))  / 1024.0f);
+    Texture* texture = renderer.renderingDevice()->createTexture("textures/sample.jpg", {});
 
     Material material;
     material.init(renderer.renderingDevice()->getProgram(Program::k_positionNormalTexture));
     material.setValue("modelMatrix", glm::mat4(1.0f));
+    material.setTexture("Texture01", texture);
 
     Uint32 previousTime = SDL_GetTicks();
     Uint32 currentTime = previousTime;
@@ -104,15 +102,8 @@ int main(int argc, char* argv[]) {
         renderer.preRender();
         ImGui::ShowDemoWindow();
 
-        // <Hacky stuff to test the mesh class>
-        if (Program* program = renderer.renderingDevice()->getProgram(Program::k_positionNormalTexture)) {
-            material.bind();
-            texture->bind();
-            renderer.renderingDevice()->render(mesh, program);
-        }
-        // </Hacky stuff to test the mesh class>
+        renderer.renderingDevice()->render(mesh, &material);
 
-        scene.draw();
         ImGui::Render();
         renderer.postRender();
 

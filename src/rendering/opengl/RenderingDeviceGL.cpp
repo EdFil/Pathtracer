@@ -6,6 +6,7 @@
 #include <glad/glad.h>
 
 #include "Logger.hpp"
+#include "base/Material.hpp"
 #include "rendering/opengl/BufferGL.hpp"
 #include "rendering/opengl/ProgramGL.hpp"
 #include "rendering/opengl/RenderingDeviceInfoGL.hpp"
@@ -60,6 +61,9 @@ bool RenderingDeviceGL::init() {
     SDL_GetWindowSize(_window, &width, &height);
     glViewport(0, 0, width, height);
 
+    glEnable(GL_CULL_FACE);
+    glEnable(GL_DEPTH_TEST);
+
     return true;
 }
 
@@ -77,7 +81,7 @@ void RenderingDeviceGL::preRender(Camera* camera) {
     ImGui::NewFrame();
 
     glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
-    glClear(GL_COLOR_BUFFER_BIT);
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 }
 
 void RenderingDeviceGL::postRender() {
@@ -111,9 +115,8 @@ Texture* RenderingDeviceGL::createTexture(const char* filePath, const Texture::P
     return texture;
 }
 
-void RenderingDeviceGL::render(Mesh* mesh, Program* program) {
+void RenderingDeviceGL::render(Mesh* mesh, Material* material) {
+    material->bind();
     ((BufferGL*)mesh->buffer())->bind();
-    //((ProgramGL*)program)->bind();
-
     glDrawArrays(GL_TRIANGLES, 0, mesh->count());
 }

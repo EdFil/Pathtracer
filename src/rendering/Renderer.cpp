@@ -1,8 +1,8 @@
 #include "rendering/Renderer.hpp"
 
 #include "Logger.hpp"
-#include "rendering/opengl/RenderingDeviceGL.hpp"
 #include "rendering/Types.hpp"
+#include "rendering/opengl/RenderingDeviceGL.hpp"
 
 Renderer::Renderer() = default;
 Renderer::~Renderer() = default;
@@ -36,8 +36,8 @@ Mesh* Renderer::createMesh(const Mesh::Params& params) {
     return mesh;
 }
 
-void Renderer::render(Mesh* mesh, Program* program) {
-    _renderingDevice->render(mesh, program);
+void Renderer::render(Mesh* mesh, Material* material) {
+    _renderingDevice->render(mesh, material);
 }
 
 void Renderer::preRender() {
