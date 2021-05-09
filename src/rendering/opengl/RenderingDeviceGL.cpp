@@ -61,6 +61,7 @@ bool RenderingDeviceGL::init() {
     SDL_GetWindowSize(_window, &width, &height);
     glViewport(0, 0, width, height);
 
+    SDL_GL_SetSwapInterval(0);
     glEnable(GL_CULL_FACE);
     glEnable(GL_DEPTH_TEST);
 
@@ -118,5 +119,5 @@ Texture* RenderingDeviceGL::createTexture(const char* filePath, const Texture::P
 void RenderingDeviceGL::render(Mesh* mesh, Material* material) {
     material->bind();
     ((BufferGL*)mesh->buffer())->bind();
-    glDrawArrays(GL_TRIANGLES, 0, mesh->count());
+    ((BufferGL*)mesh->buffer())->draw(mesh->count());
 }

@@ -81,6 +81,14 @@ void BufferGL::unbind() {
     glBindVertexArray(0);
 }
 
+void BufferGL::draw(unsigned int count) {
+    if (_mode == Buffer::Mode::Vertex) {
+        glDrawArrays(GL_TRIANGLES, 0, count);
+    } else {
+        glDrawElements(GL_TRIANGLES, count, GL_UNSIGNED_INT, 0);
+    }
+}
+
 void BufferGL::generateBuffersFor(Mode mode) {
     glGenVertexArrays(1, &_handle);
     switch (mode) {

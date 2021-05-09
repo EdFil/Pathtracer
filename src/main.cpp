@@ -4,6 +4,7 @@
 #include <backends/imgui_impl_sdl.h>
 #include <fast_obj.h>
 #include <imgui.h>
+#include <chrono>
 #include <cstring>
 
 #include "Color.hpp"
@@ -38,17 +39,26 @@ int main(int argc, char* argv[]) {
     bool isRunning = window.init() && renderer.init(window.window(), &camera);
     isRunning &= camera.init(*renderer.renderingDevice());
 
+    std::chrono::system_clock::time_point startTime = std::chrono::high_resolution_clock::now();
+
     char fullPath[256];
-    FileManager::instance()->fullPathForFile("models/cube.obj", fullPath, sizeof(fullPath));
+    FileManager::instance()->fullPathForFile("models/dragon.obj", fullPath, sizeof(fullPath));
     fastObjMesh* suzanne = fast_obj_read(fullPath);
+
+    std::chrono::system_clock::time_point timeAfterFileParsing = std::chrono::high_resolution_clock::now();
 
     struct Vertex {
         float px, py, pz;
         float tx, ty;
         float nx, ny, nz;
+
+        bool operator==(const Vertex& rhs) const { return memcmp(this, &rhs, sizeof(Vertex)) == 0; }
+
+        bool operator!=(const Vertex& rhs) const { return memcmp(this, &rhs, sizeof(Vertex)) != 0; }
     };
 
-#if 1
+    std::vector<unsigned int> indices;
+#if 0
     std::vector<Vertex> vertexData(suzanne->face_count * 3);
     for (int i = 0; i < suzanne->face_count * 3; ++i) {
         Vertex vertex;
@@ -64,10 +74,60 @@ int main(int argc, char* argv[]) {
     meshParams.vertices = VectorView<float>(&vertexData[0].px, vertexData.size() * 8);
     Mesh* mesh = renderer.createMesh(meshParams);
 #else
-    std::vector<Vertex> vertexData(suzanne->position_count * 2);
+    std::vector<bool> dataExists(suzanne->position_count, false);
+    std::vector<Vertex> vertexData(suzanne->position_count);
+    std::vector<Vertex> duplicatedVertices;
+    duplicatedVertices.reserve(suzanne->position_count);
+    indices.reserve(suzanne->face_count * 3);
+
+    for (int i = 0; i < suzanne->face_count * 3; ++i) {
+        const fastObjIndex& index = suzanne->indices[i];
+        Vertex vertex;
+
+        memcpy(&vertex.px, suzanne->positions + index.p * 3, sizeof(float) * 3);
+        memcpy(&vertex.tx, suzanne->texcoords + index.t * 2, sizeof(float) * 2);
+        memcpy(&vertex.nx, suzanne->normals + index.n * 3, sizeof(float) * 3);
+
+        if (!dataExists[index.p]) {
+            // New vertex
+            vertexData[index.p] = vertex;
+            dataExists[index.p] = true;
+            indices.push_back(index.p - 1);
+        } else if (vertexData[index.p] != vertex) {
+            // We need to duplicate vertex
+            auto it = std::find(duplicatedVertices.cbegin(), duplicatedVertices.cend(), vertex);
+            if (it != duplicatedVertices.cend()) {
+                // It was already duplicated, let's use it
+                const int index = suzanne->position_count + it - duplicatedVertices.cbegin() - 1;
+                indices.push_back(index);
+            } else {
+                // Let's create and add it to the duplicated list
+                duplicatedVertices.push_back(vertex);
+                const int index = suzanne->position_count + duplicatedVertices.size() - 2;
+                indices.push_back(index);
+            }
+        } else {
+            // Vertex already exists in the main vertex data
+            indices.push_back(index.p - 1);
+        }
+    }
+
+    vertexData.insert(vertexData.end(), duplicatedVertices.begin(), duplicatedVertices.end());
+
+    Mesh::Params meshParams;
+    meshParams.vertices = VectorView<float>(&vertexData[1].px, (vertexData.size() - 1) * 8);
+    meshParams.indices = VectorView<unsigned int>(indices.data(), indices.size());
+    Mesh* mesh = renderer.createMesh(meshParams);
 #endif
 
-    LOG("KB size = %f", (vertexData.size() * sizeof(vertexData[0]))  / 1024.0f);
+    std::chrono::system_clock::time_point timeAfterMeshCreation = std::chrono::high_resolution_clock::now();
+
+    LOG("Parsing time %d Mesh creation time %d", std::chrono::duration_cast<std::chrono::milliseconds>(timeAfterFileParsing - startTime).count(),
+        std::chrono::duration_cast<std::chrono::milliseconds>(timeAfterMeshCreation - timeAfterFileParsing).count());
+
+    LOG("Vertex KB size = %f Number %d", (vertexData.size() * sizeof(vertexData[0])) / 1024.0f, vertexData.size());
+    LOG("Index KB size = %f Number %d", (indices.empty() ? 0.0f : (indices.size() * sizeof(indices[0])) / 1024.0f), indices.size());
+
     Texture* texture = renderer.renderingDevice()->createTexture("textures/sample.jpg", {});
 
     Material material;
@@ -100,7 +160,7 @@ int main(int argc, char* argv[]) {
 
         camera.update(deltaTime);
         renderer.preRender();
-        ImGui::ShowDemoWindow();
+        ImGui::ShowMetricsWindow();
 
         renderer.renderingDevice()->render(mesh, &material);
 

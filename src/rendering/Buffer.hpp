@@ -16,6 +16,7 @@ public:
     virtual void updateAttribute(unsigned int index, unsigned int size, unsigned int stride, unsigned int dataBegin) = 0;
     virtual void bind() = 0;
     virtual void unbind() = 0;
+    virtual void draw(unsigned int count) = 0;
     unsigned int id() const { return _handle; };
 
 protected:

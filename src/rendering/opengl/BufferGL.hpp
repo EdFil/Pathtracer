@@ -13,6 +13,7 @@ public:
 
     void bind() override;
     void unbind() override;
+    void draw(unsigned int count) override;
 
 private:
     unsigned int _bufferObjects[2];
