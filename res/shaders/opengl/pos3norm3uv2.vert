@@ -7,7 +7,13 @@ layout (location = 2) in vec3 aNormals;
 layout (std140) uniform Matrices {
     mat4 view;
     mat4 projection;
-};
+} matrices;
+
+layout (std140) uniform Light {
+    vec3 position;
+    vec3 diffuseColor;
+} light;
+
 uniform mat4 modelMatrix;
 
 out vec3 Color;
@@ -15,7 +21,7 @@ out vec2 TexCoords;
 
 void main()
 {
-    Color = vec3(abs(aNormals.x), abs(aNormals.y), abs(aNormals.z));
+    Color = aNormals;
     TexCoords = aTexCoords;
-    gl_Position =  projection * view * modelMatrix * vec4(aPosition, 1.0);
+    gl_Position =  matrices.projection * matrices.view * modelMatrix * vec4(aPosition, 1.0);
 }

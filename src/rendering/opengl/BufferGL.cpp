@@ -22,8 +22,6 @@ constexpr GLenum toGLUsage(Buffer::Usage usage) {
 
 constexpr GLenum toGLTarget(Buffer::Target target) {
     switch (target) {
-        case Buffer::Target::Uniform:
-            return GL_UNIFORM_BUFFER;
         case Buffer::Target::Array:
             return GL_ARRAY_BUFFER;
         case Buffer::Target::Element:
@@ -64,10 +62,6 @@ bool BufferGL::updateData(Target target, Usage usage, const void *data, uint32_t
     return true;
 }
 
-void BufferGL::updateBufferRange(Buffer::Target target, unsigned int index, unsigned int offset, unsigned int size) {
-    glBindBufferRange(toGLTarget(target), index, _handle, offset, size);
-}
-
 void BufferGL::updateAttribute(uint32_t index, uint32_t size, uint32_t stride, uint32_t dataBegin) {
     glVertexAttribPointer(index, size, GL_FLOAT, GL_FALSE, stride, (void *)(dataBegin * sizeof(float)));
     glEnableVertexAttribArray(index);
@@ -92,8 +86,7 @@ void BufferGL::draw(unsigned int count) {
 void BufferGL::generateBuffersFor(Mode mode) {
     glGenVertexArrays(1, &_handle);
     switch (mode) {
-        case Mode::Vertex:  // fallthrough
-        case Mode::UniformBlock:
+        case Mode::Vertex:
             glGenBuffers(1, _bufferObjects);
             break;
         case Mode::VertexElementPair:
@@ -114,9 +107,6 @@ void BufferGL::clearBuffersFor(Mode mode) {
             glDeleteVertexArrays(1, &_handle);
             glDeleteBuffers(2, _bufferObjects);
             break;
-        case Mode::UniformBlock:
-            glDeleteBuffers(1, &_handle);
-            break;
         default:
             break;
     }
@@ -128,8 +118,6 @@ bool BufferGL::isTargetCompatibleWithCurrentMode(Target target) const {
             return target == Target::Array;
         case Mode::VertexElementPair:
             return target == Target::Array || target == Target::Element;
-        case Mode::UniformBlock:
-            return target == Target::Uniform;
         default:
             LOG_ERROR("[BufferGL] Mode %d is not handled", _mode);
             return false;
@@ -139,7 +127,6 @@ bool BufferGL::isTargetCompatibleWithCurrentMode(Target target) const {
 unsigned int BufferGL::bufferForTarget(Target target) {
     switch (target) {
         case Target::Array:
-        case Target::Uniform:
             return _bufferObjects[0];
         case Target::Element:
             return _bufferObjects[1];

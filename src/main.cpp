@@ -13,6 +13,7 @@
 #include "Sphere.hpp"
 #include "Window.hpp"
 #include "base/Camera.hpp"
+#include "base/Light.hpp"
 #include "base/Material.hpp"
 #include "file/FileManager.hpp"
 #include "rendering/Program.hpp"
@@ -35,14 +36,16 @@ int main(int argc, char* argv[]) {
     Window window;
     Renderer renderer;
     Camera camera;
+    Light light;
 
     bool isRunning = window.init() && renderer.init(window.window(), &camera);
     isRunning &= camera.init(*renderer.renderingDevice());
+    isRunning &= light.init(*renderer.renderingDevice());
 
     std::chrono::system_clock::time_point startTime = std::chrono::high_resolution_clock::now();
 
     char fullPath[256];
-    FileManager::instance()->fullPathForFile("models/dragon.obj", fullPath, sizeof(fullPath));
+    FileManager::instance()->fullPathForFile("models/suzanne.obj", fullPath, sizeof(fullPath));
     fastObjMesh* suzanne = fast_obj_read(fullPath);
 
     std::chrono::system_clock::time_point timeAfterFileParsing = std::chrono::high_resolution_clock::now();
@@ -159,6 +162,7 @@ int main(int argc, char* argv[]) {
         }
 
         camera.update(deltaTime);
+        light.update(deltaTime);
         renderer.preRender();
         ImGui::ShowMetricsWindow();
 

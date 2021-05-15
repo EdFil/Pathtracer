@@ -119,6 +119,31 @@ bool ProgramGL::linkProgram(unsigned int handle) {
         }
     }
 
+    //    GLuint numUniformBlocks = 0;
+    //    glGetProgramiv(handle, GL_ACTIVE_UNIFORM_BLOCKS, (GLint*)&numUniformBlocks);
+    //    GLint uniformBlockMaxLength = 128;
+    //
+    //    GLchar* uniformBlockNameBuffer = (GLchar*)alloca(uniformBlockMaxLength);
+    //    for (GLuint i = 0; i < numUniformBlocks; i++) {
+    //        GLint nameSize;
+    //        GLint index;
+    //        glGetActiveUniformBlockiv(handle, i, GL_UNIFORM_BLOCK_INDEX, &index);
+    //        index = glGetUniformBlockIndex(handle, uniformBlockNameBuffer);
+    //        glGetActiveUniformBlockName(handle, i, uniformBlockMaxLength, &nameSize, uniformBlockNameBuffer);
+    //        LOG("[ProgramGL] Uniform block %s at index %d", uniformNameBuffer, index);
+    //    }
+    //
+    //    GLint size;
+    //    glGetActiveUniformBlockiv(_handle, 0, GL_ACTIVE_UNIFORM_BLOCKS, &size);
+
+    GLuint matricesBlockIndex = glGetUniformBlockIndex(handle, "Matrices");
+    if (matricesBlockIndex != GL_INVALID_INDEX)
+        glUniformBlockBinding(handle, matricesBlockIndex, 0);
+
+    GLuint lightBlockIndex = glGetUniformBlockIndex(handle, "Light");
+    if (lightBlockIndex != GL_INVALID_INDEX)
+        glUniformBlockBinding(handle, lightBlockIndex, 1);
+
     return true;
 }
 

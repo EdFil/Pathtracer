@@ -13,6 +13,7 @@
 #include "rendering/opengl/ShaderGL.hpp"
 #include "rendering/opengl/ShaderManagerGL.hpp"
 #include "rendering/opengl/TextureGL.hpp"
+#include "rendering/opengl/UniformBufferGL.hpp"
 
 #include "base/Mesh.hpp"
 
@@ -50,12 +51,6 @@ bool RenderingDeviceGL::init() {
     ImGui::StyleColorsDark();
     ImGui_ImplSDL2_InitForOpenGL(_window, _context);
     ImGui_ImplOpenGL3_Init();
-
-    _cameraBuffer = (BufferGL*)createBuffer(Buffer::Mode::UniformBlock);
-    if (_cameraBuffer == nullptr) {
-        LOG_ERROR("Could not create camera buffer");
-        return false;
-    }
 
     int width, height;
     SDL_GetWindowSize(_window, &width, &height);
@@ -100,6 +95,16 @@ Program* RenderingDeviceGL::getProgram(const std::string& name) const {
 
 Program* RenderingDeviceGL::createProgram(const std::string& name, const Shader& vertexShader, const Shader& fragmentShader) {
     return _programManager.createProgram(name, vertexShader, fragmentShader);
+}
+
+IUniformBuffer* RenderingDeviceGL::createUniformBuffer(unsigned int bindingPoint, unsigned int sizeInBytes) {
+    UniformBufferGL* uniformBuffer = new UniformBufferGL();
+    if (!uniformBuffer->init(bindingPoint, sizeInBytes)) {
+        delete uniformBuffer;
+        return nullptr;
+    }
+
+    return uniformBuffer;
 }
 
 Buffer* RenderingDeviceGL::createBuffer(const Buffer::Mode& mode) {

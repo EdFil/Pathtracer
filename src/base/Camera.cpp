@@ -6,23 +6,23 @@
 #include <glm/ext/matrix_transform.hpp>
 #include <glm/gtx/rotate_vector.hpp>
 
+#include <glad/glad.h>
 #include "Logger.hpp"
+#include "rendering/IUniformBuffer.h"
 #include "rendering/RenderingDevice.hpp"
 
 namespace {
 glm::vec3 k_worldUp{0.0f, 1.0f, 0.0f};
 };
 
+static unsigned int uboMatrices;
+
 bool Camera::init(RenderingDevice& renderingDevice) {
-    _buffer = renderingDevice.createBuffer(Buffer::Mode::UniformBlock);
-    if (_buffer == nullptr) {
+    _uniformBuffer = renderingDevice.createUniformBuffer(0, 2 * sizeof(glm::mat4x4));
+    if (_uniformBuffer == nullptr) {
         LOG_ERROR("[Camera] Could not create Uniform buffer object");
         return false;
     }
-
-    updateUniformBuffer();
-    _buffer->updateBufferRange(Buffer::Target::Uniform, 0, 0, 2 * sizeof(glm::mat4x4));
-    _buffer->unbind();
 
     _xRotation = glm::degrees(atan2(_forward.z, _forward.x));
     _yRotation = glm::degrees(asin(-_forward.y));
@@ -80,5 +80,5 @@ glm::mat4x4 Camera::projMatrix() const {
 
 void Camera::updateUniformBuffer() {
     glm::mat4x4 uniformBlock[2]{viewMatrix(), projMatrix()};
-    _buffer->updateData(Buffer::Target::Uniform, Buffer::Usage::Static, uniformBlock, sizeof(uniformBlock));
+    _uniformBuffer->updateData(uniformBlock, sizeof(uniformBlock));
 }

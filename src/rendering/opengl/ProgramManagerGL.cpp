@@ -13,8 +13,8 @@ bool ProgramManagerGL::init(const ShaderManager& shaderManager) {
     const ShaderManagerGL& shaderManagerGL = (const ShaderManagerGL&)shaderManager;
 
     bool allCreated = true;
-    allCreated |= createProgram(shaderManagerGL, Program::k_position, Shaders::Vertex::k_position, Shaders::Fragment::k_position);
-    allCreated |= createProgram(shaderManagerGL, Program::k_positionTexture, Shaders::Vertex::k_positionTexture, Shaders::Fragment::k_positionTexture);
+//    allCreated |= createProgram(shaderManagerGL, Program::k_position, Shaders::Vertex::k_position, Shaders::Fragment::k_position);
+//    allCreated |= createProgram(shaderManagerGL, Program::k_positionTexture, Shaders::Vertex::k_positionTexture, Shaders::Fragment::k_positionTexture);
     allCreated |= createProgram(shaderManagerGL, Program::k_positionNormalTexture, Shaders::Vertex::k_positionNormalTexture, Shaders::Fragment::k_positionNormalTexture);
     
     return allCreated;

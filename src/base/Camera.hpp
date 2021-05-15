@@ -1,9 +1,9 @@
 #pragma once
 
-#include <glm/vec3.hpp>
 #include <glm/mat4x4.hpp>
+#include <glm/vec3.hpp>
 
-class Buffer;
+class IUniformBuffer;
 class RenderingDevice;
 
 class Camera {
@@ -17,7 +17,7 @@ public:
     glm::mat4x4 projMatrix() const;
 
 private:
-    Buffer* _buffer;
+    IUniformBuffer* _uniformBuffer;
     glm::vec3 _position{0.0f, 0.0f, 3.0f};
 
     // Updated every frame and used to calculate forward vector. Using Euler representation (ZYX)
@@ -26,7 +26,7 @@ private:
 
     glm::vec3 _forward{0.0f, 0.0f, -1.0f};
     glm::vec3 _right{1.0f, 0.0f, 0.0f};
-    float _fov  = 45.0f;
+    float _fov = 45.0f;
     int _width = 640;
     int _height = 480;
     float _near = 0.01f;

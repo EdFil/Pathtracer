@@ -24,6 +24,7 @@ public:
     Shader* createShader(const std::string& name, Shader::Type type, const char* source) override;
     Program* getProgram(const std::string& name) const override;
     Program* createProgram(const std::string& name, const Shader& vertexShader, const Shader& fragmentShader) override;
+    IUniformBuffer* createUniformBuffer(unsigned int bindingPoint, unsigned int sizeInBytes) override;
     Buffer* createBuffer(const Buffer::Mode& mode) override;
     Texture* createTexture(const char* filePath, const Texture::Params& params) override;
 
@@ -35,7 +36,6 @@ public:
 private:
     SDL_Window* _window = nullptr;
     SDL_GLContext _context;
-    BufferGL* _cameraBuffer = nullptr;
     RenderingDeviceInfoGL _renderingDeviceInfo;
     ShaderManagerGL _shaderManager;
     ProgramManagerGL _programManager;
