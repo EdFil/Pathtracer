@@ -41,7 +41,6 @@ int main(int argc, char* argv[]) {
     bool isRunning = window.init() && renderer.init(window.window(), &camera);
     isRunning &= camera.init(*renderer.renderingDevice());
     isRunning &= light.init(*renderer.renderingDevice());
-
     std::chrono::system_clock::time_point startTime = std::chrono::high_resolution_clock::now();
 
     char fullPath[256];
@@ -134,7 +133,8 @@ int main(int argc, char* argv[]) {
     Texture* texture = renderer.renderingDevice()->createTexture("textures/sample.jpg", {});
 
     Material material;
-    material.init(renderer.renderingDevice()->getProgram(Program::k_positionNormalTexture));
+    if(!material.init(renderer.renderingDevice()->getProgram(Program::k_positionNormalTexture))) return - 1;
+    if(!material.init(renderer.renderingDevice()->getProgram(Program::k_positionNormalTexture))) return - 1;
     material.setValue("modelMatrix", glm::mat4(1.0f));
     material.setTexture("Texture01", texture);
 
@@ -142,7 +142,7 @@ int main(int argc, char* argv[]) {
     Uint32 currentTime = previousTime;
 
     while (isRunning) {
-        float deltaTime = (currentTime - previousTime) / 100.0f;
+        float deltaTime = (currentTime - previousTime) / 1000.0f;
 
         SDL_Event sdlEvent;
         while (SDL_PollEvent(&sdlEvent) != 0) {

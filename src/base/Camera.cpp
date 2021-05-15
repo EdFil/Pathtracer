@@ -13,12 +13,19 @@
 
 namespace {
 glm::vec3 k_worldUp{0.0f, 1.0f, 0.0f};
+
+struct UniformData {
+    glm::mat4x4 viewMatrix;
+    glm::mat4x4 projectionMatrix;
+    glm::vec4 cameraPosition;
+};
+
 };
 
 static unsigned int uboMatrices;
 
 bool Camera::init(RenderingDevice& renderingDevice) {
-    _uniformBuffer = renderingDevice.createUniformBuffer(0, 2 * sizeof(glm::mat4x4));
+    _uniformBuffer = renderingDevice.createUniformBuffer(0, sizeof(UniformData));
     if (_uniformBuffer == nullptr) {
         LOG_ERROR("[Camera] Could not create Uniform buffer object");
         return false;
@@ -79,6 +86,6 @@ glm::mat4x4 Camera::projMatrix() const {
 }
 
 void Camera::updateUniformBuffer() {
-    glm::mat4x4 uniformBlock[2]{viewMatrix(), projMatrix()};
-    _uniformBuffer->updateData(uniformBlock, sizeof(uniformBlock));
+    UniformData uniformData = {viewMatrix(), projMatrix(), glm::vec4(_position, 1.0f)};
+    _uniformBuffer->updateData(&uniformData, sizeof(UniformData));
 }

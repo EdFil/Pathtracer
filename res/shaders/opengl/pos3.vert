@@ -5,6 +5,7 @@ layout (location = 0) in vec3 aPosition;
 layout (std140) uniform Matrices {
     mat4 view;
     mat4 projection;
+    vec3 cameraPosition;
 };
 uniform mat4 modelMatrix;
 
