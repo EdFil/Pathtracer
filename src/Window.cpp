@@ -31,8 +31,15 @@ bool Window::init(const WindowParams& params) {
     return true;
 }
 
+void Window::setMouseGrab(bool shouldGrabMouse) {
+    _shouldGrabMouse = shouldGrabMouse;
+    SDL_SetRelativeMouseMode((SDL_bool)shouldGrabMouse);
+}
+
 void Window::onSDLEvent(const SDL_WindowEvent& event) {
     SDL_WindowEventID windowEventID = (SDL_WindowEventID)event.event;
+
+    LOG("%s", stringifyWindowEventID(windowEventID));
 
     switch (windowEventID) {
         case SDL_WINDOWEVENT_RESIZED: {
@@ -41,6 +48,13 @@ void Window::onSDLEvent(const SDL_WindowEvent& event) {
             _eventDispatcher.signal(WindowEventType::Resize, event);
             break;
         }
+
+        case SDL_WINDOWEVENT_FOCUS_GAINED:
+            setMouseGrab(true);
+            break;
+        case SDL_WINDOWEVENT_FOCUS_LOST:
+            setMouseGrab(false);
+            break;
 
         case SDL_WINDOWEVENT_CLOSE:
         case SDL_WINDOWEVENT_NONE:
@@ -54,8 +68,6 @@ void Window::onSDLEvent(const SDL_WindowEvent& event) {
         case SDL_WINDOWEVENT_RESTORED:
         case SDL_WINDOWEVENT_ENTER:
         case SDL_WINDOWEVENT_LEAVE:
-        case SDL_WINDOWEVENT_FOCUS_GAINED:
-        case SDL_WINDOWEVENT_FOCUS_LOST:
         case SDL_WINDOWEVENT_TAKE_FOCUS:
         case SDL_WINDOWEVENT_HIT_TEST:
             /* Ignore */

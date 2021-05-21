@@ -39,15 +39,15 @@ int main(int argc, char* argv[]) {
     Light light;
 
     bool isRunning = window.init() && renderer.init(window.window(), &camera);
-    isRunning &= camera.init(*renderer.renderingDevice());
+    isRunning &= camera.init(window, *renderer.renderingDevice());
     isRunning &= light.init(*renderer.renderingDevice());
-    std::chrono::system_clock::time_point startTime = std::chrono::high_resolution_clock::now();
+    auto startTime = std::chrono::high_resolution_clock::now();
 
     char fullPath[256];
     FileManager::instance()->fullPathForFile("models/suzanne.obj", fullPath, sizeof(fullPath));
     fastObjMesh* suzanne = fast_obj_read(fullPath);
 
-    std::chrono::system_clock::time_point timeAfterFileParsing = std::chrono::high_resolution_clock::now();
+    auto timeAfterFileParsing = std::chrono::high_resolution_clock::now();
 
     struct Vertex {
         float px, py, pz;
@@ -100,7 +100,7 @@ int main(int argc, char* argv[]) {
             auto it = std::find(duplicatedVertices.cbegin(), duplicatedVertices.cend(), vertex);
             if (it != duplicatedVertices.cend()) {
                 // It was already duplicated, let's use it
-                const int index = suzanne->position_count + it - duplicatedVertices.cbegin() - 1;
+                const int index = suzanne->position_count + (it - duplicatedVertices.cbegin()) - 1;
                 indices.push_back(index);
             } else {
                 // Let's create and add it to the duplicated list
@@ -122,7 +122,7 @@ int main(int argc, char* argv[]) {
     Mesh* mesh = renderer.createMesh(meshParams);
 #endif
 
-    std::chrono::system_clock::time_point timeAfterMeshCreation = std::chrono::high_resolution_clock::now();
+    auto timeAfterMeshCreation = std::chrono::high_resolution_clock::now();
 
     LOG("Parsing time %d Mesh creation time %d", std::chrono::duration_cast<std::chrono::milliseconds>(timeAfterFileParsing - startTime).count(),
         std::chrono::duration_cast<std::chrono::milliseconds>(timeAfterMeshCreation - timeAfterFileParsing).count());
@@ -150,14 +150,12 @@ int main(int argc, char* argv[]) {
 
             if (sdlEvent.type == SDL_QUIT || (sdlEvent.type == SDL_KEYDOWN && sdlEvent.key.keysym.sym == SDLK_ESCAPE)) {
                 isRunning = false;
+            } else if (sdlEvent.type == SDL_MOUSEBUTTONDOWN && sdlEvent.button.button == 3) {
+                window.setMouseGrab(!window.isMouseGrabbed());
+            } else if (sdlEvent.type == SDL_KEYDOWN && sdlEvent.key.keysym.sym == SDLK_r) {
+                camera.reset();
             } else if (sdlEvent.type == SDL_WINDOWEVENT) {
                 window.onSDLEvent(sdlEvent.window);
-            } else if (sdlEvent.type == SDL_MOUSEMOTION) {
-                // const SDL_MouseMotionEvent& motionEvent = sdlEvent.motion;
-                // if ((motionEvent.state & SDL_BUTTON_LEFT) != 0) {
-                //    Color color(rand() % 256, rand() % 256, rand() % 256, 255);
-                //    renderer.drawPixel(color, motionEvent.x, motionEvent.y);
-                //}
             }
         }
 

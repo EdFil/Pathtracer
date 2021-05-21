@@ -5,11 +5,13 @@
 
 class IUniformBuffer;
 class RenderingDevice;
+class Window;
 
 class Camera {
 public:
-    bool init(RenderingDevice& renderingDevice);
+    bool init(const Window& window, RenderingDevice& renderingDevice);
     void update(float deltaTime);
+    void reset();
 
     const glm::vec3& position() const { return _position; };
     const glm::vec3& forward() const { return _forward; };
@@ -18,7 +20,11 @@ public:
 
 private:
     IUniformBuffer* _uniformBuffer;
+    const Window* _window;
     glm::vec3 _position{0.0f, 0.0f, 3.0f};
+
+    // Mouse state
+    bool _wasMouseGrabbedLastFrame = false;
 
     // Updated every frame and used to calculate forward vector. Using Euler representation (ZYX)
     float _xRotation = 0.0f;
@@ -33,8 +39,8 @@ private:
     float _far = 100.0f;
 
     float _currentSpeed = 0.0f;
-    float _acceleration = 0.1f;
-    float _maxMovementSpeed = 1.0f;
+    float _acceleration = 0.3f;
+    float _maxMovementSpeed = 5.0f;
 
     void updateUniformBuffer();
 };

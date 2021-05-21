@@ -8,6 +8,7 @@
 
 #include <glad/glad.h>
 #include "Logger.hpp"
+#include "Window.hpp"
 #include "rendering/IUniformBuffer.h"
 #include "rendering/RenderingDevice.hpp"
 
@@ -24,20 +25,28 @@ struct UniformData {
 
 static unsigned int uboMatrices;
 
-bool Camera::init(RenderingDevice& renderingDevice) {
+bool Camera::init(const Window& window, RenderingDevice& renderingDevice) {
     _uniformBuffer = renderingDevice.createUniformBuffer(0, sizeof(UniformData));
     if (_uniformBuffer == nullptr) {
         LOG_ERROR("[Camera] Could not create Uniform buffer object");
         return false;
     }
 
-    _xRotation = glm::degrees(atan2(_forward.z, _forward.x));
-    _yRotation = glm::degrees(asin(-_forward.y));
+    _window = &window;
+    reset();
 
     return true;
 }
 
 void Camera::update(float deltaTime) {
+    int xDiff, yDiff;
+    SDL_GetRelativeMouseState(&xDiff, &yDiff);
+
+    const bool isMouseCurrentlyGrabbed = _window->isMouseGrabbed();
+    const bool shouldUpdateCamera = isMouseCurrentlyGrabbed && _wasMouseGrabbedLastFrame;
+    _wasMouseGrabbedLastFrame = isMouseCurrentlyGrabbed;
+    if (!shouldUpdateCamera) return;
+
     const Uint8* keyboardState = SDL_GetKeyboardState(nullptr);
     glm::vec3 movementDelta{0.0f};
     if (keyboardState[SDL_SCANCODE_W]) movementDelta.z += 1.0f;
@@ -57,15 +66,10 @@ void Camera::update(float deltaTime) {
         _currentSpeed = 0.0f;
     }
 
-    int xDiff, yDiff;
-    SDL_GetRelativeMouseState(&xDiff, &yDiff);
+    const float sensitivity = 0.2f;
 
-    const float sensitivity = 0.4f;
-    xDiff *= sensitivity;
-    yDiff *= sensitivity;
-
-    _xRotation += xDiff * sensitivity;
-    _yRotation -= yDiff * sensitivity;
+    _xRotation += float(xDiff) * sensitivity;
+    _yRotation -= float(yDiff) * sensitivity;
 
     glm::vec3 direction;
     direction.x = cos(glm::radians(_xRotation)) * cos(glm::radians(_yRotation));
@@ -75,6 +79,16 @@ void Camera::update(float deltaTime) {
     _forward = glm::normalize(direction);
     _right = -glm::cross(k_worldUp, _forward);
 
+    updateUniformBuffer();
+}
+
+void Camera::reset() {
+    _position = {0.0f, 0.0f, 3.0f};
+    _forward = {0.0f, 0.0f, -1.0f};
+    _right = {1.0f, 0.0f, 0.0f};
+    _fov = 45.0f;
+    _xRotation = glm::degrees(atan2(_forward.z, _forward.x));
+    _yRotation = glm::degrees(asin(-_forward.y));
     updateUniformBuffer();
 }
 

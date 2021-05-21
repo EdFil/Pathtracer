@@ -36,6 +36,9 @@ public:
     bool init(const WindowParams& params = WindowParams());
     void onSDLEvent(const SDL_WindowEvent& event);
     Vec2i size() const;
+    
+    bool isMouseGrabbed() const { return _shouldGrabMouse; }
+    void setMouseGrab(bool shouldGrabMouse);
 
     SDL_Window* window() const { return _sdlWindow; };
     void subscribe(WindowsEventObserver& observer);
@@ -43,5 +46,6 @@ public:
 
 private:
     SDL_Window* _sdlWindow = nullptr;
+    bool _shouldGrabMouse = false;
     EventDispatcher<WindowEventType, WindowEvent> _eventDispatcher;
 };
