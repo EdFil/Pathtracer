@@ -1,7 +1,7 @@
 #pragma once
 
 #include "EventDispatcher.hpp"
-#include "Vec2i.hpp"
+#include <glm/vec2.hpp>
 
 class Window;
 struct SDL_Window;
@@ -17,7 +17,7 @@ enum class WindowEventType { Resize };
 
 union WindowEventData {
     void* __unused;
-    Vec2i size;
+    glm::ivec2 size;
 };
 
 struct WindowEvent {
@@ -35,7 +35,7 @@ public:
 
     bool init(const WindowParams& params = WindowParams());
     void onSDLEvent(const SDL_WindowEvent& event);
-    Vec2i size() const;
+    glm::ivec2 size() const;
     
     bool isMouseGrabbed() const { return _shouldGrabMouse; }
     void setMouseGrab(bool shouldGrabMouse);

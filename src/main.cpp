@@ -7,10 +7,7 @@
 #include <chrono>
 #include <cstring>
 
-#include "Color.hpp"
 #include "Logger.hpp"
-#include "Scene.hpp"
-#include "Sphere.hpp"
 #include "Window.hpp"
 #include "base/Camera.hpp"
 #include "base/Light.hpp"
@@ -20,8 +17,6 @@
 #include "rendering/Renderer.hpp"
 #include "rendering/RenderingDevice.hpp"
 #include "rendering/Texture.hpp"
-
-#include "glad/glad.h"
 
 int main(int argc, char* argv[]) {
     Logger::init();
@@ -122,6 +117,7 @@ int main(int argc, char* argv[]) {
     Mesh* mesh = renderer.createMesh(meshParams);
 #endif
 
+    fast_obj_destroy(suzanne);
     auto timeAfterMeshCreation = std::chrono::high_resolution_clock::now();
 
     LOG("Parsing time %d Mesh creation time %d", std::chrono::duration_cast<std::chrono::milliseconds>(timeAfterFileParsing - startTime).count(),
@@ -133,8 +129,8 @@ int main(int argc, char* argv[]) {
     Texture* texture = renderer.renderingDevice()->createTexture("textures/sample.jpg", {});
 
     Material material;
-    if(!material.init(renderer.renderingDevice()->getProgram(Program::k_positionNormalTexture))) return - 1;
-    if(!material.init(renderer.renderingDevice()->getProgram(Program::k_positionNormalTexture))) return - 1;
+    if (!material.init(renderer.renderingDevice()->getProgram(Program::k_positionNormalTexture))) return -1;
+    if (!material.init(renderer.renderingDevice()->getProgram(Program::k_positionNormalTexture))) return -1;
     material.setValue("modelMatrix", glm::mat4(1.0f));
     material.setTexture("Texture01", texture);
 
@@ -173,6 +169,7 @@ int main(int argc, char* argv[]) {
         currentTime = SDL_GetTicks();
     }
 
+    SDL_Quit();
     FileManager::destroy();
     Logger::destroy();
 

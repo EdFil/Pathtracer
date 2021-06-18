@@ -75,8 +75,8 @@ void Window::onSDLEvent(const SDL_WindowEvent& event) {
     }
 }
 
-Vec2i Window::size() const {
-    Vec2i size;
+glm::ivec2 Window::size() const {
+    glm::ivec2 size;
     SDL_GetWindowSize(_sdlWindow, &size.x, &size.y);
     return size;
 }

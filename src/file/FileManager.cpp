@@ -22,9 +22,7 @@ void FileManager::init() {
 }
 
 void FileManager::destroy() {
-    if (s_fileManager != nullptr) {
-        delete s_fileManager;
-    }
+    delete s_fileManager;
 }
 
 FileManager* FileManager::instance() {
@@ -32,7 +30,6 @@ FileManager* FileManager::instance() {
 }
 
 FileManager::FileManager() {
-    char* basePath = SDL_GetBasePath();
     _rootDir = Constants::ResourcesDir;
 }
 
