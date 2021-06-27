@@ -14,6 +14,8 @@ public:
     bool init(RenderingDevice& renderingDevice);
 
     Material* createMaterial(const char* programName);
+
+    Mesh* createMesh(Mesh::Primitive primitive);
     Mesh* createMesh(const char* fileName);
 
 private:

@@ -8,6 +8,8 @@ class Buffer;
 
 class Mesh {
 public:
+    enum class Primitive { Plane, Sphere, Cube, Suzanne };
+
     struct Vertex {
         float px, py, pz;
         float tx, ty;
@@ -18,16 +20,8 @@ public:
         bool operator!=(const Vertex& rhs) const { return memcmp(this, &rhs, sizeof(Vertex)) != 0; }
     };
 
-    struct Index {
-        unsigned int pos;
-        unsigned int uv;
-        unsigned int normal;
-    };
-
     struct Params {
         VectorView<float> vertices;
-        VectorView<float> normals;
-        VectorView<float> uvs;
         VectorView<unsigned int> indices;
     };
 

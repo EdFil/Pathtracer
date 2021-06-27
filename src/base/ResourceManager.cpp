@@ -12,7 +12,13 @@
 
 namespace {
 static ResourceManager* s_instance = nullptr;
-}
+
+constexpr Mesh::Vertex k_planeVertices[] = {
+    Mesh::Vertex{-1.0f, -1.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f}, Mesh::Vertex{1.0f, 1.0f, 0.0f, 1.0f, 1.0f, 0.0f, 0.0f, 1.0f},
+    Mesh::Vertex{-1.0f, 1.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f, 1.0f}, Mesh::Vertex{1.0f, -1.0f, 0.0f, 1.0f, 0.0f, 0.0f, 0.0f, 1.0f}};
+constexpr unsigned int k_planeIndices[] = {0, 1, 2, 1, 0, 3};
+
+}  // namespace
 
 ResourceManager& ResourceManager::instance() {
     return *s_instance;
@@ -44,6 +50,17 @@ Material* ResourceManager::createMaterial(const char* programName) {
     }
 
     delete material;
+    return nullptr;
+}
+
+Mesh* ResourceManager::createMesh(Mesh::Primitive primitive) {
+    switch (primitive) {
+        case Mesh::Primitive::Plane: return createMesh("models/plane.obj");
+        case Mesh::Primitive::Sphere: return createMesh("models/sphere.obj");
+        case Mesh::Primitive::Cube: return createMesh("models/cube.obj");
+        case Mesh::Primitive::Suzanne: return createMesh("models/suzanne.obj");
+    }
+
     return nullptr;
 }
 

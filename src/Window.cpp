@@ -34,7 +34,7 @@ bool Window::init(const WindowParams& params) {
 
 void Window::setMouseGrab(bool shouldGrabMouse) {
     _shouldGrabMouse = shouldGrabMouse;
-    //SDL_SetRelativeMouseMode((SDL_bool)shouldGrabMouse);
+//    SDL_SetRelativeMouseMode((SDL_bool)shouldGrabMouse);
 }
 
 void Window::onSDLEvent(const SDL_WindowEvent& event) {

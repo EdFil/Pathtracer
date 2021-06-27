@@ -40,7 +40,7 @@ int main(int argc, char* argv[]) {
     isRunning &= light.init(*renderer.renderingDevice());
     isRunning &= resourceManager.init(*renderer.renderingDevice());
 
-    Mesh* mesh = resourceManager.createMesh("models/suzanne.obj");
+    Mesh* mesh = resourceManager.createMesh(Mesh::Primitive::Suzanne);
     Texture* texture = renderer.renderingDevice()->createTexture("textures/sample.jpg", {});
     Material* material = resourceManager.createMaterial(Program::k_positionNormalTexture);
     material->setValue("modelMatrix", glm::mat4(1.0f));

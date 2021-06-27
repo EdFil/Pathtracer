@@ -60,7 +60,7 @@ bool RenderingDeviceGL::init() {
     glEnable(GL_CULL_FACE);
     glEnable(GL_DEPTH_TEST);
 
-    return true;
+        return true;
 }
 
 RenderingDeviceGL::~RenderingDeviceGL() {
