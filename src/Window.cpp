@@ -28,19 +28,17 @@ bool Window::init(const WindowParams& params) {
         return false;
     }
 
+    LOG("[Window] Main window created. Handle(%d)", SDL_GetWindowID(_sdlWindow));
     return true;
 }
 
 void Window::setMouseGrab(bool shouldGrabMouse) {
     _shouldGrabMouse = shouldGrabMouse;
-    SDL_SetRelativeMouseMode((SDL_bool)shouldGrabMouse);
+    //SDL_SetRelativeMouseMode((SDL_bool)shouldGrabMouse);
 }
 
 void Window::onSDLEvent(const SDL_WindowEvent& event) {
     SDL_WindowEventID windowEventID = (SDL_WindowEventID)event.event;
-
-    LOG("%s", stringifyWindowEventID(windowEventID));
-
     switch (windowEventID) {
         case SDL_WINDOWEVENT_RESIZED: {
             WindowEvent event(*this);

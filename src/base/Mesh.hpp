@@ -1,5 +1,6 @@
 #pragma once
 
+#include <cstring>
 #include "container/VectorView.hpp"
 
 class RenderingDevice;
@@ -7,6 +8,16 @@ class Buffer;
 
 class Mesh {
 public:
+    struct Vertex {
+        float px, py, pz;
+        float tx, ty;
+        float nx, ny, nz;
+
+        bool operator==(const Vertex& rhs) const { return memcmp(this, &rhs, sizeof(Vertex)) == 0; }
+
+        bool operator!=(const Vertex& rhs) const { return memcmp(this, &rhs, sizeof(Vertex)) != 0; }
+    };
+
     struct Index {
         unsigned int pos;
         unsigned int uv;

@@ -10,7 +10,7 @@ target_sources(fast_obj INTERFACE "${CMAKE_CURRENT_SOURCE_DIR}/fast_obj.h")
 
 # Include directories
 target_include_directories(fast_obj SYSTEM INTERFACE ${CMAKE_CURRENT_SOURCE_DIR})
-target_compile_definitions(fast_obj INTERFACE -DFAST_OBJ_IMPLEMENTATION)
+#target_compile_definitions(fast_obj INTERFACE -DFAST_OBJ_IMPLEMENTATION)
 
 # Show files
 get_target_property(INTERFACE_SOURCES fast_obj INTERFACE_SOURCES)

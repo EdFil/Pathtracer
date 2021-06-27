@@ -2,6 +2,7 @@
 
 #include <fstream>
 
+#include "Logger.hpp"
 #include "rendering/opengl/ShaderGL.hpp"
 
 ShaderManagerGL::~ShaderManagerGL() {
@@ -33,6 +34,7 @@ Shader* ShaderManagerGL::createShader(const std::string& name, Shader::Type type
         return nullptr;
     }
 
+    LOG("[ShaderManagerGL] %s shader created with name %s", Shader::shaderTypeToString(type), name.c_str());
     _shaders[name] = shader;
     return shader;
 }

@@ -51,6 +51,7 @@ void Renderer::postRender() {
 void Renderer::setRenderingAPI(rendering::API renderingAPI) {
     switch (renderingAPI) {
         case rendering::API::OpenGL:
+            LOG("[Renderer] Initialising with an OpenGL rendering device");
             _renderingDevice = std::make_unique<RenderingDeviceGL>(_sdlWindow);
             break;
         default:

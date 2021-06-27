@@ -3,7 +3,7 @@
 #include <SDL_filesystem.h>
 
 #include "Logger.hpp"
-#include "generated/Constants.h"
+#include "generated/CMakeConstants.h"
 
 #define MAX_PATH 512
 
@@ -30,7 +30,7 @@ FileManager* FileManager::instance() {
 }
 
 FileManager::FileManager() {
-    _rootDir = Constants::ResourcesDir;
+    _rootDir = CMakeConstants::ResourcesDir;
 }
 
 std::vector<char> FileManager::loadFile(const char fileName[]) const {

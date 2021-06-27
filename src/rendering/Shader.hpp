@@ -12,6 +12,8 @@ public:
     unsigned int handle() const { return _handle; }
     Type type() const { return _type; }
 
+    static const char* shaderTypeToString(Shader::Type type);
+
 protected:
     unsigned int _handle = 0;
     Type _type;
