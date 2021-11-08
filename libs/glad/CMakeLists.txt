@@ -5,11 +5,16 @@ message("")
 message("==== Glad ====")
 
 set(OpenGL_GL_PREFERENCE "GLVND")
+set(SOURCES "${CMAKE_CURRENT_SOURCE_DIR}/include/glad/glad.h" "${CMAKE_CURRENT_SOURCE_DIR}/src/glad.c")
+set(INCLUDE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/include")
+
+# Glad dependencies
 find_package(OpenGL REQUIRED)
 
-add_library(glad STATIC "include/glad/glad.h" "src/glad.c")
-target_include_directories(glad PUBLIC "include")
-
+# Make lib
+add_library(glad STATIC ${SOURCES})
+add_library(glad::glad ALIAS glad)
+target_include_directories(glad PUBLIC ${INCLUDE_DIR})
 target_link_libraries(glad 
     PUBLIC ${OPENGL_LIBRARIES} ${CMAKE_DL_LIBS}
 )
@@ -22,3 +27,4 @@ if(EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/include/glad/glad.h")
   unset(GLAD_VERSION_LINE)
   unset(GLAD_VERSION)
 endif()
+message(STATUS "Includes: ${INCLUDE_DIR}")
