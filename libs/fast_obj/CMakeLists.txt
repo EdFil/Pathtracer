@@ -4,16 +4,12 @@ cmake_minimum_required(VERSION 3.0)
 message("")
 message("==== FAST OBJ ====")
 
-set(INCLUDE_DIR "${CMAKE_CURRENT_SOURCE_DIR}")
-set(HEADERS "${CMAKE_CURRENT_SOURCE_DIR}/fast_obj.h")
-
 # Make library
 add_library(${PROJECT_NAME} INTERFACE)
-target_sources(${PROJECT_NAME} INTERFACE PUBLIC ${HEADERS})
+target_sources(${PROJECT_NAME} INTERFACE "${CMAKE_CURRENT_SOURCE_DIR}/fast_obj.h")
 
 # Include directories
-target_include_directories(${PROJECT_NAME} SYSTEM INTERFACE ${INCLUDE_DIR})
-#target_compile_definitions(fast_obj INTERFACE -DFAST_OBJ_IMPLEMENTATION)
+target_include_directories(${PROJECT_NAME} SYSTEM INTERFACE ${CMAKE_CURRENT_SOURCE_DIR})
 
 # Show Info
 if(EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/fast_obj.h")
