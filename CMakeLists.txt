@@ -9,6 +9,7 @@ set(CMAKE_RUNTIME_OUTPUT_DIRECTORY_RELEASE ${CMAKE_BINARY_DIR}/bin)
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_INSTALL_MESSAGE LAZY)
 set(ENGINE_CMAKE_FOLDER ${CMAKE_CURRENT_SOURCE_DIR}/cmake)
+set(CMAKE_MODULE_PATH ${CMAKE_CURRENT_SOURCE_DIR}/cmake)
 
 # Project Variables
 set(RESOURCES_DIR "${CMAKE_CURRENT_SOURCE_DIR}/res")
@@ -47,7 +48,7 @@ file(GLOB_RECURSE SHADERS "${SHADERS_DIR}/*.frag" "${SHADERS_DIR}/*.vert")
 
 # Create our executable
 add_executable(${PROJECT_NAME} ${SOURCES} ${SHADERS})
-target_link_libraries(${PROJECT_NAME} glad SDL2::Core SDL2::Main imgui::imgui stb::stb glm::glm_static fast_obj)
+target_link_libraries(${PROJECT_NAME} glad SDL2::SDL2 SDL2::SDL2main imgui::imgui stb::stb glm::glm_static fast_obj)
 target_include_directories(${PROJECT_NAME} PRIVATE ${SOURCE_DIR})
 
 # Project settings

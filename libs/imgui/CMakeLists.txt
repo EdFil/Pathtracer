@@ -26,7 +26,7 @@ add_library(imgui::imgui ALIAS imgui)
 target_include_directories(imgui PUBLIC "${CMAKE_CURRENT_SOURCE_DIR}")
 target_compile_features(imgui PRIVATE cxx_std_98)
 target_compile_options(imgui PRIVATE -DIMGUI_IMPL_OPENGL_LOADER_GLAD)
-target_link_libraries(imgui PRIVATE SDL2::Core glad)
+target_link_libraries(imgui PRIVATE SDL2::SDL2 glad)
 
 foreach (SOURCE IN ITEMS ${SOURCES} ${HEADERS})
     get_filename_component(SOURCE_PATH "${SOURCE}" PATH)
@@ -35,4 +35,6 @@ foreach (SOURCE IN ITEMS ${SOURCES} ${HEADERS})
     source_group("${GROUP_PATH}" FILES "${SOURCE}")
 endforeach ()
 
+
+message(STATUS "Version: 1.81")
 message(STATUS "Includes: ${CMAKE_CURRENT_SOURCE_DIR}")

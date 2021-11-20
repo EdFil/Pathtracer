@@ -13,15 +13,7 @@ target_sources(stb INTERFACE "${CMAKE_CURRENT_SOURCE_DIR}/stb_image.h")
 target_include_directories(stb SYSTEM INTERFACE ${CMAKE_CURRENT_SOURCE_DIR})
 
 # Show files
-get_target_property(INTERFACE_SOURCES stb INTERFACE_SOURCES)
-
-set(FILE_NAMES "")
-foreach(FILE ${INTERFACE_SOURCES})
-        get_filename_component(NAME ${FILE} NAME)
-        string(APPEND FILE_NAMES "${NAME} ")
-endforeach()
-
-message(STATUS "${FILE_NAMES}")
+message(STATUS "stb_image.h: v2.26")
 
 
 
