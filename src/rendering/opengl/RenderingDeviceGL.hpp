@@ -2,10 +2,12 @@
 
 #include "rendering/RenderingDevice.hpp"
 
-#include "rendering/opengl/BufferManagerGL.hpp"
-#include "rendering/opengl/ProgramManagerGL.hpp"
-#include "rendering/opengl/RenderingDeviceInfoGL.hpp"
-#include "rendering/opengl/ShaderManagerGL.hpp"
+#include "BufferManagerGL.hpp"
+#include "ProgramManagerGL.hpp"
+#include "RenderingDeviceInfoGL.hpp"
+#include "ShaderManagerGL.hpp"
+#include "FrameBufferGL.hpp"
+#include "TextureGL.hpp"
 
 struct SDL_Window;
 struct SDL_Renderer;
@@ -18,6 +20,7 @@ public:
     ~RenderingDeviceGL();
 
     bool init() override;
+    void clearScreen() override;
     void preRender(Camera* camera) override;
     void postRender() override;
 
@@ -26,18 +29,22 @@ public:
     Program* createProgram(const std::string& name, const Shader& vertexShader, const Shader& fragmentShader) override;
     IUniformBuffer* createUniformBuffer(unsigned int bindingPoint, unsigned int sizeInBytes) override;
     Buffer* createBuffer(const Buffer::Mode& mode) override;
-    Texture* createTexture(const char* filePath, const Texture::Params& params) override;
+    ITexture* createTexture(const char* filePath, const ITexture::Params& params) override;
 
     void render(Mesh* mesh, Material* material) override;
 
     RenderingDeviceInfo* deviceInfo() override { return &_renderingDeviceInfo; }
     ShaderManager* shaderManager() override { return &_shaderManager; }
+    IFrameBufferManager* frameBufferManager() override { return &_frameBufferManager; };
+    ITextureManager* textureManager() { return &_textureManager; };
 
 private:
     SDL_Window* _window = nullptr;
     SDL_GLContext _context;
     RenderingDeviceInfoGL _renderingDeviceInfo;
+    FrameBufferManagerGL _frameBufferManager;
+    BufferManagerGL _bufferManager;
+    TextureManagerGL _textureManager;
     ShaderManagerGL _shaderManager;
     ProgramManagerGL _programManager;
-    BufferManagerGL _bufferManager;
 };

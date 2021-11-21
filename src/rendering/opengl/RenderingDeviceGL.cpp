@@ -60,7 +60,12 @@ bool RenderingDeviceGL::init() {
     glEnable(GL_CULL_FACE);
     glEnable(GL_DEPTH_TEST);
 
-        return true;
+    if (!_frameBufferManager.init()) {
+        LOG_ERROR("[RenderingDeviceGL] Could not initialize FrameBufferManager");
+        return false;
+    }
+
+    return true;
 }
 
 RenderingDeviceGL::~RenderingDeviceGL() {
@@ -71,13 +76,15 @@ RenderingDeviceGL::~RenderingDeviceGL() {
     SDL_GL_DeleteContext(_context);
 }
 
+void RenderingDeviceGL::clearScreen() {
+    glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+}
+
 void RenderingDeviceGL::preRender(Camera* camera) {
     ImGui_ImplOpenGL3_NewFrame();
     ImGui_ImplSDL2_NewFrame(_window);
     ImGui::NewFrame();
-
-    glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
-    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 }
 
 void RenderingDeviceGL::postRender() {
@@ -111,7 +118,7 @@ Buffer* RenderingDeviceGL::createBuffer(const Buffer::Mode& mode) {
     return _bufferManager.createBuffer(mode);
 }
 
-Texture* RenderingDeviceGL::createTexture(const char* filePath, const Texture::Params& params) {
+ITexture* RenderingDeviceGL::createTexture(const char* filePath, const ITexture::Params& params) {
     TextureGL* texture = new TextureGL();
     if (!texture->init(filePath, params)) {
         delete texture;

@@ -17,7 +17,11 @@
 #include "rendering/Program.hpp"
 #include "rendering/Renderer.hpp"
 #include "rendering/RenderingDevice.hpp"
-#include "rendering/Texture.hpp"
+#include "rendering/ITexture.hpp"
+#include "rendering/IFrameBuffer.hpp"
+
+bool enable1 = true;
+bool enable2 = true;
 
 int main(int argc, char* argv[]) {
     Logger::init();
@@ -40,11 +44,32 @@ int main(int argc, char* argv[]) {
     isRunning &= light.init(*renderer.renderingDevice());
     isRunning &= resourceManager.init(*renderer.renderingDevice());
 
+    IFrameBufferManager* frameBufferManager = renderer.renderingDevice()->frameBufferManager();
+    ITextureManager* textureManager = renderer.renderingDevice()->textureManager();
+
+    IFrameBuffer* otherFrameBuffer = frameBufferManager->createFrameBuffer("Other");
+    IFrameBuffer* defaultFrameBuffer = frameBufferManager->frameBuffer(0);
+    if (!otherFrameBuffer || !defaultFrameBuffer) {
+        LOG_ERROR("[main] Framebuffers are missing. Default(%p) Other(%p)", defaultFrameBuffer, otherFrameBuffer);
+        return -1;
+    }
+
+    ITexture* texture = textureManager->createTexture(100, 100, ITexture::Params{});
+    if (!texture || !otherFrameBuffer->attachTexture(texture, IFrameBuffer::Attachment::Color0)) {
+        LOG_ERROR("[main] Framebuffer Color attachment is missing. Texture(%p)", texture);
+        return -2;
+    }
+
     Mesh* mesh = resourceManager.createMesh(Mesh::Primitive::Suzanne);
-    Texture* texture = renderer.renderingDevice()->createTexture("textures/sample.jpg", {});
+    ITexture* sampleTexture = renderer.renderingDevice()->createTexture("textures/sample.jpg", {});
     Material* material = resourceManager.createMaterial(Program::k_positionNormalTexture);
     material->setValue("modelMatrix", glm::mat4(1.0f));
-    material->setTexture("Texture01", texture);
+    material->setTexture("Texture01", sampleTexture);
+
+    Mesh* quad = resourceManager.createMesh(Mesh::Primitive::Plane);
+    Material* quadMaterial = resourceManager.createMaterial(Program::k_positionTexture);
+    quadMaterial->setValue("modelMatrix", glm::mat4(1.0f));
+    quadMaterial->setTexture("Texture01", texture);
 
     Uint32 previousTime = SDL_GetTicks();
     Uint32 currentTime = previousTime;
@@ -65,17 +90,36 @@ int main(int argc, char* argv[]) {
             } else if (sdlEvent.type == SDL_WINDOWEVENT) {
                 window.onSDLEvent(sdlEvent.window);
             }
+
+            if (sdlEvent.type == SDL_KEYDOWN && sdlEvent.key.keysym.sym == SDLK_1) {
+                enable1 = !enable1;
+            } else if (sdlEvent.type == SDL_KEYDOWN && sdlEvent.key.keysym.sym == SDLK_2) {
+                enable2 = !enable2;
+            }
         }
 
         camera.update(deltaTime);
         light.update(deltaTime);
+        
         renderer.preRender();
-        ImGui::ShowMetricsWindow();
+        {
+            if (enable1) {
+                otherFrameBuffer->bind();
+                renderer.clearScreen();
+                renderer.renderingDevice()->render(mesh, material);
+            }
 
-        renderer.renderingDevice()->render(mesh, material);
-
-        ImGui::Render();
+            if (true) {
+                defaultFrameBuffer->bind();
+                renderer.clearScreen();
+                ImGui::ShowMetricsWindow();
+                ImGui::Render();
+                renderer.render(quad, quadMaterial);
+            }
+            
+        }
         renderer.postRender();
+
 
         previousTime = currentTime;
         currentTime = SDL_GetTicks();

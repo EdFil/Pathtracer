@@ -36,6 +36,10 @@ Mesh* Renderer::createMesh(const Mesh::Params& params) {
     return mesh;
 }
 
+void Renderer::clearScreen() {
+    _renderingDevice->clearScreen();
+}
+
 void Renderer::render(Mesh* mesh, Material* material) {
     _renderingDevice->render(mesh, material);
 }

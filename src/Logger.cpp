@@ -1,6 +1,7 @@
 #include "Logger.hpp"
 
 #include <SDL_stdinc.h>
+#include <SDL_assert.h>
 #include <cstdarg>
 #include <fstream>
 #include <string>
@@ -23,6 +24,7 @@ void Logger::destroy() {
     if (s_instance != nullptr) {
         s_instance->_logFile.close();
         delete s_instance;
+        s_instance = nullptr;
     }
 }
 
@@ -46,4 +48,11 @@ void Logger::log(const char* fileName, int lineNumber, const char* format, ...) 
     printf("%s", buffer);
     s_instance->_logFile.write(buffer, usedBytes - 1);
     s_instance->_logFile.flush();
+}
+
+void Logger::logError(const char* fileName, int lineNumber, const char* format, ...) {
+    va_list args;
+    va_start(args, format);
+    log(fileName, lineNumber, format, args);
+    va_end(args);
 }

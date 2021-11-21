@@ -6,7 +6,7 @@
 
 #include "Logger.hpp"
 #include "rendering/Program.hpp"
-#include "rendering/Texture.hpp"
+#include "rendering/ITexture.hpp"
 
 bool Material::init(Program* program) {
     if (program == nullptr || !program->isValid()) return false;
@@ -37,7 +37,7 @@ void Material::bind() {
                 _program->setUniform(it.first.c_str(), *(float*)(_uniformData.data() + dataIndex));
                 break;
             case UniformData::Type::Texture: {
-                Texture* texture = nullptr;
+                ITexture* texture = nullptr;
                 memcpy(&texture, _uniformData.data() + dataIndex, sizeof(void*));
                 texture->bind();
                 break;
@@ -49,7 +49,7 @@ void Material::bind() {
     }
 }
 
-bool Material::setTexture(const char* uniformName, Texture* texture) {
+bool Material::setTexture(const char* uniformName, ITexture* texture) {
     const std::map<std::string, UniformData>& uniforms = _program->activeUniforms();
     unsigned int dataBegin = 0;
     for (const auto& it : uniforms) {
