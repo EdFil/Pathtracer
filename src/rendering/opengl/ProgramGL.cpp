@@ -10,8 +10,8 @@
 #include <glm/vec4.hpp>
 
 #include "Logger.hpp"
-#include "rendering/RenderingDevice.hpp"
-#include "rendering/Shader.hpp"
+#include "rendering/IRenderingDevice.hpp"
+#include "ShaderGL.hpp"
 
 namespace {
 UniformData::Type fromGLType(GLenum type) {
@@ -29,15 +29,21 @@ UniformData::Type fromGLType(GLenum type) {
 }
 }  // namespace
 
+// ---------------------------------------
+// -------------  ProgramGL  -------------
+// ---------------------------------------
+
 ProgramGL::~ProgramGL() {
     if (_handle != 0) {
         glDeleteProgram(_handle);
     }
 }
 
-bool ProgramGL::init(const Shader& vertexShader, const Shader& fragmentShader) {
+bool ProgramGL::init(const IShader& vertexShader, const IShader& fragmentShader) {
     assert(vertexShader.type() == Shader::Type::Vertex);
     assert(fragmentShader.type() == Shader::Type::Fragment);
+    const ShaderGL& vertexShaderGL = (const ShaderGL&)vertexShader;
+    const ShaderGL& fragmentShaderGL = (const ShaderGL&)fragmentShader;
 
     GLuint handle = glCreateProgram();
     if (handle == 0) {
@@ -45,8 +51,8 @@ bool ProgramGL::init(const Shader& vertexShader, const Shader& fragmentShader) {
         return false;
     }
 
-    glAttachShader(handle, vertexShader.handle());
-    glAttachShader(handle, fragmentShader.handle());
+    glAttachShader(handle, vertexShaderGL.handle());
+    glAttachShader(handle, fragmentShaderGL.handle());
 
     GLenum value = glGetError();
     while (value != GL_NO_ERROR) {
@@ -59,27 +65,29 @@ bool ProgramGL::init(const Shader& vertexShader, const Shader& fragmentShader) {
     }
 
     _handle = handle;
-    _vertexShader = &vertexShader;
-    _fragmentShader = &fragmentShader;
+    _vertexShader = &vertexShaderGL;
+    _fragmentShader = &fragmentShaderGL;
 
     return true;
 }
 
-bool ProgramGL::setShader(const Shader& shader) {
+bool ProgramGL::setShader(const IShader& shader) {
+    const ShaderGL& shaderGL = (const ShaderGL&)shader;
+
     if (_handle == 0) {
         LOG_ERROR("[ProgramGL] Cannot set shader when handle is invalid. Init was not called or failed.");
         return false;
     }
 
-    glAttachShader(_handle, shader.handle());
+    glAttachShader(_handle, shaderGL.handle());
     if (!linkProgram(_handle)) {
         return false;
     }
 
     if (shader.type() == Shader::Type::Vertex) {
-        _vertexShader = &shader;
+        _vertexShader = &shaderGL;
     } else {
-        _fragmentShader = &shader;
+        _fragmentShader = &shaderGL;
     }
     return true;
 }
@@ -201,4 +209,71 @@ void ProgramGL::setUniform(const char* uniformName, const glm::mat4& value) {
     if (it != _activeUniforms.cend()) {
         glUniformMatrix4fv((GLint)it->second.handle, 1, GL_FALSE, glm::value_ptr(value));
     }
+}
+
+const IShader* ProgramGL::vertexShader() const {
+    return _vertexShader;
+}
+
+const IShader* ProgramGL::fragmentShader() const {
+    return _fragmentShader;
+}
+
+// ----------------------------------------------
+// -------------  ProgramManagerGL  -------------
+// ----------------------------------------------
+
+bool ProgramManagerGL::init(const IShaderManager& shaderManager) {
+    const ShaderManagerGL& shaderManagerGL = (const ShaderManagerGL&)shaderManager;
+
+    bool allCreated = true;
+    allCreated |= createProgram(shaderManagerGL, Program::k_position, Shader::Vertex::k_position, Shader::Fragment::k_position);
+    allCreated |= createProgram(shaderManagerGL, Program::k_positionTexture, Shader::Vertex::k_positionTexture, Shader::Fragment::k_positionTexture);
+    allCreated |=
+        createProgram(shaderManagerGL, Program::k_positionNormalTexture, Shader::Vertex::k_positionNormalTexture, Shader::Fragment::k_positionNormalTexture);
+
+    return allCreated;
+}
+
+IProgram* ProgramManagerGL::createProgram(const std::string& name, const IShader& vertexShader, const IShader& fragmentShader) {
+    if (IProgram* cachedProgram = program(name)) {
+        return cachedProgram;
+    }
+
+    std::unique_ptr<ProgramGL> program = std::make_unique<ProgramGL>();
+    if (!program || !program->init(vertexShader, fragmentShader)) {
+        LOG_ERROR("[ProgramManagerGL] Failed to create Progra,. Program(%p) Name(%s)", program.get(), name.c_str());
+        return nullptr;
+    }
+
+    const auto it = _programs.insert({name, std::move(program)});
+    if (!it.second) {
+        LOG_ERROR("[ProgramManagerGL] Failed to insert program into map. Memory allocation failed?");
+        return nullptr;
+    }
+
+    ProgramGL* createdProgram = it.first->second.get();
+    LOG("[ProgramManagerGL] Create Program success. Program(%p) Name(%s)", createdProgram, name.c_str());
+    return createdProgram;
+}
+
+IProgram* ProgramManagerGL::program(const std::string& name) const {
+    const auto it = _programs.find(name);
+    if (it != _programs.cend()) {
+        return it->second.get();
+    }
+
+    return nullptr;
+}
+
+bool ProgramManagerGL::createProgram(const ShaderManagerGL& shaderManager, const char* programName, const char* vertexName, const char* fragmentName) {
+    ShaderGL* vertexShader = (ShaderGL*)shaderManager.shader(vertexName);
+    ShaderGL* fragmentShader = (ShaderGL*)shaderManager.shader(fragmentName);
+
+    if (vertexShader == nullptr || fragmentShader == nullptr) {
+        LOG_ERROR("[ProgramManagerGL] Could not find a shader instance for %s or %s", vertexShader, fragmentShader);
+        return false;
+    }
+
+    return createProgram(programName, *vertexShader, *fragmentShader) != nullptr;
 }

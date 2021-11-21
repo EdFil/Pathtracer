@@ -3,10 +3,9 @@
 #include <glad/glad.h>
 
 #include "Logger.hpp"
-#include "rendering/Types.hpp"
+#include "RenderingDeviceGL.hpp"
 
 bool RenderingDeviceInfoGL::init() {
-    _api = rendering::API::OpenGL;
     glGetIntegerv(GL_MAX_VERTEX_ATTRIBS, &_maxVertexAttributes);
     glGetIntegerv(GL_MAX_TEXTURE_SIZE, &_maxTextureSize);
     glGetIntegerv(GL_MAX_COMBINED_TEXTURE_IMAGE_UNITS, &_maxTextureUnits);

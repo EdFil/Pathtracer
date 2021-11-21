@@ -1,11 +1,11 @@
 #pragma once
 
-#include "rendering/RenderingDevice.hpp"
+#include "rendering/IRenderingDevice.hpp"
 
-#include "BufferManagerGL.hpp"
-#include "ProgramManagerGL.hpp"
+#include "BufferGL.hpp"
+#include "ProgramGL.hpp"
 #include "RenderingDeviceInfoGL.hpp"
-#include "ShaderManagerGL.hpp"
+#include "ShaderGL.hpp"
 #include "FrameBufferGL.hpp"
 #include "TextureGL.hpp"
 
@@ -14,7 +14,7 @@ struct SDL_Renderer;
 typedef void* SDL_GLContext;
 class Mesh;
 
-class RenderingDeviceGL : public RenderingDevice {
+class RenderingDeviceGL : public IRenderingDevice {
 public:
     RenderingDeviceGL(SDL_Window* window);
     ~RenderingDeviceGL();
@@ -24,23 +24,20 @@ public:
     void preRender(Camera* camera) override;
     void postRender() override;
 
-    Shader* createShader(const std::string& name, Shader::Type type, const char* source) override;
-    Program* getProgram(const std::string& name) const override;
-    Program* createProgram(const std::string& name, const Shader& vertexShader, const Shader& fragmentShader) override;
     IUniformBuffer* createUniformBuffer(unsigned int bindingPoint, unsigned int sizeInBytes) override;
-    Buffer* createBuffer(const Buffer::Mode& mode) override;
-    ITexture* createTexture(const char* filePath, const ITexture::Params& params) override;
+    IBuffer* createBuffer(const Buffer::Mode& mode) override;
 
     void render(Mesh* mesh, Material* material) override;
 
-    RenderingDeviceInfo* deviceInfo() override { return &_renderingDeviceInfo; }
-    ShaderManager* shaderManager() override { return &_shaderManager; }
+    IRenderingDeviceInfo* deviceInfo() override { return &_renderingDeviceInfo; }
+    IShaderManager* shaderManager() override { return &_shaderManager; }
     IFrameBufferManager* frameBufferManager() override { return &_frameBufferManager; };
     ITextureManager* textureManager() { return &_textureManager; };
+    IProgramManager* programManager() { return &_programManager; }
 
 private:
     SDL_Window* _window = nullptr;
-    SDL_GLContext _context;
+    SDL_GLContext _context = nullptr;
     RenderingDeviceInfoGL _renderingDeviceInfo;
     FrameBufferManagerGL _frameBufferManager;
     BufferManagerGL _bufferManager;

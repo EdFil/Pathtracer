@@ -4,12 +4,12 @@
 #include <glm/vec3.hpp>
 
 class IUniformBuffer;
-class RenderingDevice;
+class IRenderingDevice;
 class Window;
 
 class Camera {
 public:
-    bool init(const Window& window, RenderingDevice& renderingDevice);
+    bool init(const Window& window, IRenderingDevice& renderingDevice);
     void update(float deltaTime);
     void reset();
 

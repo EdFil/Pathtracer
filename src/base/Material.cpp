@@ -5,10 +5,10 @@
 #include <glm/mat4x4.hpp>
 
 #include "Logger.hpp"
-#include "rendering/Program.hpp"
+#include "rendering/IProgram.hpp"
 #include "rendering/ITexture.hpp"
 
-bool Material::init(Program* program) {
+bool Material::init(IProgram* program) {
     if (program == nullptr || !program->isValid()) return false;
 
     const std::map<std::string, UniformData>& uniforms = program->activeUniforms();

@@ -14,9 +14,9 @@
 #include "base/Material.hpp"
 #include "base/ResourceManager.hpp"
 #include "file/FileManager.hpp"
-#include "rendering/Program.hpp"
+#include "rendering/IProgram.hpp"
 #include "rendering/Renderer.hpp"
-#include "rendering/RenderingDevice.hpp"
+#include "rendering/IRenderingDevice.hpp"
 #include "rendering/ITexture.hpp"
 #include "rendering/IFrameBuffer.hpp"
 
@@ -54,14 +54,14 @@ int main(int argc, char* argv[]) {
         return -1;
     }
 
-    ITexture* texture = textureManager->createTexture(100, 100, ITexture::Params{});
+    ITexture* texture = textureManager->createTexture(100, 100, Texture::Params{});
     if (!texture || !otherFrameBuffer->attachTexture(texture, IFrameBuffer::Attachment::Color0)) {
         LOG_ERROR("[main] Framebuffer Color attachment is missing. Texture(%p)", texture);
         return -2;
     }
 
     Mesh* mesh = resourceManager.createMesh(Mesh::Primitive::Suzanne);
-    ITexture* sampleTexture = renderer.renderingDevice()->createTexture("textures/sample.jpg", {});
+    ITexture* sampleTexture = textureManager->createTexture("textures/sample.jpg", {});
     Material* material = resourceManager.createMaterial(Program::k_positionNormalTexture);
     material->setValue("modelMatrix", glm::mat4(1.0f));
     material->setTexture("Texture01", sampleTexture);

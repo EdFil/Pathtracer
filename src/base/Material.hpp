@@ -3,18 +3,18 @@
 #include <glm/fwd.hpp>
 #include <vector>
 
-class Program;
+class IProgram;
 class ITexture;
 
 class Material {
 public:
-    bool init(Program* program);
+    bool init(IProgram* program);
 
     void bind();
     bool setTexture(const char* uniformName, ITexture* texture);
     bool setValue(const char* uniformName, const glm::mat4& value);
 
 private:
-    Program* _program;
+    IProgram* _program;
     std::vector<char> _uniformData;
 };

@@ -9,10 +9,11 @@ class TextureGL final : public ITexture {
 public:
     virtual ~TextureGL() override;
 
-    bool init(uint32_t width, uint32_t height, const Params& params) override;
-    bool init(const std::string& filePath, const Params& params) override;
-    void bind() const override;
     unsigned int handle() const override { return _handle; }
+
+    bool init(uint32_t width, uint32_t height, const Texture::Params& params) override;
+    bool init(const std::string& filePath, const Texture::Params& params) override;
+    void bind() const override;
 
 private:
     unsigned int _handle = 0;
@@ -20,10 +21,8 @@ private:
 
 class TextureManagerGL final : public ITextureManager {
 public:
-
-
-    virtual ITexture* createTexture(uint32_t width, uint32_t height, const ITexture::Params& params) override;
-    virtual ITexture* createTexture(const std::string& filePath, const ITexture::Params& params) override;
+    virtual ITexture* createTexture(uint32_t width, uint32_t height, const Texture::Params& params) override;
+    virtual ITexture* createTexture(const std::string& filePath, const Texture::Params& params) override;
     virtual void deleteTexture(ITexture* texture) override;
 
 private:

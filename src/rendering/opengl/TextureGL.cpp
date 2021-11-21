@@ -10,11 +10,11 @@
 
 namespace {
 
-    constexpr GLenum formatToGL(const ITexture::Format& format) {
+    constexpr GLenum formatToGL(const Texture::Format& format) {
         switch (format) {
-            case ITexture::Format::RGBA:
+            case Texture::Format::RGBA:
                 return GL_RGBA;
-            case ITexture::Format::RGB:
+            case Texture::Format::RGB:
                 return GL_RGB;
             default:
                 LOG_ERROR("[TextureGL] Unhandled format %d", format);
@@ -34,7 +34,7 @@ TextureGL::~TextureGL() {
     }
 }
 
-bool TextureGL::init(uint32_t width, uint32_t height, const Params& params) {
+bool TextureGL::init(uint32_t width, uint32_t height, const Texture::Params& params) {
     glGenTextures(1, &_handle);
     glBindTexture(GL_TEXTURE_2D, _handle);
     glTexImage2D(GL_TEXTURE_2D, 0, formatToGL(params.format), width, height, 0, formatToGL(params.format), GL_UNSIGNED_BYTE, nullptr);
@@ -44,7 +44,7 @@ bool TextureGL::init(uint32_t width, uint32_t height, const Params& params) {
     return !UtilsGL::CheckGLError("[TextureGL]");
 }
 
-bool TextureGL::init(const std::string& filePath, const Params& params) {
+bool TextureGL::init(const std::string& filePath, const Texture::Params& params) {
     char fullPath[512];
     FileManager::instance()->fullPathForFile(filePath.c_str(), fullPath, sizeof(fullPath));
 
@@ -73,7 +73,7 @@ void TextureGL::bind() const {
 // -------------  TextureManagerGL  -------------
 // ----------------------------------------------
 
-ITexture* TextureManagerGL::createTexture(uint32_t width, uint32_t height, const ITexture::Params& params) {
+ITexture* TextureManagerGL::createTexture(uint32_t width, uint32_t height, const Texture::Params& params) {
     std::unique_ptr<TextureGL> texture = std::make_unique<TextureGL>();
     if (texture == nullptr || !texture->init(width, height, params)) {
         LOG_ERROR("[TextureManagerGL] Failed to create %ux%u texture. Texture(%p)", width, height, texture.get());
@@ -89,7 +89,7 @@ ITexture* TextureManagerGL::createTexture(uint32_t width, uint32_t height, const
     return it.first->second.get();
 }
 
-ITexture* TextureManagerGL::createTexture(const std::string& filePath, const ITexture::Params& params) {
+ITexture* TextureManagerGL::createTexture(const std::string& filePath, const Texture::Params& params) {
     std::unique_ptr<TextureGL> texture = std::make_unique<TextureGL>();
     if (texture == nullptr || !texture->init(filePath, params)) {
         LOG_ERROR("[TextureManagerGL] Failed to create %s texture. Texture(%p)", filePath.c_str(), texture.get());

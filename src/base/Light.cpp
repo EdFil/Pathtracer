@@ -5,9 +5,9 @@
 
 #include "Logger.hpp"
 #include "rendering/IUniformBuffer.h"
-#include "rendering/RenderingDevice.hpp"
+#include "rendering/IRenderingDevice.hpp"
 
-bool Light::init(RenderingDevice& renderingDevice) {
+bool Light::init(IRenderingDevice& renderingDevice) {
     _uniformBuffer = renderingDevice.createUniformBuffer(1, sizeof(LightData));
     if (_uniformBuffer == nullptr) {
         LOG_ERROR("[Light] Could not create Uniform buffer object");

@@ -4,14 +4,14 @@
 
 #include "base/Mesh.hpp"
 
-class RenderingDevice;
+class IRenderingDevice;
 class Material;
-class Program;
+class IProgram;
 
 class ResourceManager {
 public:
     static ResourceManager& instance();
-    bool init(RenderingDevice& renderingDevice);
+    bool init(IRenderingDevice& renderingDevice);
 
     Material* createMaterial(const char* programName);
 
@@ -19,7 +19,7 @@ public:
     Mesh* createMesh(const char* fileName);
 
 private:
-    RenderingDevice* _renderingDevice;
+    IRenderingDevice* _renderingDevice;
     std::vector<Material*> _materials;
     std::vector<Mesh*> _meshes;
 };

@@ -11,7 +11,6 @@
 #include "rendering/opengl/ProgramGL.hpp"
 #include "rendering/opengl/RenderingDeviceInfoGL.hpp"
 #include "rendering/opengl/ShaderGL.hpp"
-#include "rendering/opengl/ShaderManagerGL.hpp"
 #include "rendering/opengl/TextureGL.hpp"
 #include "rendering/opengl/UniformBufferGL.hpp"
 
@@ -20,6 +19,14 @@
 #include "SDL_video.h"
 
 RenderingDeviceGL::RenderingDeviceGL(SDL_Window* window) : _window(window) {
+}
+
+RenderingDeviceGL::~RenderingDeviceGL() {
+    ImGui_ImplOpenGL3_Shutdown();
+    ImGui_ImplSDL2_Shutdown();
+    ImGui::DestroyContext();
+
+    SDL_GL_DeleteContext(_context);
 }
 
 bool RenderingDeviceGL::init() {
@@ -68,14 +75,6 @@ bool RenderingDeviceGL::init() {
     return true;
 }
 
-RenderingDeviceGL::~RenderingDeviceGL() {
-    ImGui_ImplOpenGL3_Shutdown();
-    ImGui_ImplSDL2_Shutdown();
-    ImGui::DestroyContext();
-
-    SDL_GL_DeleteContext(_context);
-}
-
 void RenderingDeviceGL::clearScreen() {
     glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -92,18 +91,6 @@ void RenderingDeviceGL::postRender() {
     SDL_GL_SwapWindow(_window);
 }
 
-Shader* RenderingDeviceGL::createShader(const std::string& name, Shader::Type type, const char* source) {
-    return _shaderManager.createShader(name, type, source);
-}
-
-Program* RenderingDeviceGL::getProgram(const std::string& name) const {
-    return _programManager.program(name);
-}
-
-Program* RenderingDeviceGL::createProgram(const std::string& name, const Shader& vertexShader, const Shader& fragmentShader) {
-    return _programManager.createProgram(name, vertexShader, fragmentShader);
-}
-
 IUniformBuffer* RenderingDeviceGL::createUniformBuffer(unsigned int bindingPoint, unsigned int sizeInBytes) {
     UniformBufferGL* uniformBuffer = new UniformBufferGL();
     if (!uniformBuffer->init(bindingPoint, sizeInBytes)) {
@@ -114,22 +101,12 @@ IUniformBuffer* RenderingDeviceGL::createUniformBuffer(unsigned int bindingPoint
     return uniformBuffer;
 }
 
-Buffer* RenderingDeviceGL::createBuffer(const Buffer::Mode& mode) {
+IBuffer* RenderingDeviceGL::createBuffer(const Buffer::Mode& mode) {
     return _bufferManager.createBuffer(mode);
-}
-
-ITexture* RenderingDeviceGL::createTexture(const char* filePath, const ITexture::Params& params) {
-    TextureGL* texture = new TextureGL();
-    if (!texture->init(filePath, params)) {
-        delete texture;
-        return nullptr;
-    }
-
-    return texture;
 }
 
 void RenderingDeviceGL::render(Mesh* mesh, Material* material) {
     material->bind();
     ((BufferGL*)mesh->buffer())->bind();
-    ((BufferGL*)mesh->buffer())->draw(mesh->count());
+    ((BufferGL*)mesh->buffer())->draw((unsigned int)mesh->count());
 }

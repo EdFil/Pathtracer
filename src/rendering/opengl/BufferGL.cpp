@@ -36,7 +36,7 @@ BufferGL::~BufferGL() {
     clearBuffersFor(_mode);
 }
 
-void BufferGL::init(Mode mode) {
+void BufferGL::init(Buffer::Mode mode) {
     if (_mode == mode) {
         return;
     }
@@ -46,7 +46,7 @@ void BufferGL::init(Mode mode) {
     _mode = mode;
 }
 
-bool BufferGL::updateData(Target target, Usage usage, const void *data, uint32_t sizeInBytes) {
+bool BufferGL::updateData(Buffer::Target target, Buffer::Usage usage, const void *data, uint32_t sizeInBytes) {
     if (data == nullptr && !isTargetCompatibleWithCurrentMode(target)) {
         return false;
     }
@@ -83,13 +83,13 @@ void BufferGL::draw(unsigned int count) {
     }
 }
 
-void BufferGL::generateBuffersFor(Mode mode) {
+void BufferGL::generateBuffersFor(Buffer::Mode mode) {
     glGenVertexArrays(1, &_handle);
     switch (mode) {
-        case Mode::Vertex:
+        case Buffer::Mode::Vertex:
             glGenBuffers(1, _bufferObjects);
             break;
-        case Mode::VertexElementPair:
+        case Buffer::Mode::VertexElementPair:
             glGenBuffers(2, _bufferObjects);
             break;
         default:
@@ -98,12 +98,12 @@ void BufferGL::generateBuffersFor(Mode mode) {
     }
 }
 
-void BufferGL::clearBuffersFor(Mode mode) {
+void BufferGL::clearBuffersFor(Buffer::Mode mode) {
     switch (mode) {
-        case Mode::Vertex:
+        case Buffer::Mode::Vertex:
             glDeleteVertexArrays(1, &_handle);
             glDeleteBuffers(1, _bufferObjects);
-        case Mode::VertexElementPair:
+        case Buffer::Mode::VertexElementPair:
             glDeleteVertexArrays(1, &_handle);
             glDeleteBuffers(2, _bufferObjects);
             break;
@@ -112,26 +112,45 @@ void BufferGL::clearBuffersFor(Mode mode) {
     }
 }
 
-bool BufferGL::isTargetCompatibleWithCurrentMode(Target target) const {
+bool BufferGL::isTargetCompatibleWithCurrentMode(Buffer::Target target) const {
     switch (_mode) {
-        case Mode::Vertex:
-            return target == Target::Array;
-        case Mode::VertexElementPair:
-            return target == Target::Array || target == Target::Element;
+        case Buffer::Mode::Vertex:
+            return target == Buffer::Target::Array;
+        case Buffer::Mode::VertexElementPair:
+            return target == Buffer::Target::Array || target == Buffer::Target::Element;
         default:
             LOG_ERROR("[BufferGL] Mode %d is not handled", _mode);
             return false;
     }
 }
 
-unsigned int BufferGL::bufferForTarget(Target target) {
+unsigned int BufferGL::bufferForTarget(Buffer::Target target) {
     switch (target) {
-        case Target::Array:
+        case Buffer::Target::Array:
             return _bufferObjects[0];
-        case Target::Element:
+        case Buffer::Target::Element:
             return _bufferObjects[1];
         default:
             LOG_ERROR("[BufferGL] Target %d is not handled", _mode);
             return 0;
     }
+}
+
+// ---------------------------------------------
+// -------------  BufferManagerGL  -------------
+// ---------------------------------------------
+
+IBuffer* BufferManagerGL::createBuffer(const Buffer::Mode& mode) {
+    std::unique_ptr<BufferGL> buffer = std::make_unique<BufferGL>();
+    buffer->init(mode);
+
+    const auto it = _buffers.insert({buffer->handle(), std::move(buffer)});
+    return it.first->second.get();
+}
+
+IBuffer* BufferManagerGL::buffer(uint32_t handle) const {
+    const auto it = _buffers.find(handle);
+    if (it == _buffers.cend()) return nullptr;
+
+    return it->second.get();
 }

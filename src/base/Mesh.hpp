@@ -3,8 +3,8 @@
 #include <cstring>
 #include "container/VectorView.hpp"
 
-class RenderingDevice;
-class Buffer;
+class IRenderingDevice;
+class IBuffer;
 
 class Mesh {
 public:
@@ -25,12 +25,12 @@ public:
         VectorView<unsigned int> indices;
     };
 
-    bool init(RenderingDevice& renderingDevice, const Mesh::Params& params);
+    bool init(IRenderingDevice& renderingDevice, const Mesh::Params& params);
 
-    Buffer* buffer() const { return _buffer; }
+    IBuffer* buffer() const { return _buffer; }
     size_t count() const { return _count; }
 
 private:
-    Buffer* _buffer = nullptr;
+    IBuffer* _buffer = nullptr;
     size_t _count = 0;
 };

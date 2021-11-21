@@ -6,12 +6,14 @@
 #include "rendering/Types.hpp"
 
 struct SDL_Window;
-class RenderingDevice;
+class IRenderingDevice;
 class Camera;
 class Material;
 
 class Renderer {
 public:
+    enum class API { OpenGL };
+
     Renderer();
     ~Renderer();
 
@@ -25,11 +27,11 @@ public:
     void preRender();
     void postRender();
 
-    RenderingDevice* renderingDevice() const { return _renderingDevice.get(); }
-    void setRenderingAPI(rendering::API renderingAPI);
+    IRenderingDevice* renderingDevice() const { return _renderingDevice.get(); }
+    void setRenderingAPI(Renderer::API renderingAPI);
 
 private:
     Camera* _camera;
     SDL_Window* _sdlWindow;
-    std::unique_ptr<RenderingDevice> _renderingDevice;
+    std::unique_ptr<IRenderingDevice> _renderingDevice;
 };

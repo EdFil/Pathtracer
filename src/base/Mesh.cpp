@@ -4,9 +4,9 @@
 #include <vector>
 
 #include "Logger.hpp"
-#include "rendering/RenderingDevice.hpp"
+#include "rendering/IRenderingDevice.hpp"
 
-bool Mesh::init(RenderingDevice& renderingDevice, const Mesh::Params& params) {
+bool Mesh::init(IRenderingDevice& renderingDevice, const Mesh::Params& params) {
     if (params.vertices.empty()) {
         LOG_ERROR("[Mesh] init: Cannot create a mesh with no vertices");
         return false;

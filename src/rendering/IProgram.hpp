@@ -1,10 +1,11 @@
 #pragma once
 
-#include <glm/fwd.hpp>
-#include <map>
 #include <string>
+#include <map>
+#include <glm/fwd.hpp>
 
-class Shader;
+class IShader;
+class IShaderManager;
 
 struct UniformData {
     enum class Type { Undefined, Float, Mat4, Texture };
@@ -26,16 +27,18 @@ struct UniformData {
     }
 };
 
-class Program {
+namespace Program {
+    extern const char* k_position;
+    extern const char* k_positionTexture;
+    extern const char* k_positionNormalTexture;
+}
+
+class IProgram {
 public:
-    static const char* k_position;
-    static const char* k_positionTexture;
-    static const char* k_positionNormalTexture;
+    virtual ~IProgram() = default;
 
-    virtual ~Program() = default;
-
-    virtual bool init(const Shader& vertexShader, const Shader& fragmentShader) = 0;
-    virtual bool setShader(const Shader& vertexShader) = 0;
+    virtual bool init(const IShader& vertexShader, const IShader& fragmentShader) = 0;
+    virtual bool setShader(const IShader& vertexShader) = 0;
 
     virtual void setUniform(const char* uniformName, int value) = 0;
     virtual void setUniform(const char* uniformName, float value) = 0;
@@ -48,15 +51,18 @@ public:
 
     virtual void bind() const = 0;
 
-    bool isValid() const { return _handle != 0; }
-    const std::map<std::string, UniformData>& activeUniforms() const { return _activeUniforms; }
-    unsigned int handle() const { return _handle; }
-    const Shader* vertexShader() const { return _vertexShader; }
-    const Shader* fragmentShader() const { return _fragmentShader; }
+    virtual bool isValid() const = 0;
+    virtual const std::map<std::string, UniformData>& activeUniforms() const = 0;
+    virtual unsigned int handle() const = 0;
+    virtual const IShader* vertexShader() const = 0;
+    virtual const IShader* fragmentShader() const = 0;
+};
 
-protected:
-    unsigned int _handle;
-    std::map<std::string, UniformData> _activeUniforms;
-    const Shader* _vertexShader = nullptr;
-    const Shader* _fragmentShader = nullptr;
+class IProgramManager {
+public:
+    virtual ~IProgramManager() = default;
+
+    virtual bool init(const IShaderManager& shaderManager) = 0;
+    virtual IProgram* createProgram(const std::string& name, const IShader& vertex, const IShader& fragment) = 0;
+    virtual IProgram* program(const std::string& name) const = 0;
 };

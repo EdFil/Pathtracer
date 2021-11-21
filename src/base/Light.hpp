@@ -3,7 +3,7 @@
 #include <glm/vec3.hpp>
 
 class IUniformBuffer;
-class RenderingDevice;
+class IRenderingDevice;
 class Mesh;
 
 struct LightData {
@@ -17,7 +17,7 @@ struct LightData {
 
 class Light {
 public:
-    bool init(RenderingDevice& renderingDevice);
+    bool init(IRenderingDevice& renderingDevice);
     void update(float deltaTime);
 
     const glm::vec3& position() const { return _lightData.position; }

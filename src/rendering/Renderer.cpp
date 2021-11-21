@@ -21,7 +21,7 @@ bool Renderer::init(SDL_Window* window, Camera* camera) {
     }
 
     // FIXME: Don't force OpenGL like this when we have more
-    setRenderingAPI(rendering::API::OpenGL);
+    setRenderingAPI(Renderer::API::OpenGL);
 
     return _renderingDevice.get() != nullptr;
 }
@@ -52,9 +52,9 @@ void Renderer::postRender() {
     _renderingDevice->postRender();
 }
 
-void Renderer::setRenderingAPI(rendering::API renderingAPI) {
+void Renderer::setRenderingAPI(Renderer::API renderingAPI) {
     switch (renderingAPI) {
-        case rendering::API::OpenGL:
+        case Renderer::API::OpenGL:
             LOG("[Renderer] Initialising with an OpenGL rendering device");
             _renderingDevice = std::make_unique<RenderingDeviceGL>(_sdlWindow);
             break;

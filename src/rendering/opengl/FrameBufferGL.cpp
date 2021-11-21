@@ -49,13 +49,13 @@ bool FrameBufferGL::init(std::string&& name) {
     return wasSuccess;
 }
 
-bool FrameBufferGL::init(uint32_t id, std::string&& name) {    
-    if (id != 0 && glIsFramebuffer(id) == GL_FALSE) {
-        LOG_ERROR("[FrameBufferGL] Init %s failed. %d is not a valid framebuffer object handle", name.c_str(), id);
+bool FrameBufferGL::init(uint32_t handle, std::string&& name) {    
+    if (handle != 0 && glIsFramebuffer(handle) == GL_FALSE) {
+        LOG_ERROR("[FrameBufferGL] Init %s failed. %d is not a valid framebuffer object handle", name.c_str(), handle);
         return false;
     }
 
-    _handle = id;
+    _handle = handle;
     _name = std::move(name);
     LOG("[FrameBufferGL] Init successful. Handle(%d) Name(%s)", _handle, _name.c_str());
     return !hasFramebufferError();
@@ -134,7 +134,7 @@ bool FrameBufferManagerGL::init() {
         return false;
     }
 
-    const auto it = _frameBuffers.insert({frameBuffer->id(), std::move(frameBuffer)});
+    const auto it = _frameBuffers.insert({frameBuffer->handle(), std::move(frameBuffer)});
     if (!it.second) {
         LOG_ERROR("[FrameBufferManagerGL] Failed to insert \"Default\" framebuffer into map. Memory allocation failed?");
         return false;
@@ -150,7 +150,7 @@ IFrameBuffer* FrameBufferManagerGL::createFrameBuffer(std::string&& name) {
         return nullptr;
     }
 
-    const auto it = _frameBuffers.insert({frameBuffer->id(), std::move(frameBuffer)});
+    const auto it = _frameBuffers.insert({frameBuffer->handle(), std::move(frameBuffer)});
     if (!it.second) {
         LOG_ERROR("[FrameBufferManagerGL] Failed to insert framebuffer into map. Memory allocation failed?");
         return nullptr;
@@ -169,7 +169,7 @@ IFrameBuffer* FrameBufferManagerGL::frameBuffer(const std::string& name) const {
     return nullptr;
 }
 
-IFrameBuffer* FrameBufferManagerGL::frameBuffer(uint32_t id) const {
-    const auto it = _frameBuffers.find(id);
+IFrameBuffer* FrameBufferManagerGL::frameBuffer(uint32_t handle) const {
+    const auto it = _frameBuffers.find(handle);
     return it == _frameBuffers.cend() ? nullptr : it->second.get();
 }

@@ -8,7 +8,8 @@
 #include "base/Material.hpp"
 #include "base/Mesh.hpp"
 #include "file/FileManager.hpp"
-#include "rendering/RenderingDevice.hpp"
+#include "rendering/IRenderingDevice.hpp"
+#include "rendering/IProgram.hpp"
 
 namespace {
 static ResourceManager* s_instance = nullptr;
@@ -24,7 +25,7 @@ ResourceManager& ResourceManager::instance() {
     return *s_instance;
 }
 
-bool ResourceManager::init(RenderingDevice& renderingDevice) {
+bool ResourceManager::init(IRenderingDevice& renderingDevice) {
     if (s_instance != nullptr) {
         LOG_ERROR("[ResourceManager] Was already initialised");
         return false;
@@ -37,7 +38,7 @@ bool ResourceManager::init(RenderingDevice& renderingDevice) {
 }
 
 Material* ResourceManager::createMaterial(const char* programName) {
-    Program* program = _renderingDevice->getProgram(programName);
+    IProgram* program = _renderingDevice->programManager()->program(programName);
     if (program == nullptr) {
         LOG_ERROR("[ResourceManager] Could not find program with name \"%s\".");
         return nullptr;

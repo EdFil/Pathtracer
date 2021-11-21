@@ -9,11 +9,11 @@ class FrameBufferGL final : public IFrameBuffer {
 public:
     ~FrameBufferGL() override;
 
-    virtual uint32_t id() const override { return _handle; };
+    virtual uint32_t handle() const override { return _handle; };
     virtual const std::string& name() override { return _name; };
 
     bool init(std::string&& name) override;
-    bool init(uint32_t id, std::string&& name) override;
+    bool init(uint32_t handle, std::string&& name) override;
     void destroy() override;
     bool attachTexture(ITexture *texture, Attachment attachment) override;
     void bind() override;
@@ -33,7 +33,7 @@ public:
     virtual bool init() override;
     virtual IFrameBuffer *createFrameBuffer(std::string&& name) override;
     virtual IFrameBuffer *frameBuffer(const std::string& name) const override;
-    virtual IFrameBuffer *frameBuffer(uint32_t id) const override;
+    virtual IFrameBuffer *frameBuffer(uint32_t handle) const override;
 
 private:
     std::map<uint32_t, std::unique_ptr<FrameBufferGL>> _frameBuffers;

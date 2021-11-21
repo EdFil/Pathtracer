@@ -1,4 +1,4 @@
-#include "rendering/Program.hpp"
+#include "rendering/IProgram.hpp"
 
 const char* Program::k_position = "position";
 const char* Program::k_positionTexture = "positionTexture";
