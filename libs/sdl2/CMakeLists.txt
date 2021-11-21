@@ -12,6 +12,9 @@ else()
 endif()
 
 find_package(SDL2 REQUIRED)
+if(WIN32)
+  file(INSTALL ${SDL2_LIBRARY_DLL} DESTINATION ${CMAKE_RUNTIME_OUTPUT_DIRECTORY})
+endif()
 
 # Read SDL2 version
 if(SDL2_INCLUDE_DIR AND EXISTS "${SDL2_INCLUDE_DIR}/SDL_version.h")
