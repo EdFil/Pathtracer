@@ -23,14 +23,14 @@ public:
     virtual ~IRenderingDevice() = default;
 
     virtual bool init() = 0;
-    virtual void clearScreen() = 0;
-    virtual void preRender(Camera* camera) = 0;
+    virtual void clearScreen(float r = 0.0f, float g = 0.0f, float b = 0.0f, float a = 0.0f) = 0;
+    virtual void preRender() = 0;
     virtual void postRender() = 0;
 
     virtual IUniformBuffer* createUniformBuffer(unsigned int bindingPoint, unsigned int sizeInBytes) = 0;
     virtual IBuffer* createBuffer(const Buffer::Mode& mode) = 0;
 
-    virtual void render(Mesh* mesh, Material* program) = 0;
+    virtual void render(Camera* camera, Mesh* mesh, Material* program) = 0;
 
     virtual IRenderingDeviceInfo* deviceInfo() = 0;
     virtual IShaderManager* shaderManager() = 0;

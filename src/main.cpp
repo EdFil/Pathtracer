@@ -36,11 +36,13 @@ int main(int argc, char* argv[]) {
     Window window;
     Renderer renderer;
     ResourceManager resourceManager;
-    Camera camera;
+    Camera mainCamera;
+    Camera renderCamera;
     Light light;
 
-    bool isRunning = window.init() && renderer.init(window.window(), &camera);
-    isRunning &= camera.init(window, *renderer.renderingDevice());
+    bool isRunning = window.init() && renderer.init(window.window(), &mainCamera);
+    isRunning &= renderCamera.init(window, *renderer.renderingDevice(), 1.0f);
+    isRunning &= mainCamera.init(window, *renderer.renderingDevice(), 0.0f);
     isRunning &= light.init(*renderer.renderingDevice());
     isRunning &= resourceManager.init(*renderer.renderingDevice());
 
@@ -54,7 +56,7 @@ int main(int argc, char* argv[]) {
         return -1;
     }
 
-    ITexture* texture = textureManager->createTexture(100, 100, Texture::Params{});
+    ITexture* texture = textureManager->createTexture(window.size().x, window.size().y, Texture::Params{});
     if (!texture || !otherFrameBuffer->attachTexture(texture, IFrameBuffer::Attachment::Color0)) {
         LOG_ERROR("[main] Framebuffer Color attachment is missing. Texture(%p)", texture);
         return -2;
@@ -74,6 +76,8 @@ int main(int argc, char* argv[]) {
     Uint32 previousTime = SDL_GetTicks();
     Uint32 currentTime = previousTime;
 
+    renderCamera.update(0.0f);
+
     while (isRunning) {
         float deltaTime = (currentTime - previousTime) / 1000.0f;
 
@@ -86,7 +90,7 @@ int main(int argc, char* argv[]) {
             } else if (sdlEvent.type == SDL_MOUSEBUTTONDOWN && sdlEvent.button.button == 3) {
                 window.setMouseGrab(!window.isMouseGrabbed());
             } else if (sdlEvent.type == SDL_KEYDOWN && sdlEvent.key.keysym.sym == SDLK_r) {
-                camera.reset();
+                mainCamera.reset();
             } else if (sdlEvent.type == SDL_WINDOWEVENT) {
                 window.onSDLEvent(sdlEvent.window);
             }
@@ -98,27 +102,30 @@ int main(int argc, char* argv[]) {
             }
         }
 
-        camera.update(deltaTime);
+        mainCamera.update(deltaTime);
         light.update(deltaTime);
         
-        renderer.preRender();
+        IRenderingDevice* renderingDevice = renderer.renderingDevice();
+
+        renderingDevice->preRender();
         {
             if (enable1) {
                 otherFrameBuffer->bind();
-                renderer.clearScreen();
-                renderer.renderingDevice()->render(mesh, material);
+                renderingDevice->clearScreen();
+                renderingDevice->render(&renderCamera, mesh, material);
             }
 
             if (true) {
                 defaultFrameBuffer->bind();
-                renderer.clearScreen();
+                renderingDevice->clearScreen();
                 ImGui::ShowMetricsWindow();
                 ImGui::Render();
-                renderer.render(quad, quadMaterial);
+                //renderingDevice->render(&mainCamera, mesh, material);
+                renderingDevice->render(&mainCamera, quad, quadMaterial);
             }
             
         }
-        renderer.postRender();
+        renderingDevice->postRender();
 
 
         previousTime = currentTime;

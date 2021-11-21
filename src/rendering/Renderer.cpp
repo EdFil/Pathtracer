@@ -36,22 +36,6 @@ Mesh* Renderer::createMesh(const Mesh::Params& params) {
     return mesh;
 }
 
-void Renderer::clearScreen() {
-    _renderingDevice->clearScreen();
-}
-
-void Renderer::render(Mesh* mesh, Material* material) {
-    _renderingDevice->render(mesh, material);
-}
-
-void Renderer::preRender() {
-    _renderingDevice->preRender(_camera);
-}
-
-void Renderer::postRender() {
-    _renderingDevice->postRender();
-}
-
 void Renderer::setRenderingAPI(Renderer::API renderingAPI) {
     switch (renderingAPI) {
         case Renderer::API::OpenGL:

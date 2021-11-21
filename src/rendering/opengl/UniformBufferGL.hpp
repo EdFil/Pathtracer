@@ -1,11 +1,12 @@
 #pragma once
 
-#include "rendering/IUniformBuffer.h"
+#include "rendering/IUniformBuffer.hpp"
 
 class UniformBufferGL final : public IUniformBuffer {
 public:
-    bool init(unsigned int bindingPoint, unsigned int sizeInBytes) override;
-    bool updateData(const void* data, unsigned int sizeInBytes) override;
+    virtual bool init(unsigned int bindingPoint, unsigned int sizeInBytes) override;
+    virtual bool updateData(const void* data, unsigned int sizeInBytes) override;
+    virtual void bind() override;
 
 private:
     unsigned int _bindingPoint = 0;

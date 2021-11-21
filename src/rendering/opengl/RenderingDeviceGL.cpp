@@ -7,6 +7,7 @@
 
 #include "Logger.hpp"
 #include "base/Material.hpp"
+#include "base/Camera.hpp"
 #include "rendering/opengl/BufferGL.hpp"
 #include "rendering/opengl/ProgramGL.hpp"
 #include "rendering/opengl/RenderingDeviceInfoGL.hpp"
@@ -75,12 +76,12 @@ bool RenderingDeviceGL::init() {
     return true;
 }
 
-void RenderingDeviceGL::clearScreen() {
-    glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
+void RenderingDeviceGL::clearScreen(float r, float g, float b, float a) {
+    glClearColor(r, g, b, a);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 }
 
-void RenderingDeviceGL::preRender(Camera* camera) {
+void RenderingDeviceGL::preRender() {
     ImGui_ImplOpenGL3_NewFrame();
     ImGui_ImplSDL2_NewFrame(_window);
     ImGui::NewFrame();
@@ -105,7 +106,8 @@ IBuffer* RenderingDeviceGL::createBuffer(const Buffer::Mode& mode) {
     return _bufferManager.createBuffer(mode);
 }
 
-void RenderingDeviceGL::render(Mesh* mesh, Material* material) {
+void RenderingDeviceGL::render(Camera* camera, Mesh* mesh, Material* material) {
+    camera->bind();
     material->bind();
     ((BufferGL*)mesh->buffer())->bind();
     ((BufferGL*)mesh->buffer())->draw((unsigned int)mesh->count());

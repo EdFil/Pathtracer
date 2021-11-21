@@ -9,7 +9,7 @@
 #include <glad/glad.h>
 #include "Logger.hpp"
 #include "Window.hpp"
-#include "rendering/IUniformBuffer.h"
+#include "rendering/IUniformBuffer.hpp"
 #include "rendering/IRenderingDevice.hpp"
 
 namespace {
@@ -19,13 +19,14 @@ struct UniformData {
     glm::mat4x4 viewMatrix;
     glm::mat4x4 projectionMatrix;
     glm::vec4 cameraPosition;
+    float _debug;
 };
 
 };
 
 static unsigned int uboMatrices;
 
-bool Camera::init(const Window& window, IRenderingDevice& renderingDevice) {
+bool Camera::init(const Window& window, IRenderingDevice& renderingDevice, float debug) {
     _uniformBuffer = renderingDevice.createUniformBuffer(0, sizeof(UniformData));
     if (_uniformBuffer == nullptr) {
         LOG_ERROR("[Camera] Could not create Uniform buffer object");
@@ -33,6 +34,7 @@ bool Camera::init(const Window& window, IRenderingDevice& renderingDevice) {
     }
 
     _window = &window;
+    _debug = debug;
     reset();
 
     return true;
@@ -82,6 +84,10 @@ void Camera::update(float deltaTime) {
     updateUniformBuffer();
 }
 
+void Camera::bind() {
+    updateUniformBuffer();
+}
+
 void Camera::reset() {
     _position = {0.0f, 0.0f, 3.0f};
     _forward = {0.0f, 0.0f, -1.0f};
@@ -100,6 +106,6 @@ glm::mat4x4 Camera::projMatrix() const {
 }
 
 void Camera::updateUniformBuffer() {
-    UniformData uniformData = {viewMatrix(), projMatrix(), glm::vec4(_position, 1.0f)};
+    UniformData uniformData = {viewMatrix(), projMatrix(), glm::vec4(_position, 1.0f), _debug};
     _uniformBuffer->updateData(&uniformData, sizeof(UniformData));
 }

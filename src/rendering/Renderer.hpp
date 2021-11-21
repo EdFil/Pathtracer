@@ -21,12 +21,6 @@ public:
 
     Mesh* createMesh(const Mesh::Params& params);
 
-    void clearScreen();
-    void render(Mesh* mesh, Material* material);
-
-    void preRender();
-    void postRender();
-
     IRenderingDevice* renderingDevice() const { return _renderingDevice.get(); }
     void setRenderingAPI(Renderer::API renderingAPI);
 

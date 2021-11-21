@@ -23,12 +23,13 @@ bool UniformBufferGL::init(unsigned int bindingPoint, unsigned int sizeInBytes) 
     return true;
 }
 bool UniformBufferGL::updateData(const void* data, unsigned int sizeInBytes) {
-    UtilsGL::CheckGLError("[UniformBufferGL] updateData()");
     glBindBuffer(GL_UNIFORM_BUFFER, _handle);
-    UtilsGL::CheckGLError("[UniformBufferGL] updateData()");
     glBufferSubData(GL_UNIFORM_BUFFER, 0, sizeInBytes, data);
-    UtilsGL::CheckGLError("[UniformBufferGL] updateData()");
     glBindBuffer(GL_UNIFORM_BUFFER, 0);
 
     return !UtilsGL::CheckGLError("[UniformBufferGL] updateData()");
+}
+
+void UniformBufferGL::bind() {
+    glBindBuffer(GL_UNIFORM_BUFFER, _handle);
 }

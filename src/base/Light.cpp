@@ -4,7 +4,7 @@
 #include <glm/gtx/rotate_vector.hpp>
 
 #include "Logger.hpp"
-#include "rendering/IUniformBuffer.h"
+#include "rendering/IUniformBuffer.hpp"
 #include "rendering/IRenderingDevice.hpp"
 
 bool Light::init(IRenderingDevice& renderingDevice) {
