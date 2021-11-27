@@ -8,6 +8,7 @@
 #include "ShaderGL.hpp"
 #include "FrameBufferGL.hpp"
 #include "TextureGL.hpp"
+#include "UniformBufferGL.hpp"
 
 struct SDL_Window;
 struct SDL_Renderer;
@@ -23,7 +24,6 @@ public:
     virtual void preRender() override;
     virtual void postRender() override;
 
-    virtual IUniformBuffer* createUniformBuffer(unsigned int bindingPoint, unsigned int sizeInBytes) override;
     virtual IBuffer* createBuffer(const Buffer::Mode& mode) override;
 
     virtual void render(Camera* camera, Mesh* mesh, Material* material) override;
@@ -33,6 +33,7 @@ public:
     virtual IFrameBufferManager* frameBufferManager() override { return &_frameBufferManager; };
     virtual ITextureManager* textureManager() { return &_textureManager; };
     virtual IProgramManager* programManager() { return &_programManager; }
+    virtual IUniformBufferManager* uniformBufferManager() { return &_uniformBufferManager; }
 
 private:
     SDL_Window* _window = nullptr;
@@ -43,4 +44,5 @@ private:
     TextureManagerGL _textureManager;
     ShaderManagerGL _shaderManager;
     ProgramManagerGL _programManager;
+    UniformBufferManagerGL _uniformBufferManager;
 };

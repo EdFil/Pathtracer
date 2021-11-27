@@ -17,6 +17,7 @@ class IUniformBuffer;
 class IFrameBufferManager;
 class IShaderManager;
 class IProgramManager;
+class IUniformBufferManager;
 
 class IRenderingDevice {
 public:
@@ -27,7 +28,6 @@ public:
     virtual void preRender() = 0;
     virtual void postRender() = 0;
 
-    virtual IUniformBuffer* createUniformBuffer(unsigned int bindingPoint, unsigned int sizeInBytes) = 0;
     virtual IBuffer* createBuffer(const Buffer::Mode& mode) = 0;
 
     virtual void render(Camera* camera, Mesh* mesh, Material* program) = 0;
@@ -37,4 +37,5 @@ public:
     virtual IFrameBufferManager* frameBufferManager() = 0;
     virtual ITextureManager* textureManager() = 0;
     virtual IProgramManager* programManager() = 0;
+    virtual IUniformBufferManager* uniformBufferManager() = 0;
 };

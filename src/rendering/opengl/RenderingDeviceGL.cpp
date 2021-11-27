@@ -92,16 +92,6 @@ void RenderingDeviceGL::postRender() {
     SDL_GL_SwapWindow(_window);
 }
 
-IUniformBuffer* RenderingDeviceGL::createUniformBuffer(unsigned int bindingPoint, unsigned int sizeInBytes) {
-    UniformBufferGL* uniformBuffer = new UniformBufferGL();
-    if (!uniformBuffer->init(bindingPoint, sizeInBytes)) {
-        delete uniformBuffer;
-        return nullptr;
-    }
-
-    return uniformBuffer;
-}
-
 IBuffer* RenderingDeviceGL::createBuffer(const Buffer::Mode& mode) {
     return _bufferManager.createBuffer(mode);
 }

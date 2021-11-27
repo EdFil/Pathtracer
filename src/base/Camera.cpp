@@ -26,7 +26,7 @@ struct UniformData {
 static unsigned int uboMatrices;
 
 bool Camera::init(const Window& window, IRenderingDevice& renderingDevice) {
-    _uniformBuffer = renderingDevice.createUniformBuffer(0, sizeof(UniformData));
+    _uniformBuffer = renderingDevice.uniformBufferManager()->createUniformBuffer(0, sizeof(UniformData));
     if (_uniformBuffer == nullptr) {
         LOG_ERROR("[Camera] Could not create Uniform buffer object");
         return false;

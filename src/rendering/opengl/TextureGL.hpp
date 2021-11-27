@@ -26,5 +26,5 @@ public:
     virtual void deleteTexture(ITexture* texture) override;
 
 private:
-    std::map<int32_t, std::unique_ptr<ITexture>> _textures;
+    std::map<int32_t, std::unique_ptr<TextureGL>> _textures;
 };
