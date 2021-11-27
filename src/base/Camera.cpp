@@ -19,14 +19,13 @@ struct UniformData {
     glm::mat4x4 viewMatrix;
     glm::mat4x4 projectionMatrix;
     glm::vec4 cameraPosition;
-    float _debug;
 };
 
 };
 
 static unsigned int uboMatrices;
 
-bool Camera::init(const Window& window, IRenderingDevice& renderingDevice, float debug) {
+bool Camera::init(const Window& window, IRenderingDevice& renderingDevice) {
     _uniformBuffer = renderingDevice.createUniformBuffer(0, sizeof(UniformData));
     if (_uniformBuffer == nullptr) {
         LOG_ERROR("[Camera] Could not create Uniform buffer object");
@@ -34,7 +33,6 @@ bool Camera::init(const Window& window, IRenderingDevice& renderingDevice, float
     }
 
     _window = &window;
-    _debug = debug;
     reset();
 
     return true;
@@ -85,7 +83,7 @@ void Camera::update(float deltaTime) {
 }
 
 void Camera::bind() {
-    updateUniformBuffer();
+    _uniformBuffer->bind();
 }
 
 void Camera::reset() {
@@ -106,6 +104,7 @@ glm::mat4x4 Camera::projMatrix() const {
 }
 
 void Camera::updateUniformBuffer() {
-    UniformData uniformData = {viewMatrix(), projMatrix(), glm::vec4(_position, 1.0f), _debug};
+    UniformData uniformData = {viewMatrix(), projMatrix(), glm::vec4(_position, 1.0f)};
     _uniformBuffer->updateData(&uniformData, sizeof(UniformData));
+
 }

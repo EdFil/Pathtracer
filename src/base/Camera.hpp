@@ -9,7 +9,7 @@ class Window;
 
 class Camera {
 public:
-    bool init(const Window& window, IRenderingDevice& renderingDevice, float debug);
+    bool init(const Window& window, IRenderingDevice& renderingDevice);
     void update(float deltaTime);
     void bind();
     void reset();
@@ -23,7 +23,6 @@ private:
     IUniformBuffer* _uniformBuffer;
     const Window* _window;
     glm::vec3 _position{0.0f, 0.0f, 3.0f};
-    float _debug;
 
     // Mouse state
     bool _wasMouseGrabbedLastFrame = false;

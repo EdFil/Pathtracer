@@ -11,4 +11,5 @@ public:
 private:
     unsigned int _bindingPoint = 0;
     unsigned int _handle = 0;
+    unsigned int _sizeInBytes = 0;
 };

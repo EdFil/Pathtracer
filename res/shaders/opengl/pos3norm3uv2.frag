@@ -1,6 +1,5 @@
 #version 330 core
 
-in float Color;
 in vec3 Normal;
 in vec2 TexCoords;
 in vec3 WorldPosition;
@@ -41,5 +40,5 @@ void main()
     vec4 ambient = textureColor * light.ambientStrength;
     vec4 diffuse = textureColor * light.diffuseColor * lambertian * lightStrength;
     vec4 spec = light.diffuseColor * specular * lightStrength;
-    FragColor = ambient + diffuse + spec + vec4(Color, 0.0, 1.0, 0.0);
+    FragColor = ambient + diffuse + spec;
 }

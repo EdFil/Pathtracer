@@ -8,12 +8,10 @@ layout (std140) uniform Matrices {
     mat4 view;
     mat4 projection;
     vec4 cameraPosition;
-    float color;
 } matrices;
 
 uniform mat4 modelMatrix;
 
-out float Color;
 out vec3 Normal;  // Might need to add NormalMatrix logic to this if we want to support scalling correctly
 out vec2 TexCoords;
 out vec3 WorldPosition; // Used in fragment for light calculations
@@ -29,5 +27,4 @@ void main()
     TexCoords = aTexCoords;
     Normal = aNormals;
     CameraPosition = matrices.cameraPosition.xyz;
-    Color = matrices.color;
 }

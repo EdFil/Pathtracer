@@ -34,6 +34,8 @@ void Logger::log(const char* fileName, int lineNumber, const char* format, ...) 
     char buffer[k_maxSizeLogMessage];
     uint32_t usedBytes = 0;
 
+    auto asdasd = sizeof(buffer);
+
     va_list args;
     va_start(args, format);
     usedBytes = SDL_vsnprintf(buffer, sizeof(buffer), format, args);

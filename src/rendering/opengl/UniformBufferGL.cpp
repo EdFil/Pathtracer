@@ -7,6 +7,7 @@
 
 bool UniformBufferGL::init(unsigned int bindingPoint, unsigned int sizeInBytes) {
     _bindingPoint = bindingPoint;
+    _sizeInBytes = sizeInBytes;
 
     // Create and allocate buffer
     glGenBuffers(1, &_handle);
@@ -31,5 +32,5 @@ bool UniformBufferGL::updateData(const void* data, unsigned int sizeInBytes) {
 }
 
 void UniformBufferGL::bind() {
-    glBindBuffer(GL_UNIFORM_BUFFER, _handle);
+    glBindBufferBase(GL_UNIFORM_BUFFER, _bindingPoint, _handle);
 }

@@ -14,14 +14,14 @@
 #include "base/Material.hpp"
 #include "base/ResourceManager.hpp"
 #include "file/FileManager.hpp"
+#include "rendering/IFrameBuffer.hpp"
 #include "rendering/IProgram.hpp"
-#include "rendering/Renderer.hpp"
 #include "rendering/IRenderingDevice.hpp"
 #include "rendering/ITexture.hpp"
-#include "rendering/IFrameBuffer.hpp"
+#include "rendering/Renderer.hpp"
 
 bool enable1 = true;
-bool enable2 = true;
+bool enable2 = false;
 
 int main(int argc, char* argv[]) {
     Logger::init();
@@ -41,8 +41,8 @@ int main(int argc, char* argv[]) {
     Light light;
 
     bool isRunning = window.init() && renderer.init(window.window(), &mainCamera);
-    isRunning &= renderCamera.init(window, *renderer.renderingDevice(), 1.0f);
-    isRunning &= mainCamera.init(window, *renderer.renderingDevice(), 0.0f);
+    isRunning &= renderCamera.init(window, *renderer.renderingDevice());
+    isRunning &= mainCamera.init(window, *renderer.renderingDevice());
     isRunning &= light.init(*renderer.renderingDevice());
     isRunning &= resourceManager.init(*renderer.renderingDevice());
 
@@ -76,8 +76,6 @@ int main(int argc, char* argv[]) {
     Uint32 previousTime = SDL_GetTicks();
     Uint32 currentTime = previousTime;
 
-    renderCamera.update(0.0f);
-
     while (isRunning) {
         float deltaTime = (currentTime - previousTime) / 1000.0f;
 
@@ -102,31 +100,34 @@ int main(int argc, char* argv[]) {
             }
         }
 
-        mainCamera.update(deltaTime);
-        light.update(deltaTime);
+        if (enable1)
+            mainCamera.update(deltaTime);
+        else
+            renderCamera.update(deltaTime);
         
+        
+        light.update(deltaTime);
+
         IRenderingDevice* renderingDevice = renderer.renderingDevice();
 
         renderingDevice->preRender();
         {
-            if (enable1) {
-                otherFrameBuffer->bind();
-                renderingDevice->clearScreen();
-                renderingDevice->render(&renderCamera, mesh, material);
-            }
+             
+            otherFrameBuffer->bind();
+            renderingDevice->clearScreen(0.1f);
+            renderingDevice->render(&renderCamera, mesh, material);
 
             if (true) {
                 defaultFrameBuffer->bind();
                 renderingDevice->clearScreen();
                 ImGui::ShowMetricsWindow();
                 ImGui::Render();
+
                 //renderingDevice->render(&mainCamera, mesh, material);
                 renderingDevice->render(&mainCamera, quad, quadMaterial);
             }
-            
         }
         renderingDevice->postRender();
-
 
         previousTime = currentTime;
         currentTime = SDL_GetTicks();
