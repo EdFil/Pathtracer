@@ -64,12 +64,14 @@ int main(int argc, char* argv[]) {
 
     Mesh* mesh = resourceManager.createMesh(Mesh::Primitive::Suzanne);
     ITexture* sampleTexture = textureManager->createTexture("textures/sample.jpg", {});
-    Material* material = resourceManager.createMaterial(Program::k_positionNormalTexture);
+	IProgram* simplePhongProgram = renderer.renderingDevice()->programManager()->program(Program::k_positionNormalTexture);
+    Material* material = resourceManager.materialManager().createMaterial("SimplePhong", simplePhongProgram);
     material->setValue("modelMatrix", glm::mat4(1.0f));
     material->setTexture("Texture01", sampleTexture);
 
     Mesh* quad = resourceManager.createMesh(Mesh::Primitive::Plane);
-    Material* quadMaterial = resourceManager.createMaterial(Program::k_positionTexture);
+	IProgram* spriteProgram = renderer.renderingDevice()->programManager()->program(Program::k_positionTexture);
+    Material* quadMaterial = resourceManager.materialManager().createMaterial("3DSprite", spriteProgram);
     quadMaterial->setValue("modelMatrix", glm::mat4(1.0f));
     quadMaterial->setTexture("Texture01", texture);
 

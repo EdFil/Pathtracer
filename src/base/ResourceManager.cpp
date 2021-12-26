@@ -37,23 +37,6 @@ bool ResourceManager::init(IRenderingDevice& renderingDevice) {
     return true;
 }
 
-Material* ResourceManager::createMaterial(const char* programName) {
-    IProgram* program = _renderingDevice->programManager()->program(programName);
-    if (program == nullptr) {
-        LOG_ERROR("[ResourceManager] Could not find program with name \"%s\".");
-        return nullptr;
-    }
-
-    Material* material = new Material();
-    if (material->init(program)) {
-        _materials.push_back(material);
-        return material;
-    }
-
-    delete material;
-    return nullptr;
-}
-
 Mesh* ResourceManager::createMesh(Mesh::Primitive primitive) {
     switch (primitive) {
         case Mesh::Primitive::Plane: return createMesh("models/plane.obj");

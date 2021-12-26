@@ -82,3 +82,41 @@ bool Material::setValue(const char* uniformName, const glm::mat4& value) {
     memcpy(_uniformData.data() + dataBegin, glm::value_ptr(value), sizeof(float) * 16);
     return true;
 }
+
+Material* MaterialManager::material(const std::string& name)
+{
+	const auto it = _materials.find(name);
+	if (it != _materials.cend()) {
+		return it->second.get();
+	}
+
+	return nullptr;
+}
+
+Material* MaterialManager::createMaterial(const std::string& name, IProgram* program)
+{
+	if (Material* cachedMaterial = material(name)) {
+		return cachedMaterial;
+	}
+
+	if (program == nullptr || !program->isValid()) {
+		LOG_ERROR("[MaterialManagerGL] Invalid Program. Program(%p)", program);
+		return nullptr;
+	}
+
+	std::unique_ptr<Material> material = std::make_unique<Material>();
+	if (!material || !material->init(program)) {
+		LOG_ERROR("[MaterialManagerGL] Failed to create Material. Material(%p) Name(%s)", material.get(), name.c_str());
+		return nullptr;
+	}
+
+	const auto it = _materials.emplace(name, std::move(material));
+	if (!it.second) {
+		LOG_ERROR("[MaterialManagerGL] Failed to insert material into map. Memory allocation failed?");
+		return nullptr;
+	}
+
+	Material* createdMaterial = it.first->second.get();
+	LOG("[ProgramManagerGL] Create Material success. Program(%p) Name(%s)", createdMaterial, name.c_str());
+	return createdMaterial;
+}
