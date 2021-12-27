@@ -9,14 +9,12 @@
 #include "rendering/ITexture.hpp"
 
 bool Material::init(IProgram* program) {
-    if (program == nullptr || !program->isValid()) return false;
+	if (program == nullptr || !program->isValid()) {
+		LOG_ERROR("[Material] Init: Invalid program. Program(%p)", program);
+		return false;
+	}
 
-    const std::map<std::string, UniformData>& uniforms = program->activeUniforms();
-    unsigned int uniformDataSizeInBytes = 0;
-    for (const auto& it : uniforms) {
-        uniformDataSizeInBytes += UniformData::sizeInBytes(it.second.type);
-    }
-
+	unsigned int uniformDataSizeInBytes = Program::uniformSizeInBytes(program);
     _program = program;
     _uniformData.resize(uniformDataSizeInBytes);
     memset(_uniformData.data(), 0, uniformDataSizeInBytes);
@@ -49,38 +47,43 @@ void Material::bind() {
     }
 }
 
-bool Material::setTexture(const char* uniformName, ITexture* texture) {
-    const std::map<std::string, UniformData>& uniforms = _program->activeUniforms();
-    unsigned int dataBegin = 0;
-    for (const auto& it : uniforms) {
-        if (it.first == uniformName) break;
-        dataBegin += UniformData::sizeInBytes(it.second.type);
-    }
+bool Material::setProgram(IProgram* program)
+{
+	if (program == nullptr || !program->isValid()) {
+		LOG_ERROR("[Material] setProgram: Invalid program. Program(%s)");
+		return false;
+	}
 
-    if (dataBegin + sizeof(void*) > _uniformData.size()) {
-        LOG_ERROR("[Material] Cannot fit value in uniform data");
-        return false;
-    }
+	std::vector<char> newUniformData(Program::uniformSizeInBytes(program));
 
-    memcpy(_uniformData.data() + dataBegin, &texture, 8);
-    return true;
-}
+	// Copy compatible values
+	if (_program != nullptr) {
+		const std::map<std::string, UniformData>& currentUniforms = _program->activeUniforms();
+		const std::map<std::string, UniformData>& newUniforms = program->activeUniforms();
+		
+		unsigned int newOffset = 0;
+		for (const auto& newIt : newUniforms) {
+			const auto compatibleUniform = currentUniforms.find(newIt.first);
+			if (compatibleUniform != currentUniforms.cend() && compatibleUniform->second.type == newIt.second.type) {
+				// Found compatible uniform... Lets get the data offset
+				unsigned int byteOffset = 0;
+				for (const auto& currentIt : currentUniforms) {
+					if (currentIt.first == newIt.first) {
+						memcpy(newUniformData.data() + newOffset, _uniformData.data() + byteOffset, UniformData::sizeInBytes(newIt.second.type));
+						break;
+					}
 
-bool Material::setValue(const char* uniformName, const glm::mat4& value) {
-    const std::map<std::string, UniformData>& uniforms = _program->activeUniforms();
-    unsigned int dataBegin = 0;
-    for (const auto& it : uniforms) {
-        if (it.first == uniformName) break;
-        dataBegin += UniformData::sizeInBytes(it.second.type);
-    }
+					byteOffset += UniformData::sizeInBytes(currentIt.second.type);
+				}
+			}
 
-    if (dataBegin + sizeof(float) * 16 > _uniformData.size()) {
-        LOG_ERROR("[Material] Cannot fit value in uniform data");
-        return false;
-    }
+			newOffset += UniformData::sizeInBytes(newIt.second.type);
+		}
+	}
 
-    memcpy(_uniformData.data() + dataBegin, glm::value_ptr(value), sizeof(float) * 16);
-    return true;
+	_uniformData = std::move(newUniformData);
+	_program = program;
+	return true;
 }
 
 Material* MaterialManager::material(const std::string& name)

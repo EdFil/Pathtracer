@@ -67,13 +67,13 @@ int main(int argc, char* argv[]) {
 	IProgram* simplePhongProgram = renderer.renderingDevice()->programManager()->program(Program::k_positionNormalTexture);
     Material* material = resourceManager.materialManager().createMaterial("SimplePhong", simplePhongProgram);
     material->setValue("modelMatrix", glm::mat4(1.0f));
-    material->setTexture("Texture01", sampleTexture);
+    material->setValue("Texture01", sampleTexture);
 
     Mesh* quad = resourceManager.createMesh(Mesh::Primitive::Plane);
 	IProgram* spriteProgram = renderer.renderingDevice()->programManager()->program(Program::k_positionTexture);
     Material* quadMaterial = resourceManager.materialManager().createMaterial("3DSprite", spriteProgram);
     quadMaterial->setValue("modelMatrix", glm::mat4(1.0f));
-    quadMaterial->setTexture("Texture01", texture);
+    quadMaterial->setValue("Texture01", texture);
 
     Uint32 previousTime = SDL_GetTicks();
     Uint32 currentTime = previousTime;
@@ -98,7 +98,16 @@ int main(int argc, char* argv[]) {
             if (sdlEvent.type == SDL_KEYDOWN && sdlEvent.key.keysym.sym == SDLK_1) {
                 enable1 = !enable1;
             } else if (sdlEvent.type == SDL_KEYDOWN && sdlEvent.key.keysym.sym == SDLK_2) {
-                enable2 = !enable2;
+				if (enable2) {
+					IProgram* program = renderer.renderingDevice()->programManager()->program(Program::k_positionNormalTexture);
+					material->setProgram(program);
+				}
+				else {
+					IProgram* program = renderer.renderingDevice()->programManager()->program(Program::k_positionTexture);
+					material->setProgram(program);
+				}
+				
+				enable2 = !enable2;
             }
         }
 

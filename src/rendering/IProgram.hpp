@@ -6,6 +6,7 @@
 
 class IShader;
 class IShaderManager;
+class IProgram;
 
 struct UniformData {
     enum class Type { Undefined, Float, Mat4, Texture };
@@ -31,6 +32,8 @@ namespace Program {
     extern const char* k_position;
     extern const char* k_positionTexture;
     extern const char* k_positionNormalTexture;
+
+	unsigned int uniformSizeInBytes(IProgram* program);
 }
 
 class IProgram {
