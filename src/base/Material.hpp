@@ -31,6 +31,7 @@ class MaterialManager {
 public:
 	Material* material(const std::string& name);
 	Material* createMaterial(const std::string& name, IProgram* program);
+	Material* createMaterial(const std::string& materialFile);
 
 private:
 	std::map<std::string, std::unique_ptr<Material>> _materials;

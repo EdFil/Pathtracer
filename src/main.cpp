@@ -108,7 +108,10 @@ int main(int argc, char* argv[]) {
 				}
 				
 				enable2 = !enable2;
-            }
+			}
+			else if (sdlEvent.type == SDL_KEYDOWN && sdlEvent.key.keysym.sym == SDLK_3) {
+				resourceManager.materialManager().createMaterial("res/materials/test.mat");
+			}
         }
 
         if (enable1)

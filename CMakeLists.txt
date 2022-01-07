@@ -34,6 +34,7 @@ add_subdirectory("libs/stb")
 add_subdirectory("libs/fast_obj")
 set(BUILD_STATIC_LIBS TRUE)
 add_subdirectory("libs/glm")
+add_subdirectory("libs/rapidjson")
 
 # Generate constants file
 configure_file(${SOURCE_DIR}/generated/CMakeConstants.cpp.in ${SOURCE_DIR}/generated/CMakeConstants.cpp)
@@ -48,7 +49,7 @@ file(GLOB_RECURSE SHADERS "${SHADERS_DIR}/*.frag" "${SHADERS_DIR}/*.vert")
 
 # Create our executable
 add_executable(${PROJECT_NAME} ${SOURCES} ${SHADERS})
-target_link_libraries(${PROJECT_NAME} glad SDL2::SDL2 SDL2::SDL2main imgui::imgui stb::stb glm::glm_static fast_obj)
+target_link_libraries(${PROJECT_NAME} glad SDL2::SDL2 SDL2::SDL2main imgui::imgui stb::stb glm::glm_static fast_obj rapidjson::rapidjson)
 target_include_directories(${PROJECT_NAME} PRIVATE ${SOURCE_DIR})
 
 # Project settings
