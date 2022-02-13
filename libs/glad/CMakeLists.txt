@@ -28,3 +28,12 @@ if(EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/include/glad/glad.h")
   unset(GLAD_VERSION)
 endif()
 message(STATUS "Includes: ${INCLUDE_DIR}")
+
+# Source group generation for IDEs
+foreach (SOURCE IN ITEMS ${SOURCES})
+    get_filename_component(SOURCE_PATH "${SOURCE}" PATH)
+    file(RELATIVE_PATH SOURCE_PATH_REL "${CMAKE_CURRENT_SOURCE_DIR}" "${SOURCE_PATH}")
+    string(REPLACE "/" "\\" GROUP_PATH "${SOURCE_PATH_REL}")
+    source_group("${GROUP_PATH}" FILES "${SOURCE}")
+endforeach ()
+

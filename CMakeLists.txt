@@ -10,10 +10,18 @@ set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_INSTALL_MESSAGE LAZY)
 set(ENGINE_CMAKE_FOLDER ${CMAKE_CURRENT_SOURCE_DIR}/cmake)
 set(CMAKE_MODULE_PATH ${CMAKE_CURRENT_SOURCE_DIR}/cmake)
+if (NOT CMAKE_BUILD_TYPE)
+    message(WARNING " --> 'CMAKE_BUILD_TYPE' is not defined... assuming 'Release'")
+    set (CMAKE_BUILD_TYPE Release)
+endif()
+
+option(FORCE_REBUILD "Should rebuild pre-built libs" OFF)
 
 # Project Variables
 set(RESOURCES_DIR "${CMAKE_CURRENT_SOURCE_DIR}/res")
 set(SOURCE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/src")
+
+
 
 # Compiler Flags
 if (MSVC)
@@ -34,6 +42,7 @@ add_subdirectory("libs/stb")
 add_subdirectory("libs/fast_obj")
 set(BUILD_STATIC_LIBS TRUE)
 add_subdirectory("libs/glm")
+add_subdirectory("libs/flecs")
 
 # Generate constants file
 configure_file(${SOURCE_DIR}/generated/CMakeConstants.cpp.in ${SOURCE_DIR}/generated/CMakeConstants.cpp)
@@ -48,7 +57,7 @@ file(GLOB_RECURSE SHADERS "${SHADERS_DIR}/*.frag" "${SHADERS_DIR}/*.vert")
 
 # Create our executable
 add_executable(${PROJECT_NAME} ${SOURCES} ${SHADERS})
-target_link_libraries(${PROJECT_NAME} glad SDL2::SDL2 SDL2::SDL2main imgui::imgui stb::stb glm::glm_static fast_obj)
+target_link_libraries(${PROJECT_NAME} glad SDL2::SDL2 SDL2::SDL2main imgui::imgui stb::stb glm::glm_static fast_obj flecs::flecs_static)
 target_include_directories(${PROJECT_NAME} PRIVATE ${SOURCE_DIR})
 
 # Project settings
@@ -72,3 +81,6 @@ foreach (SOURCE IN ITEMS ${SHADERS})
     string(REPLACE "/" "\\" GROUP_PATH "${SOURCE_PATH_REL}")
     source_group("${GROUP_PATH}" FILES "${SOURCE}")
 endforeach ()
+
+# Unset temporary options
+unset(FORCE_REBUILD CACHE)
