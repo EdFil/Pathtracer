@@ -1,12 +1,11 @@
 #include <SDL.h>
 #include <stdio.h>
 
-#include <backends/imgui_impl_sdl.h>
+#include <imgui_impl_sdl.h>
 #include <fast_obj.h>
 #include <imgui.h>
 #include <chrono>
 #include <cstring>
-#include <flecs.h>
 
 #include "Logger.hpp"
 #include "Window.hpp"
@@ -27,8 +26,6 @@ bool enable2 = false;
 int main(int argc, char* argv[]) {
     Logger::init();
     FileManager::init();
-
-    ecs_world_t* ecs = ecs_init();
 
     SDL_LogSetAllPriority(SDL_LogPriority::SDL_LOG_PRIORITY_VERBOSE);
     if (SDL_Init(SDL_INIT_VIDEO | SDL_INIT_TIMER) != 0) {
