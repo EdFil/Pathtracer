@@ -7,7 +7,6 @@ if(NOT EXISTS "${CMAKE_BINARY_DIR}/conan.cmake")
    file(DOWNLOAD "https://raw.githubusercontent.com/conan-io/cmake-conan/master/conan.cmake" "${CMAKE_BINARY_DIR}/conan.cmake")
 endif()
 include(${CMAKE_BINARY_DIR}/conan.cmake)
-include(${CMAKE_BINARY_DIR}/conanbuildinfo.cmake)
 
 # CMake variables
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
@@ -78,30 +77,6 @@ target_include_directories(${PROJECT_NAME} PRIVATE ${SOURCE_DIR} ${CONAN_IMPORT_
 set_property(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR} PROPERTY VS_STARTUP_PROJECT ${PROJECT_NAME})
 set_property(GLOBAL PROPERTY USE_FOLDERS ON)
 
-foreach(TARGET IN ITEMS ${CONAN_TARGETS})
-    string(REPLACE "CONAN_PKG::" "" TARGET_NAME1 ${TARGET})
-    string(TOUPPER ${TARGET_NAME1} TARGET_NAME2)
-    set(SOURCES "")
-    
-    list (GET CONAN_INCLUDE_DIRS_${TARGET_NAME2} 0 HEAD)
-    set(CONAN_VAR "CONAN_INCLUDE_DIRS_${TARGET_NAME2}")
-    file(GLOB_RECURSE MYSOURCES "${HEAD}/*.cpp" "${HEAD}/*.hpp" "${HEAD}/*.h" "${HEAD}/*.c")
-    add_custom_target(${TARGET_NAME1} SOURCES ${MYSOURCES})
-    set_target_properties(${TARGET_NAME1} PROPERTIES FOLDER Conan)
-    foreach (SOURCE IN ITEMS ${MYSOURCES})
-        get_filename_component(SOURCE_PATH "${SOURCE}" PATH)
-        file(RELATIVE_PATH SOURCE_PATH_REL "${CONAN_${TARGET_NAME2}_ROOT}" "${SOURCE_PATH}")
-        string(REPLACE "/" "\\" GROUP_PATH "${SOURCE_PATH_REL}")
-        source_group("${GROUP_PATH}" FILES "${SOURCE}")
-    endforeach ()
-endforeach()
-
-
-# Copy resources to build dir
-add_custom_command(
-        TARGET ${PROJECT_NAME} POST_BUILD
-        COMMAND ${CMAKE_COMMAND} -E copy_directory ${RESOURCES_DIR} "${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/res")
-
 # Source group generation for IDEs
 foreach (SOURCE IN ITEMS ${SOURCES})
     get_filename_component(SOURCE_PATH "${SOURCE}" PATH)
@@ -116,5 +91,28 @@ foreach (SOURCE IN ITEMS ${SHADERS})
     source_group("${GROUP_PATH}" FILES "${SOURCE}")
 endforeach ()
 
-# Unset temporary options
-unset(FORCE_REBUILD CACHE)
+# Transform all Conan dependencies into custom targets so the public includes show up in ty
+include(${CMAKE_BINARY_DIR}/conanbuildinfo.cmake)
+foreach(TARGET IN ITEMS ${CONAN_TARGETS})
+    string(REPLACE "CONAN_PKG::" "" TARGET_NAME ${TARGET})
+    string(TOUPPER ${TARGET_NAME} TARGET_NAME_UPPER)
+    
+    list (GET CONAN_INCLUDE_DIRS_${TARGET_NAME_UPPER} 0 HEAD)
+    set(CONAN_VAR "CONAN_INCLUDE_DIRS_${TARGET_NAME_UPPER}")
+    file(GLOB_RECURSE SOURCES "${HEAD}/*.cpp" "${HEAD}/*.hpp" "${HEAD}/*.h" "${HEAD}/*.c")
+    add_custom_target(${TARGET_NAME} SOURCES ${SOURCES})
+    set_target_properties(${TARGET_NAME} PROPERTIES FOLDER ConanDependencies)
+
+    # Pretify folder structure inside for the target
+    foreach (SOURCE IN ITEMS ${SOURCES})
+        get_filename_component(SOURCE_PATH "${SOURCE}" PATH)
+        file(RELATIVE_PATH SOURCE_PATH_REL "${CONAN_${TARGET_NAME_UPPER}_ROOT}" "${SOURCE_PATH}")
+        string(REPLACE "/" "\\" GROUP_PATH "${SOURCE_PATH_REL}")
+        source_group("${GROUP_PATH}" FILES "${SOURCE}")
+    endforeach ()
+endforeach()
+
+# Copy resources to build dir
+add_custom_command(
+        TARGET ${PROJECT_NAME} POST_BUILD
+        COMMAND ${CMAKE_COMMAND} -E copy_directory ${RESOURCES_DIR} "${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/res")
