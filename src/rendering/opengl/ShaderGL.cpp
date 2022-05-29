@@ -35,7 +35,7 @@ bool ShaderGL::init(Shader::Type type, const char* fileName) {
         return false;
     }
 
-    std::vector<char> fileData = FileManager::instance()->loadFile(fileName);
+    eastl::vector<char> fileData = FileManager::instance()->loadFile(fileName);
     if (fileData.empty() || !compileShader(handle, fileData.data())) {
         LOG_ERROR("[ShaderGL] Could not init shader \"%s\"", fileName);
         return false;
@@ -86,18 +86,18 @@ bool ShaderManagerGL::init() {
     return allCreated;
 }
 
-IShader* ShaderManagerGL::createShader(const std::string& name, Shader::Type type, const char* fileName) {
+IShader* ShaderManagerGL::createShader(const eastl::string& name, Shader::Type type, const char* fileName) {
     if (IShader* cachedShader = shader(name)) {
         return cachedShader;
     }
 
-    std::unique_ptr<ShaderGL> shader = std::make_unique<ShaderGL>();
+    eastl::unique_ptr<ShaderGL> shader = eastl::make_unique<ShaderGL>();
     if (!shader || !shader->init(type, fileName)) {
         LOG_ERROR("[ShaderManagerGL] Failed to create Shader. Shader(%p) Name(%s) Type(%s)", shader.get(), name.c_str(), Shader::shaderTypeToString(type));
         return nullptr;
     }
   
-    const auto it = _shaders.insert({name, std::move(shader)});
+    const auto it = _shaders.emplace(name, eastl::move(shader));
     if (!it.second) {
         LOG_ERROR("[ShaderManagerGL] Failed to insert shader into map. Memory allocation failed?");
         return nullptr;
@@ -108,7 +108,7 @@ IShader* ShaderManagerGL::createShader(const std::string& name, Shader::Type typ
     return createdShader;
 }
 
-IShader* ShaderManagerGL::shader(const std::string& name) const {
+IShader* ShaderManagerGL::shader(const eastl::string& name) const {
     const auto it = _shaders.find(name);
     if (it != _shaders.cend()) {
         return it->second.get();

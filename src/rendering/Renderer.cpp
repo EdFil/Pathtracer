@@ -40,7 +40,7 @@ void Renderer::setRenderingAPI(Renderer::API renderingAPI) {
     switch (renderingAPI) {
         case Renderer::API::OpenGL:
             LOG("[Renderer] Initialising with an OpenGL rendering device");
-            _renderingDevice = std::make_unique<RenderingDeviceGL>(_sdlWindow);
+            _renderingDevice = eastl::make_unique<RenderingDeviceGL>(_sdlWindow);
             break;
         default:
             break;

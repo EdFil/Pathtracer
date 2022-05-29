@@ -1,6 +1,6 @@
 #pragma once
 
-#include <string>
+#include <EASTL/string.h>
 
 #include "ITexture.hpp"
 #include "rendering/IBuffer.hpp"

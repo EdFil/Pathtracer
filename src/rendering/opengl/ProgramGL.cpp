@@ -235,18 +235,18 @@ bool ProgramManagerGL::init(const IShaderManager& shaderManager) {
     return allCreated;
 }
 
-IProgram* ProgramManagerGL::createProgram(const std::string& name, const IShader& vertexShader, const IShader& fragmentShader) {
+IProgram* ProgramManagerGL::createProgram(const eastl::string& name, const IShader& vertexShader, const IShader& fragmentShader) {
     if (IProgram* cachedProgram = program(name)) {
         return cachedProgram;
     }
 
-    std::unique_ptr<ProgramGL> program = std::make_unique<ProgramGL>();
+    eastl::unique_ptr<ProgramGL> program = eastl::make_unique<ProgramGL>();
     if (!program || !program->init(vertexShader, fragmentShader)) {
         LOG_ERROR("[ProgramManagerGL] Failed to create Progra,. Program(%p) Name(%s)", program.get(), name.c_str());
         return nullptr;
     }
 
-    const auto it = _programs.insert({name, std::move(program)});
+    const auto it = _programs.emplace(name, eastl::move(program));
     if (!it.second) {
         LOG_ERROR("[ProgramManagerGL] Failed to insert program into map. Memory allocation failed?");
         return nullptr;
@@ -257,7 +257,7 @@ IProgram* ProgramManagerGL::createProgram(const std::string& name, const IShader
     return createdProgram;
 }
 
-IProgram* ProgramManagerGL::program(const std::string& name) const {
+IProgram* ProgramManagerGL::program(const eastl::string& name) const {
     const auto it = _programs.find(name);
     if (it != _programs.cend()) {
         return it->second.get();

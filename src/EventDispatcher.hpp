@@ -1,8 +1,7 @@
 #pragma once
 
-#include <algorithm>
-#include <utility>
-#include <vector>
+#include <EASTL/utility.h>
+#include <EASTL/vector.h>
 
 template <typename Type, typename Data>
 class EventDispatcher {
@@ -25,8 +24,8 @@ public:
 private:
     enum class DelayedAction { Subscribe, Unsubscribe };
 
-    std::vector<Observer*> _observers;
-    std::vector<std::pair<DelayedAction, Observer*>> _delayedActions;
+    eastl::vector<Observer*> _observers;
+    eastl::vector<eastl::pair<DelayedAction, Observer*>> _delayedActions;
     bool _isRunning = false;
 };
 
@@ -46,7 +45,7 @@ void EventDispatcher<Type, Data>::unsubscribe(EventDispatcher::Observer& observe
     if (_isRunning) {
         _delayedActions.emplace_back(DelayedAction::Unsubscribe, &observer);
     } else {
-        _observers.erase(std::remove(_observers.begin(), _observers.end(), &observer));
+        _observers.erase_first_unsorted(&observer);
     }
 }
 

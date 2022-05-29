@@ -1,6 +1,6 @@
 #pragma once
 
-#include <vector>
+#include <EASTL/vector.h>
 
 #include "base/Mesh.hpp"
 
@@ -20,6 +20,6 @@ public:
 
 private:
     IRenderingDevice* _renderingDevice;
-    std::vector<Material*> _materials;
-    std::vector<Mesh*> _meshes;
+    eastl::vector<Material*> _materials;
+    eastl::vector<Mesh*> _meshes;
 };

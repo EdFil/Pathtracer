@@ -1,7 +1,7 @@
 #pragma once
 
 #include <glm/fwd.hpp>
-#include <vector>
+#include <EASTL/vector.h>
 
 class IProgram;
 class ITexture;
@@ -16,5 +16,5 @@ public:
 
 private:
     IProgram* _program;
-    std::vector<char> _uniformData;
+    eastl::vector<char> _uniformData;
 };

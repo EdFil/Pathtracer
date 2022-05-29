@@ -1,6 +1,6 @@
 #pragma once
 
-#include <memory>
+#include <EASTL/unique_ptr.h>
 
 #include "base/Mesh.hpp"
 #include "rendering/Types.hpp"
@@ -27,5 +27,5 @@ public:
 private:
     Camera* _camera;
     SDL_Window* _sdlWindow;
-    std::unique_ptr<IRenderingDevice> _renderingDevice;
+    eastl::unique_ptr<IRenderingDevice> _renderingDevice;
 };

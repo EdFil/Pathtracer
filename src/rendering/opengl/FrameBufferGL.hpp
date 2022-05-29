@@ -1,7 +1,7 @@
 #pragma once
 
-#include <map>
-#include <memory>
+#include <EASTL/map.h>
+#include <EASTL/unique_ptr.h>
 
 #include "rendering/IFrameBuffer.hpp"
 
@@ -10,10 +10,10 @@ public:
     ~FrameBufferGL() override;
 
     virtual uint32_t handle() const override { return _handle; };
-    virtual const std::string& name() override { return _name; };
+    virtual const eastl::string& name() override { return _name; };
 
-    bool init(std::string&& name) override;
-    bool init(uint32_t handle, std::string&& name) override;
+    bool init(eastl::string&& name) override;
+    bool init(uint32_t handle, eastl::string&& name) override;
     void destroy() override;
     bool attachTexture(ITexture *texture, Attachment attachment) override;
     void bind() override;
@@ -21,7 +21,7 @@ public:
 
 private:
     unsigned int _handle;
-    std::string _name;
+    eastl::string _name;
 
     bool hasFramebufferError();
 };
@@ -31,10 +31,10 @@ public:
     virtual ~FrameBufferManagerGL() override = default;
 
     virtual bool init() override;
-    virtual IFrameBuffer *createFrameBuffer(std::string&& name) override;
-    virtual IFrameBuffer *frameBuffer(const std::string& name) const override;
+    virtual IFrameBuffer *createFrameBuffer(eastl::string&& name) override;
+    virtual IFrameBuffer *frameBuffer(const eastl::string& name) const override;
     virtual IFrameBuffer *frameBuffer(uint32_t handle) const override;
 
 private:
-    std::map<uint32_t, std::unique_ptr<FrameBufferGL>> _frameBuffers;
+    eastl::map<uint32_t, eastl::unique_ptr<FrameBufferGL>> _frameBuffers;
 };

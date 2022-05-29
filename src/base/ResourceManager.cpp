@@ -75,10 +75,10 @@ Mesh* ResourceManager::createMesh(const char* relativePath) {
     }
 
     // Process and unwrap fastObjMesh to a faster memory layout to render
-    std::vector<unsigned int> indices;
-    std::vector<bool> dataExists(objMesh->position_count, false);
-    std::vector<Mesh::Vertex> vertexData(objMesh->position_count);
-    std::vector<Mesh::Vertex> duplicatedVertices;
+    eastl::vector<unsigned int> indices;
+    eastl::vector<bool> dataExists(objMesh->position_count, false);
+    eastl::vector<Mesh::Vertex> vertexData(objMesh->position_count);
+    eastl::vector<Mesh::Vertex> duplicatedVertices;
     indices.reserve(objMesh->face_count * 3);
     duplicatedVertices.reserve(objMesh->position_count);
 
@@ -97,7 +97,7 @@ Mesh* ResourceManager::createMesh(const char* relativePath) {
             indices.push_back(index.p - 1);
         } else if (vertexData[index.p] != vertex) {
             // We need to duplicate vertex so we don't break uvs
-            auto it = std::find(duplicatedVertices.cbegin(), duplicatedVertices.cend(), vertex);
+            auto it = eastl::find(duplicatedVertices.cbegin(), duplicatedVertices.cend(), vertex);
             if (it != duplicatedVertices.cend()) {
                 // It was already duplicated, let's use it
                 const int index = objMesh->position_count + (it - duplicatedVertices.cbegin()) - 1;

@@ -31,9 +31,9 @@ public:
     virtual IRenderingDeviceInfo* deviceInfo() override { return &_renderingDeviceInfo; }
     virtual IShaderManager* shaderManager() override { return &_shaderManager; }
     virtual IFrameBufferManager* frameBufferManager() override { return &_frameBufferManager; };
-    virtual ITextureManager* textureManager() { return &_textureManager; };
-    virtual IProgramManager* programManager() { return &_programManager; }
-    virtual IUniformBufferManager* uniformBufferManager() { return &_uniformBufferManager; }
+    virtual ITextureManager* textureManager() override { return &_textureManager; };
+    virtual IProgramManager* programManager() override { return &_programManager; }
+    virtual IUniformBufferManager* uniformBufferManager() override { return &_uniformBufferManager; }
 
 private:
     SDL_Window* _window = nullptr;

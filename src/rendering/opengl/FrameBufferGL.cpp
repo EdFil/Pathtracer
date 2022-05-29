@@ -6,8 +6,6 @@
 #include "TextureGL.hpp"
 
 namespace {
-    constexpr char kDefaultBufferName[] = "Default";
-
     constexpr GLenum attachmentToGL(IFrameBuffer::Attachment attachment) {
         switch (attachment) {
             case IFrameBuffer::Attachment::Color0:
@@ -33,14 +31,14 @@ FrameBufferGL::~FrameBufferGL() {
     destroy();
 }
 
-bool FrameBufferGL::init(std::string&& name) {
+bool FrameBufferGL::init(eastl::string&& name) {
     if (_handle != 0) {
         LOG_ERROR("[FrameBufferGL] Init %s failed. Buffer %d already initialised", _name.c_str(), _handle);
         return false;
     }
 
     glGenFramebuffers(1, &_handle);
-    _name = std::move(name);
+    _name = eastl::move(name);
     bool wasSuccess = _handle != 0 && !hasFramebufferError();
     if (wasSuccess) {
         LOG("[FrameBufferGL] Init successful. Handle(%d) Name(%s)", _handle, _name.c_str());
@@ -49,14 +47,14 @@ bool FrameBufferGL::init(std::string&& name) {
     return wasSuccess;
 }
 
-bool FrameBufferGL::init(uint32_t handle, std::string&& name) {    
+bool FrameBufferGL::init(uint32_t handle, eastl::string&& name) {    
     if (handle != 0 && glIsFramebuffer(handle) == GL_FALSE) {
         LOG_ERROR("[FrameBufferGL] Init %s failed. %d is not a valid framebuffer object handle", name.c_str(), handle);
         return false;
     }
 
     _handle = handle;
-    _name = std::move(name);
+    _name = eastl::move(name);
     LOG("[FrameBufferGL] Init successful. Handle(%d) Name(%s)", _handle, _name.c_str());
     return !hasFramebufferError();
 }
@@ -128,13 +126,13 @@ bool FrameBufferGL::hasFramebufferError() {
 // --------------------------------------------------
 
 bool FrameBufferManagerGL::init() {
-    std::unique_ptr<FrameBufferGL> frameBuffer = std::make_unique<FrameBufferGL>();
+    eastl::unique_ptr<FrameBufferGL> frameBuffer = eastl::make_unique<FrameBufferGL>();
     if (frameBuffer == nullptr || !frameBuffer->init(0, "Default")) {
         LOG_ERROR("[FrameBufferManagerGL] Failed to create \"Default\" FrameBuffer. FrameBuffer(%p)", frameBuffer.get());
         return false;
     }
 
-    const auto it = _frameBuffers.insert({frameBuffer->handle(), std::move(frameBuffer)});
+    const auto it = _frameBuffers.emplace(frameBuffer->handle(), eastl::move(frameBuffer));
     if (!it.second) {
         LOG_ERROR("[FrameBufferManagerGL] Failed to insert \"Default\" framebuffer into map. Memory allocation failed?");
         return false;
@@ -143,14 +141,14 @@ bool FrameBufferManagerGL::init() {
     return true;
 }
 
-IFrameBuffer* FrameBufferManagerGL::createFrameBuffer(std::string&& name) {
-    std::unique_ptr<FrameBufferGL> frameBuffer = std::make_unique<FrameBufferGL>();
-    if (frameBuffer == nullptr || !frameBuffer->init(std::move(name))) {
+IFrameBuffer* FrameBufferManagerGL::createFrameBuffer(eastl::string&& name) {
+    eastl::unique_ptr<FrameBufferGL> frameBuffer = eastl::make_unique<FrameBufferGL>();
+    if (frameBuffer == nullptr || !frameBuffer->init(eastl::move(name))) {
         LOG_ERROR("[FrameBufferManagerGL] Failed to create FrameBuffer. FrameBuffer(%p)", frameBuffer.get());
         return nullptr;
     }
 
-    const auto it = _frameBuffers.insert({frameBuffer->handle(), std::move(frameBuffer)});
+    const auto it = _frameBuffers.emplace(frameBuffer->handle(), eastl::move(frameBuffer));
     if (!it.second) {
         LOG_ERROR("[FrameBufferManagerGL] Failed to insert framebuffer into map. Memory allocation failed?");
         return nullptr;
@@ -159,7 +157,7 @@ IFrameBuffer* FrameBufferManagerGL::createFrameBuffer(std::string&& name) {
     return it.first->second.get();
 }
 
-IFrameBuffer* FrameBufferManagerGL::frameBuffer(const std::string& name) const {
+IFrameBuffer* FrameBufferManagerGL::frameBuffer(const eastl::string& name) const {
     for (const auto& pair : _frameBuffers) {
         if (pair.second->name() == name) {
             return pair.second.get();

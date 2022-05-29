@@ -1,7 +1,6 @@
 #include "base/Mesh.hpp"
 
-#include <cstring>
-#include <vector>
+#include <EASTL/vector.h>
 
 #include "Logger.hpp"
 #include "rendering/IRenderingDevice.hpp"
@@ -20,7 +19,7 @@ bool Mesh::init(IRenderingDevice& renderingDevice, const Mesh::Params& params) {
     }
 
     buffer()->bind();
-    if (!_buffer->updateData(Buffer::Target::Array, Buffer::Usage::Static, params.vertices.cbegin(), params.vertices.size() * sizeof(float)) ||
+    if (!_buffer->updateData(Buffer::Target::Array, Buffer::Usage::Static, params.vertices.cbegin(), uint32_t(params.vertices.size() * sizeof(float))) ||
         (bufferMode == Buffer::Mode::VertexElementPair && !_buffer->updateData(Buffer::Target::Element, Buffer::Usage::Static, params.indices.cbegin(), params.indices.size() * sizeof(unsigned int)))) {
         LOG_ERROR("[Mesh] init: Could not set vertex data to GPU");
         return false;

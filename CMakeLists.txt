@@ -23,35 +23,45 @@ option(FORCE_REBUILD "Should rebuild pre-built libs" OFF)
 set(RESOURCES_DIR "${CMAKE_CURRENT_SOURCE_DIR}/res")
 set(SOURCE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/src")
 set(CONAN_IMPORT_DIR "${CMAKE_CURRENT_SOURCE_DIR}/conan/imports")
+set(CONAN_OPTIONS "")
 
 # Compiler Flags
 if (MSVC)
-    set(CMAKE_CXX_FLAGS "/DWIN32 /D_WINDOWS /EHsc /W3 /experimental:external /external:anglebrackets /external:W0")
+    set(CMAKE_CXX_FLAGS "/DWIN32 /D_WINDOWS /EHsc /W4 /experimental:external /external:anglebrackets /external:W0")
     set(CMAKE_CXX_FLAGS_DEBUG "/MDd /Zi /Ob0 /Od /RTC1 /DDEBUG /DSDL_ASSERT_LEVEL=2")
     set(CMAKE_CXX_FLAGS_RELEASE "/MD /Ox /Ob2 /DRELEASE /DSDL_ASSERT_LEVEL=0")
 else ()
     set(CMAKE_CXX_FLAGS "-Wall -Wextra -fno-exceptions")
     set(CMAKE_CXX_FLAGS_DEBUG "-O0 -g -DDEBUG -DSDL_ASSERT_LEVEL=2")
     set(CMAKE_CXX_FLAGS_RELEASE "-DRELEASE -DSDL_ASSERT_LEVEL=0")
+
+    set(CONAN_OPTIONS "\n${CONAN_OPTIONS} sdl:pulse=False") # Disable pulse audio because I was having issues on WSL2
 endif ()
 
 # Conan dependencies
-conan_cmake_run(REQUIRES 
+conan_cmake_run(
+REQUIRES
     glad/0.1.34
     sdl/2.0.20
     imgui/1.87
     stb/20200203
     eastl/3.18.00
     glm/0.9.9.8
-    
-    IMPORTS "./res/bindings, imgui_impl_opengl3_loader.h -> ${CONAN_IMPORT_DIR}"
-    IMPORTS "./res/bindings, imgui_impl_opengl3.h -> ${CONAN_IMPORT_DIR}"
-    IMPORTS "./res/bindings, imgui_impl_opengl3.cpp -> ${CONAN_IMPORT_DIR}"
-    IMPORTS "./res/bindings, imgui_impl_sdl.h -> ${CONAN_IMPORT_DIR}"
-    IMPORTS "./res/bindings, imgui_impl_sdl.cpp -> ${CONAN_IMPORT_DIR}"
-    
-    BASIC_SETUP CMAKE_TARGETS
-    BUILD missing
+    xxhash/0.8.1
+
+OPTIONS
+    ${CONAN_OPTIONS}
+
+IMPORTS
+    "./res/bindings, imgui_impl_opengl3_loader.h -> ${CONAN_IMPORT_DIR}"
+    "./res/bindings, imgui_impl_opengl3.h -> ${CONAN_IMPORT_DIR}"
+    "./res/bindings, imgui_impl_opengl3.cpp -> ${CONAN_IMPORT_DIR}"
+    "./res/bindings, imgui_impl_sdl.h -> ${CONAN_IMPORT_DIR}"
+    "./res/bindings, imgui_impl_sdl.cpp -> ${CONAN_IMPORT_DIR}"
+   
+GENERATORS cmake
+BASIC_SETUP CMAKE_TARGETS
+BUILD missing
 )
 
 # Dependencies not in Conan

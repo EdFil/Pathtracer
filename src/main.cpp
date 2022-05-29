@@ -6,6 +6,7 @@
 #include <imgui.h>
 #include <chrono>
 #include <cstring>
+#include <new>
 
 #include "Logger.hpp"
 #include "Window.hpp"
@@ -23,13 +24,31 @@
 bool enable1 = true;
 bool enable2 = false;
 
-int main(int argc, char* argv[]) {
+///////////////////////////////////////////////////////////////////////////////
+// Required by EASTL.
+//
+// EASTL expects us to define these, see allocator.h. Around EASTL_USER_DEFINED_ALLOCATOR define...
+void* operator new[](size_t size, const char* /*pName*/, int /*flags*/,
+    unsigned /*debugFlags*/, const char* /*file*/, int /*line*/)
+{
+    return ::new char[size];
+}
+
+void* operator new[](size_t size, size_t alignment, size_t /*alignmentOffset*/,
+    const char* /*pName*/, int /*flags*/, unsigned /*debugFlags*/, const char* /*file*/, int /*line*/)
+{
+    (void)alignment;
+    // this allocator doesn't support alignment
+    EASTL_ASSERT(alignment <= 8);
+	return ::new char[size];
+}
+
+int main(int /*argc*/, char* /*argv*/[]) {
     Logger::init();
     FileManager::init();
-
-    SDL_LogSetAllPriority(SDL_LogPriority::SDL_LOG_PRIORITY_VERBOSE);
+    
     if (SDL_Init(SDL_INIT_VIDEO | SDL_INIT_TIMER) != 0) {
-        LOG_ERROR("[SDL] Could not initialize! SDL_Error: %s", SDL_GetError());
+        LOG_ERROR("[SDL] Could not initialize! Check SDL related logs!");
         return -1;
     }
 

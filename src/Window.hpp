@@ -1,7 +1,8 @@
 #pragma once
 
-#include "EventDispatcher.hpp"
 #include <glm/vec2.hpp>
+
+#include "EventDispatcher.hpp"
 
 class Window;
 struct SDL_Window;
