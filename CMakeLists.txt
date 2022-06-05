@@ -1,12 +1,8 @@
 cmake_minimum_required(VERSION 3.6)
-project(Pathtracer CXX)
 
-# Download automatically, you can also just copy the conan.cmake file
-if(NOT EXISTS "${CMAKE_BINARY_DIR}/conan.cmake")
-   message(STATUS "Downloading conan.cmake from https://github.com/conan-io/cmake-conan")
-   file(DOWNLOAD "https://raw.githubusercontent.com/conan-io/cmake-conan/master/conan.cmake" "${CMAKE_BINARY_DIR}/conan.cmake")
-endif()
-include(${CMAKE_BINARY_DIR}/conan.cmake)
+set(CMAKE_TOOLCHAIN_FILE "${CMAKE_CURRENT_SOURCE_DIR}/submodules/vcpkg/scripts/buildsystems/vcpkg.cmake")
+
+project(Pathtracer CXX)
 
 # CMake variables
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
@@ -15,15 +11,12 @@ set(CMAKE_RUNTIME_OUTPUT_DIRECTORY_RELEASE ${CMAKE_BINARY_DIR}/bin)
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_INSTALL_MESSAGE LAZY)
 set(ENGINE_CMAKE_FOLDER ${CMAKE_CURRENT_SOURCE_DIR}/cmake)
-set(CMAKE_MODULE_PATH ${CMAKE_CURRENT_SOURCE_DIR}/cmake)
 
 option(FORCE_REBUILD "Should rebuild pre-built libs" OFF)
 
 # Project Variables
 set(RESOURCES_DIR "${CMAKE_CURRENT_SOURCE_DIR}/res")
 set(SOURCE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/src")
-set(CONAN_IMPORT_DIR "${CMAKE_CURRENT_SOURCE_DIR}/conan/imports")
-set(CONAN_OPTIONS "")
 
 # Compiler Flags
 if (MSVC)
@@ -34,44 +27,27 @@ else ()
     set(CMAKE_CXX_FLAGS "-Wall -Wextra -fno-exceptions")
     set(CMAKE_CXX_FLAGS_DEBUG "-O0 -g -DDEBUG -DSDL_ASSERT_LEVEL=2")
     set(CMAKE_CXX_FLAGS_RELEASE "-DRELEASE -DSDL_ASSERT_LEVEL=0")
-
-    set(CONAN_OPTIONS "\n${CONAN_OPTIONS} sdl:pulse=False") # Disable pulse audio because I was having issues on WSL2
 endif ()
 
-# Conan dependencies
-conan_cmake_run(
-REQUIRES
-    glad/0.1.34
-    sdl/2.0.20
-    imgui/1.87
-    stb/20200203
-    eastl/3.18.00
-    glm/0.9.9.8
-    xxhash/0.8.1
+# Vcpkg Dependencies
+find_package(EASTL CONFIG REQUIRED)
+find_package(glad CONFIG REQUIRED)
+find_package(glm CONFIG REQUIRED)
+find_package(imgui CONFIG REQUIRED)
+find_package(SDL2 CONFIG REQUIRED)
+find_path(STB_INCLUDE_DIRS "stb.h")
+find_package(xxHash CONFIG REQUIRED)
+set(VCPKG_INCLUDES ${STB_INCLUDE_DIRS})
+set(VCPKG_LIBRARIES EASTL glad::glad glm::glm imgui::imgui SDL2::SDL2 SDL2::SDL2main xxHash::xxhash)
 
-OPTIONS
-    ${CONAN_OPTIONS}
-
-IMPORTS
-    "./res/bindings, imgui_impl_opengl3_loader.h -> ${CONAN_IMPORT_DIR}"
-    "./res/bindings, imgui_impl_opengl3.h -> ${CONAN_IMPORT_DIR}"
-    "./res/bindings, imgui_impl_opengl3.cpp -> ${CONAN_IMPORT_DIR}"
-    "./res/bindings, imgui_impl_sdl.h -> ${CONAN_IMPORT_DIR}"
-    "./res/bindings, imgui_impl_sdl.cpp -> ${CONAN_IMPORT_DIR}"
-   
-GENERATORS cmake
-BASIC_SETUP CMAKE_TARGETS
-BUILD missing
-)
-
-# Dependencies not in Conan
+# Local Dependencies
 add_subdirectory("libs/fast_obj")
 
 # Generate constants file
 configure_file(${SOURCE_DIR}/generated/CMakeConstants.cpp.in ${SOURCE_DIR}/generated/CMakeConstants.cpp)
 
 # Get lazy and glob all sources
-file(GLOB_RECURSE SOURCES "${SOURCE_DIR}/*.cpp" "${SOURCE_DIR}/*.hpp" "${CONAN_IMPORT_DIR}/*.h" "${CONAN_IMPORT_DIR}/*.cpp")
+file(GLOB_RECURSE SOURCES "${SOURCE_DIR}/*.cpp" "${SOURCE_DIR}/*.hpp")
 list(APPEND SOURCES "${CMAKE_CURRENT_SOURCE_DIR}/Pathtracer.natvis")
 
 # Glob all shader sources so that they also show in the IDEs
@@ -80,8 +56,8 @@ file(GLOB_RECURSE SHADERS "${SHADERS_DIR}/*.frag" "${SHADERS_DIR}/*.vert")
 
 # Create our executable
 add_executable(${PROJECT_NAME} ${SOURCES} ${SHADERS})
-target_link_libraries(${PROJECT_NAME} fast_obj ${CONAN_TARGETS})
-target_include_directories(${PROJECT_NAME} PRIVATE ${SOURCE_DIR} ${CONAN_IMPORT_DIR})
+target_link_libraries(${PROJECT_NAME} fast_obj ${VCPKG_LIBRARIES})
+target_include_directories(${PROJECT_NAME} PRIVATE ${SOURCE_DIR} ${VCPKG_INCLUDES})
 
 # Project settings
 set_property(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR} PROPERTY VS_STARTUP_PROJECT ${PROJECT_NAME})
@@ -101,26 +77,14 @@ foreach (SOURCE IN ITEMS ${SHADERS})
     source_group("${GROUP_PATH}" FILES "${SOURCE}")
 endforeach ()
 
-# Transform all Conan dependencies into custom targets so the public includes show up in ty
-include(${CMAKE_BINARY_DIR}/conanbuildinfo.cmake)
-foreach(TARGET IN ITEMS ${CONAN_TARGETS})
-    string(REPLACE "CONAN_PKG::" "" TARGET_NAME ${TARGET})
-    string(TOUPPER ${TARGET_NAME} TARGET_NAME_UPPER)
-    
-    list (GET CONAN_INCLUDE_DIRS_${TARGET_NAME_UPPER} 0 HEAD)
-    set(CONAN_VAR "CONAN_INCLUDE_DIRS_${TARGET_NAME_UPPER}")
-    file(GLOB_RECURSE SOURCES "${HEAD}/*.cpp" "${HEAD}/*.hpp" "${HEAD}/*.h" "${HEAD}/*.c")
-    add_custom_target(${TARGET_NAME} SOURCES ${SOURCES})
-    set_target_properties(${TARGET_NAME} PROPERTIES FOLDER ConanDependencies)
-
-    # Pretify folder structure inside for the target
-    foreach (SOURCE IN ITEMS ${SOURCES})
-        get_filename_component(SOURCE_PATH "${SOURCE}" PATH)
-        file(RELATIVE_PATH SOURCE_PATH_REL "${CONAN_${TARGET_NAME_UPPER}_ROOT}" "${SOURCE_PATH}")
-        string(REPLACE "/" "\\" GROUP_PATH "${SOURCE_PATH_REL}")
-        source_group("${GROUP_PATH}" FILES "${SOURCE}")
-    endforeach ()
-endforeach()
+file(GLOB_RECURSE VCPKG_SOURCES "${VCPKG_INSTALLED_DIR}/*.cpp" "${VCPKG_INSTALLED_DIR}/*.hpp" "${VCPKG_INSTALLED_DIR}/*.h" "${VCPKG_INSTALLED_DIR}/*.c")
+add_custom_target(Vcpkg SOURCES ${VCPKG_SOURCES})
+foreach (SOURCE IN ITEMS ${VCPKG_SOURCES})
+    get_filename_component(SOURCE_PATH "${SOURCE}" PATH)
+    file(RELATIVE_PATH SOURCE_PATH_REL "${VCPKG_INSTALLED_DIR}/${VCPKG_TARGET_TRIPLET}/include" "${SOURCE_PATH}")
+    string(REPLACE "/" "\\" GROUP_PATH "${SOURCE_PATH_REL}")
+    source_group("${GROUP_PATH}" FILES "${SOURCE}")
+endforeach ()
 
 # Copy resources to build dir
 add_custom_command(

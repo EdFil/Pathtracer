@@ -1,0 +1,16 @@
+{
+    "name": "pathtracer",
+    "version-string": "0.0.1",
+    "dependencies": [
+      "sdl2",
+      "glad",
+      {
+        "name": "imgui",
+        "features": [ "sdl2-binding", "opengl3-binding" ]
+      },
+      "stb",
+      "eastl",
+      "glm",
+      "xxhash"
+    ]
+  }

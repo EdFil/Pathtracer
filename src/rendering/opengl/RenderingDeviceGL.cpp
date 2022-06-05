@@ -1,6 +1,8 @@
 #include "rendering/opengl/RenderingDeviceGL.hpp"
 
-#include <SDL_render.h>
+#include <SDL2/SDL_render.h>
+#include <SDL2/SDL_video.h>
+
 #include <imgui_impl_opengl3.h>
 #include <imgui_impl_sdl.h>
 #include <glad/glad.h>
@@ -16,8 +18,6 @@
 #include "rendering/opengl/UniformBufferGL.hpp"
 
 #include "base/Mesh.hpp"
-
-#include "SDL_video.h"
 
 RenderingDeviceGL::RenderingDeviceGL(SDL_Window* window) : _window(window) {
 }

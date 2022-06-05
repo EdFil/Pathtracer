@@ -1,7 +1,7 @@
 #include "FileManager.hpp"
 
-#include <SDL_filesystem.h>
-#include <SDL_rwops.h>
+#include <SDL2/SDL_filesystem.h>
+#include <SDL2/SDL_rwops.h>
 
 #include "Logger.hpp"
 #include "generated/CMakeConstants.h"

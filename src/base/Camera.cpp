@@ -1,7 +1,7 @@
 #include "Camera.hpp"
 
-#include <SDL_keyboard.h>
-#include <SDL_mouse.h>
+#include <SDL2/SDL_keyboard.h>
+#include <SDL2/SDL_mouse.h>
 #include <glm/ext/matrix_clip_space.hpp>
 #include <glm/ext/matrix_transform.hpp>
 #include <glm/gtx/rotate_vector.hpp>

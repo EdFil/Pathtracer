@@ -1,9 +1,9 @@
 #include "Logger.hpp"
 
-#include <SDL_stdinc.h>
-#include <SDL_assert.h>
-#include <SDL_rwops.h>
-#include <SDL_log.h>
+#include <SDL2/SDL_stdinc.h>
+#include <SDL2/SDL_assert.h>
+#include <SDL2/SDL_rwops.h>
+#include <SDL2/SDL_log.h>
 #include <EASTL/string.h>
 
 namespace {

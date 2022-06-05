@@ -1,7 +1,7 @@
 #include "Window.hpp"
 
-#include <SDL_events.h>
-#include <SDL_video.h>
+#include <SDL2/SDL_events.h>
+#include <SDL2/SDL_video.h>
 #include "Logger.hpp"
 #include "SDLUtils.hpp"
 

@@ -1,6 +1,6 @@
 #pragma once
 
-#include <SDL_video.h>
+#include <SDL2/SDL_video.h>
 
 const char* stringifyWindowEventID(SDL_WindowEventID eventID) {
     switch (eventID) {
