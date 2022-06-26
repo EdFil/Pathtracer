@@ -14,6 +14,7 @@ public:
     bool init(uint32_t width, uint32_t height, const Texture::Params& params) override;
     bool init(const eastl::string& filePath, const Texture::Params& params) override;
     void bind() const override;
+    void resize(uint32_t width, uint32_t height) override;
 
 private:
     unsigned int _handle = 0;

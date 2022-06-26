@@ -17,9 +17,11 @@ public:
     virtual bool init(eastl::string&& name) = 0;
     virtual bool init(uint32_t handle, eastl::string&& name) = 0;
     virtual void destroy() = 0;
+    virtual ITexture* texture() = 0;
     virtual bool attachTexture(ITexture* texture, Attachment attachment) = 0;
     virtual void bind() = 0;
     virtual void unbind() = 0;
+    virtual bool resize(int width, int height) = 0;
 };
 
 class IFrameBufferManager {

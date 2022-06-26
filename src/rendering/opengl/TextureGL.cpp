@@ -35,7 +35,10 @@ TextureGL::~TextureGL() {
 }
 
 bool TextureGL::init(uint32_t width, uint32_t height, const Texture::Params& params) {
-    glGenTextures(1, &_handle);
+    if (_handle == 0) {
+        glGenTextures(1, &_handle);
+    }
+    
     glBindTexture(GL_TEXTURE_2D, _handle);
     glTexImage2D(GL_TEXTURE_2D, 0, formatToGL(params.format), width, height, 0, formatToGL(params.format), GL_UNSIGNED_BYTE, nullptr);
 
@@ -56,7 +59,10 @@ bool TextureGL::init(const eastl::string& filePath, const Texture::Params& param
         return false;
     }
 
-    glGenTextures(1, &_handle);
+    if (_handle == 0) {
+        glGenTextures(1, &_handle);
+    }
+
     glBindTexture(GL_TEXTURE_2D, _handle);
     glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, decodedImageData);
     glGenerateMipmap(GL_TEXTURE_2D);
@@ -67,6 +73,16 @@ bool TextureGL::init(const eastl::string& filePath, const Texture::Params& param
 
 void TextureGL::bind() const {
     glBindTexture(GL_TEXTURE_2D, _handle);
+}
+
+void TextureGL::resize(uint32_t width, uint32_t height) {
+    if (_handle == 0) {
+        LOG_WARN("[TextureGL] Failed to resize. Invalid texture handle");
+        return;
+    }
+
+    glBindTexture(GL_TEXTURE_2D, _handle);
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, nullptr);
 }
 
 // ----------------------------------------------

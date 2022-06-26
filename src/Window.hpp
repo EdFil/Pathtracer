@@ -35,7 +35,7 @@ public:
     ~Window();
 
     bool init(const WindowParams& params = WindowParams());
-    void onSDLEvent(const SDL_WindowEvent& event);
+    void onSDLWindowEvent(const SDL_WindowEvent& event);
     glm::ivec2 size() const;
     
     bool isMouseGrabbed() const { return _shouldGrabMouse; }

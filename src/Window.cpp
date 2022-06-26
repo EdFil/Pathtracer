@@ -37,9 +37,8 @@ void Window::setMouseGrab(bool shouldGrabMouse) {
 //    SDL_SetRelativeMouseMode((SDL_bool)shouldGrabMouse);
 }
 
-void Window::onSDLEvent(const SDL_WindowEvent& event) {
-    SDL_WindowEventID windowEventID = (SDL_WindowEventID)event.event;
-    switch (windowEventID) {
+void Window::onSDLWindowEvent(const SDL_WindowEvent& windowEvent) {
+    switch (windowEvent.event) {
         case SDL_WINDOWEVENT_RESIZED: {
             WindowEvent event(*this);
             event.data.size = size();

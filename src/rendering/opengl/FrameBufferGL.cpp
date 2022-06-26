@@ -4,6 +4,7 @@
 
 #include "Logger.hpp"
 #include "TextureGL.hpp"
+#include "UtilsGL.hpp"
 
 namespace {
     constexpr GLenum attachmentToGL(IFrameBuffer::Attachment attachment) {
@@ -76,7 +77,7 @@ bool FrameBufferGL::attachTexture(ITexture* texture, Attachment attachment) {
 
     bind();
     glFramebufferTexture2D(GL_FRAMEBUFFER, attachmentToGL(attachment), GL_TEXTURE_2D, texture->handle(), 0);
-    unbind();
+    _texture = texture;
     return !hasFramebufferError();
 }
 
@@ -86,6 +87,19 @@ void FrameBufferGL::bind() {
 
 void FrameBufferGL::unbind() {
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
+}
+
+bool FrameBufferGL::resize(int width, int height) {
+    LOG("[FrameBufferGL] (%s) Resize to %d x %d", _name.c_str(), width, height);
+    glBindFramebuffer(GL_FRAMEBUFFER, _handle);
+    glViewport(0, 0, width, height);
+    _size = glm::ivec2(width, height);
+
+    if (_texture != nullptr) {
+        _texture->resize(width, height);
+    }
+
+    return UtilsGL::CheckGLError("[FrameBufferGL::resize]");
 }
 
 bool FrameBufferGL::hasFramebufferError() {

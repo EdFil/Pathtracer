@@ -60,8 +60,8 @@ int main(int /*argc*/, char* /*argv*/[]) {
     Light light;
 
     bool isRunning = window.init() && renderer.init(window.window(), &mainCamera);
-    isRunning &= renderCamera.init(window, *renderer.renderingDevice());
-    isRunning &= mainCamera.init(window, *renderer.renderingDevice());
+    isRunning &= mainCamera.init("Main", window, *renderer.renderingDevice());
+    isRunning &= renderCamera.init("Render", window, *renderer.renderingDevice());
     isRunning &= light.init(*renderer.renderingDevice());
     isRunning &= resourceManager.init(*renderer.renderingDevice());
 
@@ -109,7 +109,11 @@ int main(int /*argc*/, char* /*argv*/[]) {
             } else if (sdlEvent.type == SDL_KEYDOWN && sdlEvent.key.keysym.sym == SDLK_r) {
                 mainCamera.reset();
             } else if (sdlEvent.type == SDL_WINDOWEVENT) {
-                window.onSDLEvent(sdlEvent.window);
+                renderer.onSDLWindowEvent(sdlEvent.window);
+                window.onSDLWindowEvent(sdlEvent.window);
+
+                if (sdlEvent.window.event == SDL_WindowEventID::SDL_WINDOWEVENT_RESIZED)
+                    otherFrameBuffer->resize(window.size().x, window.size().y);
             }
 
             if (sdlEvent.type == SDL_KEYDOWN && sdlEvent.key.keysym.sym == SDLK_1) {

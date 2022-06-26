@@ -12,28 +12,29 @@
 
 struct SDL_Window;
 struct SDL_Renderer;
+struct SDL_WindowEvent;
 typedef void* SDL_GLContext;
 
-class RenderingDeviceGL : public IRenderingDevice {
+class RenderingDeviceGL final : public IRenderingDevice {
 public:
     RenderingDeviceGL(SDL_Window* window);
     ~RenderingDeviceGL();
 
-    virtual bool init() override;
-    virtual void clearScreen(float r, float g, float b, float a) override;
-    virtual void preRender() override;
-    virtual void postRender() override;
-
+    bool init() override;
+    void clearScreen(float r, float g, float b, float a) override;
+    void preRender() override;
+    void postRender() override;
+    void onSDLWindowEvent(const SDL_WindowEvent& event) override;
     virtual IBuffer* createBuffer(const Buffer::Mode& mode) override;
 
     virtual void render(Camera* camera, Mesh* mesh, Material* material) override;
 
-    virtual IRenderingDeviceInfo* deviceInfo() override { return &_renderingDeviceInfo; }
-    virtual IShaderManager* shaderManager() override { return &_shaderManager; }
-    virtual IFrameBufferManager* frameBufferManager() override { return &_frameBufferManager; };
-    virtual ITextureManager* textureManager() override { return &_textureManager; };
-    virtual IProgramManager* programManager() override { return &_programManager; }
-    virtual IUniformBufferManager* uniformBufferManager() override { return &_uniformBufferManager; }
+    IRenderingDeviceInfo* deviceInfo() override { return &_renderingDeviceInfo; }
+    IShaderManager* shaderManager() override { return &_shaderManager; }
+    IFrameBufferManager* frameBufferManager() override { return &_frameBufferManager; };
+    ITextureManager* textureManager() override { return &_textureManager; };
+    IProgramManager* programManager() override { return &_programManager; }
+    IUniformBufferManager* uniformBufferManager() override { return &_uniformBufferManager; }
 
 private:
     SDL_Window* _window = nullptr;

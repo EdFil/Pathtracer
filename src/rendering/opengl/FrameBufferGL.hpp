@@ -2,8 +2,10 @@
 
 #include <EASTL/map.h>
 #include <EASTL/unique_ptr.h>
+#include <glm/vec2.hpp>
 
 #include "rendering/IFrameBuffer.hpp"
+
 
 class FrameBufferGL final : public IFrameBuffer {
 public:
@@ -15,13 +17,17 @@ public:
     bool init(eastl::string&& name) override;
     bool init(uint32_t handle, eastl::string&& name) override;
     void destroy() override;
+    ITexture* texture() override { return _texture; };
     bool attachTexture(ITexture *texture, Attachment attachment) override;
     void bind() override;
     void unbind() override;
+    bool resize(int width, int height) override;
 
 private:
-    unsigned int _handle;
+    unsigned int _handle = 0;
+    ITexture* _texture = nullptr;
     eastl::string _name;
+    glm::ivec2 _size;
 
     bool hasFramebufferError();
 };
