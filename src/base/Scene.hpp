@@ -1,11 +1,11 @@
 #pragma once
 
-#include <vector>
+#include <EASTL/vector.h>
 
 class Entity;
 
 class Scene {
 public:
 private:
-    std::vector<Entity> _entities;
+    //eastl::vector<Entity> _entities;
 };

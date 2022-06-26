@@ -1,5 +1,7 @@
 cmake_minimum_required(VERSION 3.6)
 
+set(CMAKE_TOOLCHAIN_FILE "${CMAKE_CURRENT_SOURCE_DIR}/submodules/vcpkg/scripts/buildsystems/vcpkg.cmake")
+
 project(Pathtracer CXX)
 
 # CMake variables
@@ -9,7 +11,8 @@ set(CMAKE_RUNTIME_OUTPUT_DIRECTORY_RELEASE ${CMAKE_BINARY_DIR}/bin)
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_INSTALL_MESSAGE LAZY)
 set(ENGINE_CMAKE_FOLDER ${CMAKE_CURRENT_SOURCE_DIR}/cmake)
-set(CMAKE_MODULE_PATH ${CMAKE_CURRENT_SOURCE_DIR}/cmake)
+
+option(FORCE_REBUILD "Should rebuild pre-built libs" OFF)
 
 # Project Variables
 set(RESOURCES_DIR "${CMAKE_CURRENT_SOURCE_DIR}/res")
@@ -17,7 +20,7 @@ set(SOURCE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/src")
 
 # Compiler Flags
 if (MSVC)
-    set(CMAKE_CXX_FLAGS "/DWIN32 /D_WINDOWS /EHsc /W3 /experimental:external /external:anglebrackets /external:W0")
+    set(CMAKE_CXX_FLAGS "/DWIN32 /D_WINDOWS /EHsc /W4 /experimental:external /external:anglebrackets /external:W0")
     set(CMAKE_CXX_FLAGS_DEBUG "/MDd /Zi /Ob0 /Od /RTC1 /DDEBUG /DSDL_ASSERT_LEVEL=2")
     set(CMAKE_CXX_FLAGS_RELEASE "/MD /Ox /Ob2 /DRELEASE /DSDL_ASSERT_LEVEL=0")
 else ()
@@ -26,14 +29,19 @@ else ()
     set(CMAKE_CXX_FLAGS_RELEASE "-DRELEASE -DSDL_ASSERT_LEVEL=0")
 endif ()
 
-# Dependencies
-add_subdirectory("libs/glad")
-add_subdirectory("libs/sdl2")
-add_subdirectory("libs/imgui")
-add_subdirectory("libs/stb")
+# Vcpkg Dependencies
+find_package(EASTL CONFIG REQUIRED)
+find_package(glad CONFIG REQUIRED)
+find_package(glm CONFIG REQUIRED)
+find_package(imgui CONFIG REQUIRED)
+find_package(SDL2 CONFIG REQUIRED)
+find_path(STB_INCLUDE_DIRS "stb.h")
+find_package(xxHash CONFIG REQUIRED)
+set(VCPKG_INCLUDES ${STB_INCLUDE_DIRS})
+set(VCPKG_LIBRARIES EASTL glad::glad glm::glm imgui::imgui SDL2::SDL2 SDL2::SDL2main xxHash::xxhash)
+
+# Local Dependencies
 add_subdirectory("libs/fast_obj")
-set(BUILD_STATIC_LIBS TRUE)
-add_subdirectory("libs/glm")
 
 # Generate constants file
 configure_file(${SOURCE_DIR}/generated/CMakeConstants.cpp.in ${SOURCE_DIR}/generated/CMakeConstants.cpp)
@@ -48,16 +56,12 @@ file(GLOB_RECURSE SHADERS "${SHADERS_DIR}/*.frag" "${SHADERS_DIR}/*.vert")
 
 # Create our executable
 add_executable(${PROJECT_NAME} ${SOURCES} ${SHADERS})
-target_link_libraries(${PROJECT_NAME} glad SDL2::SDL2 SDL2::SDL2main imgui::imgui stb::stb glm::glm_static fast_obj)
-target_include_directories(${PROJECT_NAME} PRIVATE ${SOURCE_DIR})
+target_link_libraries(${PROJECT_NAME} fast_obj ${VCPKG_LIBRARIES})
+target_include_directories(${PROJECT_NAME} PRIVATE ${SOURCE_DIR} ${VCPKG_INCLUDES})
 
 # Project settings
 set_property(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR} PROPERTY VS_STARTUP_PROJECT ${PROJECT_NAME})
-
-# Copy resources to build dir
-add_custom_command(
-        TARGET ${PROJECT_NAME} POST_BUILD
-        COMMAND ${CMAKE_COMMAND} -E copy_directory ${RESOURCES_DIR} "${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/res")
+set_property(GLOBAL PROPERTY USE_FOLDERS ON)
 
 # Source group generation for IDEs
 foreach (SOURCE IN ITEMS ${SOURCES})
@@ -72,3 +76,17 @@ foreach (SOURCE IN ITEMS ${SHADERS})
     string(REPLACE "/" "\\" GROUP_PATH "${SOURCE_PATH_REL}")
     source_group("${GROUP_PATH}" FILES "${SOURCE}")
 endforeach ()
+
+file(GLOB_RECURSE VCPKG_SOURCES "${VCPKG_INSTALLED_DIR}/*.cpp" "${VCPKG_INSTALLED_DIR}/*.hpp" "${VCPKG_INSTALLED_DIR}/*.h" "${VCPKG_INSTALLED_DIR}/*.c")
+add_custom_target(Vcpkg SOURCES ${VCPKG_SOURCES})
+foreach (SOURCE IN ITEMS ${VCPKG_SOURCES})
+    get_filename_component(SOURCE_PATH "${SOURCE}" PATH)
+    file(RELATIVE_PATH SOURCE_PATH_REL "${VCPKG_INSTALLED_DIR}/${VCPKG_TARGET_TRIPLET}/include" "${SOURCE_PATH}")
+    string(REPLACE "/" "\\" GROUP_PATH "${SOURCE_PATH_REL}")
+    source_group("${GROUP_PATH}" FILES "${SOURCE}")
+endforeach ()
+
+# Copy resources to build dir
+add_custom_command(
+        TARGET ${PROJECT_NAME} POST_BUILD
+        COMMAND ${CMAKE_COMMAND} -E copy_directory ${RESOURCES_DIR} "${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/res")

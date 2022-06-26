@@ -1,12 +1,14 @@
 #pragma once
 
-#include <map>
-#include <memory>
+#include <EASTL/map.h>
+#include <EASTL/unique_ptr.h>
 
 #include "rendering/IUniformBuffer.hpp"
 
 class UniformBufferGL final : public IUniformBuffer {
 public:
+    ~UniformBufferGL() override = default;
+
     virtual bool init(uint32_t bindingPoint, uint32_t sizeInBytes) override;
     virtual bool updateData(const void* data, uint32_t sizeInBytes) override;
     virtual void bind() override;
@@ -24,5 +26,5 @@ public:
     virtual void deleteUniformBuffer(IUniformBuffer* uniformBuffer) override;
 
 private:
-    std::map<int32_t, std::unique_ptr<UniformBufferGL>> _buffers;
+    eastl::map<int32_t, eastl::unique_ptr<UniformBufferGL>> _buffers;
 };

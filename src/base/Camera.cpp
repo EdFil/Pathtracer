@@ -1,7 +1,7 @@
 #include "Camera.hpp"
 
-#include <SDL_keyboard.h>
-#include <SDL_mouse.h>
+#include <SDL2/SDL_keyboard.h>
+#include <SDL2/SDL_mouse.h>
 #include <glm/ext/matrix_clip_space.hpp>
 #include <glm/ext/matrix_transform.hpp>
 #include <glm/gtx/rotate_vector.hpp>
@@ -25,14 +25,23 @@ struct UniformData {
 
 static unsigned int uboMatrices;
 
-bool Camera::init(const Window& window, IRenderingDevice& renderingDevice) {
+Camera::~Camera() {
+    if (_window) {
+        _window->unsubscribe(*this);
+    }
+}
+
+bool Camera::init(eastl::string&& name, Window& window, IRenderingDevice& renderingDevice) {
     _uniformBuffer = renderingDevice.uniformBufferManager()->createUniformBuffer(0, sizeof(UniformData));
     if (_uniformBuffer == nullptr) {
-        LOG_ERROR("[Camera] Could not create Uniform buffer object");
+        LOG_ERROR("[Camera] (%s) Could not create Uniform buffer object", name.c_str());
         return false;
     }
 
+    _name = std::move(name);
     _window = &window;
+    _window->subscribe(*this);
+    onWindowSizeUpdated(_window->size());
     reset();
 
     return true;
@@ -101,6 +110,23 @@ glm::mat4x4 Camera::viewMatrix() const {
 }
 glm::mat4x4 Camera::projMatrix() const {
     return glm::perspective(_fov, (float)_width / (float)_height, _near, _far);
+}
+
+void Camera::onEventCalled(const WindowEventType& type, const WindowEvent& data) {
+    switch (type) {
+        case WindowEventType::Resize:
+            onWindowSizeUpdated(data.data.size);
+            break;
+        default:
+            break;
+    }
+}
+
+void Camera::onWindowSizeUpdated(const glm::ivec2& newWindowSize) {
+    LOG("[Camera] (%s) New size is %d x %d", _name.c_str(), newWindowSize.x, newWindowSize.y);
+    _width = newWindowSize.x;
+    _height = newWindowSize.y;
+    updateUniformBuffer();
 }
 
 void Camera::updateUniformBuffer() {

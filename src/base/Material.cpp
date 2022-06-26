@@ -11,7 +11,7 @@
 bool Material::init(IProgram* program) {
     if (program == nullptr || !program->isValid()) return false;
 
-    const std::map<std::string, UniformData>& uniforms = program->activeUniforms();
+    const eastl::map<eastl::string, UniformData>& uniforms = program->activeUniforms();
     unsigned int uniformDataSizeInBytes = 0;
     for (const auto& it : uniforms) {
         uniformDataSizeInBytes += UniformData::sizeInBytes(it.second.type);
@@ -26,7 +26,7 @@ bool Material::init(IProgram* program) {
 
 void Material::bind() {
     _program->bind();
-    const std::map<std::string, UniformData>& uniforms = _program->activeUniforms();
+    const eastl::map<eastl::string, UniformData>& uniforms = _program->activeUniforms();
     unsigned int dataIndex = 0;
     for (const auto& it : uniforms) {
         switch (it.second.type) {
@@ -50,7 +50,7 @@ void Material::bind() {
 }
 
 bool Material::setTexture(const char* uniformName, ITexture* texture) {
-    const std::map<std::string, UniformData>& uniforms = _program->activeUniforms();
+    const eastl::map<eastl::string, UniformData>& uniforms = _program->activeUniforms();
     unsigned int dataBegin = 0;
     for (const auto& it : uniforms) {
         if (it.first == uniformName) break;
@@ -67,7 +67,7 @@ bool Material::setTexture(const char* uniformName, ITexture* texture) {
 }
 
 bool Material::setValue(const char* uniformName, const glm::mat4& value) {
-    const std::map<std::string, UniformData>& uniforms = _program->activeUniforms();
+    const eastl::map<eastl::string, UniformData>& uniforms = _program->activeUniforms();
     unsigned int dataBegin = 0;
     for (const auto& it : uniforms) {
         if (it.first == uniformName) break;

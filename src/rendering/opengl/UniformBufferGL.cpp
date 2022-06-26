@@ -45,13 +45,13 @@ void UniformBufferGL::bind() {
 // ----------------------------------------------------
 
 IUniformBuffer* UniformBufferManagerGL::createUniformBuffer(uint32_t bindingPoint, uint32_t sizeInBytes) {
-    std::unique_ptr<UniformBufferGL> uniformBuffer = std::make_unique<UniformBufferGL>();
+    eastl::unique_ptr<UniformBufferGL> uniformBuffer = eastl::make_unique<UniformBufferGL>();
     if (uniformBuffer == nullptr || !uniformBuffer->init(bindingPoint, sizeInBytes)) {
         LOG_ERROR("[UniformBufferManagerGL] Failed to create UniformBuffer(%p). BindingPoint(%u) Size(%u)", uniformBuffer.get(), bindingPoint, sizeInBytes);
         return nullptr;
     }
 
-    const auto it = _buffers.insert({uniformBuffer->handle(), std::move(uniformBuffer)});
+    const auto it = _buffers.emplace(uniformBuffer->handle(), eastl::move(uniformBuffer));
     if (!it.second) {
         LOG_ERROR("[UniformBufferManagerGL] Failed to insert UniformBuffer into map. Memory allocation failed?");
         return nullptr;

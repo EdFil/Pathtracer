@@ -3,6 +3,7 @@
 #include "Logger.hpp"
 #include "rendering/Types.hpp"
 #include "rendering/opengl/RenderingDeviceGL.hpp"
+#include <SDL2/SDL_events.h>
 
 Renderer::Renderer() = default;
 Renderer::~Renderer() = default;
@@ -40,7 +41,7 @@ void Renderer::setRenderingAPI(Renderer::API renderingAPI) {
     switch (renderingAPI) {
         case Renderer::API::OpenGL:
             LOG("[Renderer] Initialising with an OpenGL rendering device");
-            _renderingDevice = std::make_unique<RenderingDeviceGL>(_sdlWindow);
+            _renderingDevice = eastl::make_unique<RenderingDeviceGL>(_sdlWindow);
             break;
         default:
             break;
@@ -50,3 +51,11 @@ void Renderer::setRenderingAPI(Renderer::API renderingAPI) {
         _renderingDevice = nullptr;
     }
 }
+
+void Renderer::onSDLWindowEvent(const SDL_WindowEvent& event) {
+    if (_renderingDevice != nullptr) {
+        _renderingDevice->onSDLWindowEvent(event);
+    }
+}
+
+

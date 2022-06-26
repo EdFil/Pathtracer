@@ -1,7 +1,7 @@
 #pragma once
 
-#include <map>
-#include <memory>
+#include <EASTL/map.h>
+#include <EASTL/unique_ptr.h>
 
 #include "rendering/ITexture.hpp"
 
@@ -12,8 +12,9 @@ public:
     unsigned int handle() const override { return _handle; }
 
     bool init(uint32_t width, uint32_t height, const Texture::Params& params) override;
-    bool init(const std::string& filePath, const Texture::Params& params) override;
+    bool init(const eastl::string& filePath, const Texture::Params& params) override;
     void bind() const override;
+    void resize(uint32_t width, uint32_t height) override;
 
 private:
     unsigned int _handle = 0;
@@ -22,9 +23,9 @@ private:
 class TextureManagerGL final : public ITextureManager {
 public:
     virtual ITexture* createTexture(uint32_t width, uint32_t height, const Texture::Params& params) override;
-    virtual ITexture* createTexture(const std::string& filePath, const Texture::Params& params) override;
+    virtual ITexture* createTexture(const eastl::string& filePath, const Texture::Params& params) override;
     virtual void deleteTexture(ITexture* texture) override;
 
 private:
-    std::map<int32_t, std::unique_ptr<TextureGL>> _textures;
+    eastl::map<int32_t, eastl::unique_ptr<TextureGL>> _textures;
 };

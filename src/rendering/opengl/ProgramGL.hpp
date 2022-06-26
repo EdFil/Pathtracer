@@ -1,8 +1,8 @@
 #pragma once
 
-#include <memory>
-
 #include "rendering/IProgram.hpp"
+
+#include <EASTL/unique_ptr.h>
 
 class IShaderManager;
 class ShaderGL;
@@ -27,14 +27,14 @@ public:
     void setUniform(const char* uniformName, const glm::mat4& value) override;
 
     bool isValid() const override { return _handle != 0; }
-    const std::map<std::string, UniformData>& activeUniforms() const override { return _activeUniforms; }
+    const eastl::map<eastl::string, UniformData>& activeUniforms() const override { return _activeUniforms; }
     unsigned int handle() const override { return _handle; }
     inline const IShader* vertexShader() const override;
     inline const IShader* fragmentShader() const override;
 
 private:
     unsigned int _handle;
-    std::map<std::string, UniformData> _activeUniforms;
+    eastl::map<eastl::string, UniformData> _activeUniforms;
     const ShaderGL* _vertexShader = nullptr;
     const ShaderGL* _fragmentShader = nullptr;
 
@@ -44,11 +44,11 @@ private:
 class ProgramManagerGL final : public IProgramManager {
 public:
     bool init(const IShaderManager& shaderManager) override;
-    IProgram* createProgram(const std::string& name, const IShader& vertex, const IShader& fragment) override;
-    IProgram* program(const std::string& name) const override;
+    IProgram* createProgram(const eastl::string& name, const IShader& vertex, const IShader& fragment) override;
+    IProgram* program(const eastl::string& name) const override;
 
 private:
-    std::map<std::string, std::unique_ptr<ProgramGL>> _programs;
+    eastl::map<eastl::string, eastl::unique_ptr<ProgramGL>> _programs;
 
     bool createProgram(const ShaderManagerGL& shaderManager, const char* programName, const char* vertexName, const char* fragmentName);
 };

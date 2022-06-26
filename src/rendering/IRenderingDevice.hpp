@@ -1,23 +1,24 @@
 #pragma once
 
-#include <string>
+#include <EASTL/string.h>
 
 #include "ITexture.hpp"
 #include "rendering/IBuffer.hpp"
 #include "rendering/IShader.hpp"
 
-class IRenderingDeviceInfo;
-class ShaderManager;
-class Material;
-class IProgram;
-class ITexture;
+struct SDL_WindowEvent;
 class Camera;
-class Mesh;
-class IUniformBuffer;
 class IFrameBufferManager;
-class IShaderManager;
+class IProgram;
 class IProgramManager;
+class IRenderingDeviceInfo;
+class IShaderManager;
+class ITexture;
+class IUniformBuffer;
 class IUniformBufferManager;
+class Material;
+class Mesh;
+class ShaderManager;
 
 class IRenderingDevice {
 public:
@@ -27,6 +28,7 @@ public:
     virtual void clearScreen(float r = 0.0f, float g = 0.0f, float b = 0.0f, float a = 0.0f) = 0;
     virtual void preRender() = 0;
     virtual void postRender() = 0;
+    virtual void onSDLWindowEvent(const SDL_WindowEvent& event) = 0;
 
     virtual IBuffer* createBuffer(const Buffer::Mode& mode) = 0;
 

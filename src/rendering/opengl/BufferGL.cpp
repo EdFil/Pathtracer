@@ -141,10 +141,10 @@ unsigned int BufferGL::bufferForTarget(Buffer::Target target) {
 // ---------------------------------------------
 
 IBuffer* BufferManagerGL::createBuffer(const Buffer::Mode& mode) {
-    std::unique_ptr<BufferGL> buffer = std::make_unique<BufferGL>();
+    eastl::unique_ptr<BufferGL> buffer = eastl::make_unique<BufferGL>();
     buffer->init(mode);
 
-    const auto it = _buffers.insert({buffer->handle(), std::move(buffer)});
+    const auto it = _buffers.emplace(buffer->handle(), eastl::move(buffer));
     return it.first->second.get();
 }
 

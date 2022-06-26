@@ -1,6 +1,7 @@
 #pragma once
 
-#include <cstring>
+#include <EASTL/string.h>
+
 #include "container/VectorView.hpp"
 
 class IRenderingDevice;

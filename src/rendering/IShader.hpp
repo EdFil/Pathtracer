@@ -1,9 +1,9 @@
 #pragma once
 
-#include <string>
+#include <EASTL/string.h>
 
 namespace Shader {
-    enum class Type { Vertex, Fragment };
+    enum class Type { Invalid = -1, Vertex, Fragment };
 
     namespace Vertex {
         extern const char* k_position;
@@ -36,6 +36,6 @@ public:
     virtual ~IShaderManager() = default;
 
     virtual bool init() = 0;
-    virtual IShader* createShader(const std::string& name, Shader::Type type, const char* fileName) = 0;
-    virtual IShader* shader(const std::string& name) const = 0;
+    virtual IShader* createShader(const eastl::string& name, Shader::Type type, const char* fileName) = 0;
+    virtual IShader* shader(const eastl::string& name) const = 0;
 };

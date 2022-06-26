@@ -1,10 +1,10 @@
 #include "Logger.hpp"
 
-#include <SDL_stdinc.h>
-#include <SDL_assert.h>
-#include <cstdarg>
-#include <fstream>
-#include <string>
+#include <SDL2/SDL_stdinc.h>
+#include <SDL2/SDL_assert.h>
+#include <SDL2/SDL_rwops.h>
+#include <SDL2/SDL_log.h>
+#include <EASTL/string.h>
 
 namespace {
 const int k_maxSizeLogMessage = 4096;
@@ -16,25 +16,27 @@ bool Logger::init() {
     destroy();
     s_instance = new Logger();
 
-    s_instance->_logFile.open(k_loggerFileName, std::ofstream::trunc);
-    return s_instance->_logFile.is_open();
+#if DEBUG
+    SDL_LogSetAllPriority(SDL_LogPriority::SDL_LOG_PRIORITY_VERBOSE);
+#endif
+
+    s_instance->_logFileHandle = SDL_RWFromFile(k_loggerFileName, "w+");
+    return s_instance->_logFileHandle != nullptr;
 }
 
 void Logger::destroy() {
     if (s_instance != nullptr) {
-        s_instance->_logFile.close();
+        SDL_RWclose(s_instance->_logFileHandle);
         delete s_instance;
         s_instance = nullptr;
     }
 }
 
-void Logger::log(const char* fileName, int lineNumber, const char* format, ...) {
+void Logger::log(const char* /*fileName*/, int /*lineNumber*/, const char* format, ...) {
     if (!s_instance) return;
 
     char buffer[k_maxSizeLogMessage];
     uint32_t usedBytes = 0;
-
-    auto asdasd = sizeof(buffer);
 
     va_list args;
     va_start(args, format);
@@ -48,8 +50,7 @@ void Logger::log(const char* fileName, int lineNumber, const char* format, ...) 
     buffer[usedBytes - 1] = '\0';
 
     printf("%s", buffer);
-    s_instance->_logFile.write(buffer, usedBytes - 1);
-    s_instance->_logFile.flush();
+    SDL_RWwrite(s_instance->_logFileHandle, buffer, usedBytes - 1, 1);
 }
 
 void Logger::logError(const char* fileName, int lineNumber, const char* format, ...) {

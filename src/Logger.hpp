@@ -1,6 +1,6 @@
 #pragma once
 
-#include <fstream>
+struct SDL_RWops;
 
 class Logger {
 public:
@@ -11,7 +11,7 @@ public:
     static void logError(const char* fileName, int lineNumber, const char* format, ...);
 
 private:
-    std::ofstream _logFile;
+    SDL_RWops* _logFileHandle;
 };
 
 #define LOG(MESSAGE, ...) Logger::log(__FILE__, __LINE__, MESSAGE, ##__VA_ARGS__)

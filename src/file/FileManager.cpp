@@ -1,6 +1,7 @@
 #include "FileManager.hpp"
 
-#include <SDL_filesystem.h>
+#include <SDL2/SDL_filesystem.h>
+#include <SDL2/SDL_rwops.h>
 
 #include "Logger.hpp"
 #include "generated/CMakeConstants.h"
@@ -33,23 +34,20 @@ FileManager::FileManager() {
     _rootDir = CMakeConstants::ResourcesDir;
 }
 
-std::vector<char> FileManager::loadFile(const char fileName[]) const {
+eastl::vector<char> FileManager::loadFile(const char fileName[]) const {
     char fullPath[MAX_PATH];
     fullPathForFile(fileName, fullPath, MAX_PATH);
-    std::vector<char> contents;
+    eastl::vector<char> contents;
 
-    std::FILE* fp = std::fopen(fullPath, "rb");
-    if (fp) {
-        std::fseek(fp, 0, SEEK_END);
-        size_t size = std::ftell(fp);
-        std::rewind(fp);
-
+    SDL_RWops* Handle = SDL_RWFromFile(fullPath, "rb");
+    if (Handle) {
+        int64_t size = SDL_RWsize(Handle);
         contents.resize(size + 1);
-        std::fread(contents.data(), sizeof(char), size, fp);
-        std::fclose(fp);
-        contents[size] = '\0';
+
+        int read = SDL_RWread(Handle, contents.data(), size, 1);
+        SDL_RWclose(Handle);
     } else {
-        LOG_WARN("[FileManager] Could not find/open file \"%s\"", fullPath);
+        LOG_WARN("[FileManager] File open error. %s", SDL_GetError());
     }
 
     return contents;

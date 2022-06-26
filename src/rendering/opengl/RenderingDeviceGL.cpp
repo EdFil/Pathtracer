@@ -1,8 +1,11 @@
 #include "rendering/opengl/RenderingDeviceGL.hpp"
 
-#include <SDL_render.h>
-#include <backends/imgui_impl_opengl3.h>
-#include <backends/imgui_impl_sdl.h>
+#include <SDL2/SDL_render.h>
+#include <SDL2/SDL_video.h>
+#include <SDL2/SDL_events.h>
+
+#include <imgui_impl_opengl3.h>
+#include <imgui_impl_sdl.h>
 #include <glad/glad.h>
 
 #include "Logger.hpp"
@@ -16,8 +19,6 @@
 #include "rendering/opengl/UniformBufferGL.hpp"
 
 #include "base/Mesh.hpp"
-
-#include "SDL_video.h"
 
 RenderingDeviceGL::RenderingDeviceGL(SDL_Window* window) : _window(window) {
 }
@@ -90,6 +91,17 @@ void RenderingDeviceGL::preRender() {
 void RenderingDeviceGL::postRender() {
     ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
     SDL_GL_SwapWindow(_window);
+}
+
+void RenderingDeviceGL::onSDLWindowEvent(const SDL_WindowEvent& windowEvent) {
+    switch (windowEvent.event) {
+        case SDL_WindowEventID::SDL_WINDOWEVENT_RESIZED:
+            LOG("[RenderingDeviceGL] Resize viewport to %d x %d", windowEvent.data1, windowEvent.data2);
+            _frameBufferManager.frameBuffer(0)->resize(windowEvent.data1, windowEvent.data2);
+            break;
+        default:
+            break;
+    }
 }
 
 IBuffer* RenderingDeviceGL::createBuffer(const Buffer::Mode& mode) {

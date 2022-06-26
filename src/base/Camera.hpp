@@ -2,14 +2,19 @@
 
 #include <glm/mat4x4.hpp>
 #include <glm/vec3.hpp>
+#include <EASTL/string.h>
+
+#include "Window.hpp"
 
 class IUniformBuffer;
 class IRenderingDevice;
 class Window;
 
-class Camera {
+class Camera : public WindowsEventObserver {
 public:
-    bool init(const Window& window, IRenderingDevice& renderingDevice);
+    ~Camera();
+
+    bool init(eastl::string&& name, Window& window, IRenderingDevice& renderingDevice);
     void update(float deltaTime);
     void bind();
     void reset();
@@ -20,8 +25,9 @@ public:
     glm::mat4x4 projMatrix() const;
 
 private:
+    eastl::string _name;
     IUniformBuffer* _uniformBuffer;
-    const Window* _window;
+    Window* _window;
     glm::vec3 _position{0.0f, 0.0f, 3.0f};
 
     // Mouse state
@@ -43,5 +49,8 @@ private:
     float _acceleration = 0.3f;
     float _maxMovementSpeed = 5.0f;
 
+    void onEventCalled(const WindowEventType& type, const WindowEvent& data) override;
+
     void updateUniformBuffer();
+    void onWindowSizeUpdated(const glm::ivec2& newWindowSize);
 };

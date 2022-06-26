@@ -1,11 +1,12 @@
-#include <SDL.h>
+#include <SDL2/SDL.h>
 #include <stdio.h>
 
-#include <backends/imgui_impl_sdl.h>
+#include <imgui_impl_sdl.h>
 #include <fast_obj.h>
 #include <imgui.h>
 #include <chrono>
 #include <cstring>
+#include <new>
 
 #include "Logger.hpp"
 #include "Window.hpp"
@@ -23,13 +24,31 @@
 bool enable1 = true;
 bool enable2 = false;
 
-int main(int argc, char* argv[]) {
+///////////////////////////////////////////////////////////////////////////////
+// Required by EASTL.
+//
+// EASTL expects us to define these, see allocator.h. Around EASTL_USER_DEFINED_ALLOCATOR define...
+void* operator new[](size_t size, const char* /*pName*/, int /*flags*/,
+    unsigned /*debugFlags*/, const char* /*file*/, int /*line*/)
+{
+    return ::new char[size];
+}
+
+void* operator new[](size_t size, size_t alignment, size_t /*alignmentOffset*/,
+    const char* /*pName*/, int /*flags*/, unsigned /*debugFlags*/, const char* /*file*/, int /*line*/)
+{
+    (void)alignment;
+    // this allocator doesn't support alignment
+    EASTL_ASSERT(alignment <= 8);
+	return ::new char[size];
+}
+
+int main(int /*argc*/, char* /*argv*/[]) {
     Logger::init();
     FileManager::init();
-
-    SDL_LogSetAllPriority(SDL_LogPriority::SDL_LOG_PRIORITY_VERBOSE);
+    
     if (SDL_Init(SDL_INIT_VIDEO | SDL_INIT_TIMER) != 0) {
-        LOG_ERROR("[SDL] Could not initialize! SDL_Error: %s", SDL_GetError());
+        LOG_ERROR("[SDL] Could not initialize! Check SDL related logs!");
         return -1;
     }
 
@@ -41,8 +60,8 @@ int main(int argc, char* argv[]) {
     Light light;
 
     bool isRunning = window.init() && renderer.init(window.window(), &mainCamera);
-    isRunning &= renderCamera.init(window, *renderer.renderingDevice());
-    isRunning &= mainCamera.init(window, *renderer.renderingDevice());
+    isRunning &= mainCamera.init("Main", window, *renderer.renderingDevice());
+    isRunning &= renderCamera.init("Render", window, *renderer.renderingDevice());
     isRunning &= light.init(*renderer.renderingDevice());
     isRunning &= resourceManager.init(*renderer.renderingDevice());
 
@@ -90,7 +109,11 @@ int main(int argc, char* argv[]) {
             } else if (sdlEvent.type == SDL_KEYDOWN && sdlEvent.key.keysym.sym == SDLK_r) {
                 mainCamera.reset();
             } else if (sdlEvent.type == SDL_WINDOWEVENT) {
-                window.onSDLEvent(sdlEvent.window);
+                renderer.onSDLWindowEvent(sdlEvent.window);
+                window.onSDLWindowEvent(sdlEvent.window);
+
+                if (sdlEvent.window.event == SDL_WindowEventID::SDL_WINDOWEVENT_RESIZED)
+                    otherFrameBuffer->resize(window.size().x, window.size().y);
             }
 
             if (sdlEvent.type == SDL_KEYDOWN && sdlEvent.key.keysym.sym == SDLK_1) {

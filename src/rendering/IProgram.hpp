@@ -1,7 +1,7 @@
 #pragma once
 
-#include <string>
-#include <map>
+#include <EASTL/string.h>
+#include <EASTL/map.h>
 #include <glm/fwd.hpp>
 
 class IShader;
@@ -52,7 +52,7 @@ public:
     virtual void bind() const = 0;
 
     virtual bool isValid() const = 0;
-    virtual const std::map<std::string, UniformData>& activeUniforms() const = 0;
+    virtual const eastl::map<eastl::string, UniformData>& activeUniforms() const = 0;
     virtual unsigned int handle() const = 0;
     virtual const IShader* vertexShader() const = 0;
     virtual const IShader* fragmentShader() const = 0;
@@ -63,6 +63,6 @@ public:
     virtual ~IProgramManager() = default;
 
     virtual bool init(const IShaderManager& shaderManager) = 0;
-    virtual IProgram* createProgram(const std::string& name, const IShader& vertex, const IShader& fragment) = 0;
-    virtual IProgram* program(const std::string& name) const = 0;
+    virtual IProgram* createProgram(const eastl::string& name, const IShader& vertex, const IShader& fragment) = 0;
+    virtual IProgram* program(const eastl::string& name) const = 0;
 };

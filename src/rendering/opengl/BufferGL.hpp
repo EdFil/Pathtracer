@@ -1,7 +1,7 @@
 #pragma once
 
-#include <map>
-#include <memory>
+#include <EASTL/map.h>
+#include <EASTL/unique_ptr.h>
 
 #include "rendering/IBuffer.hpp"
 
@@ -36,5 +36,5 @@ public:
     IBuffer* buffer(uint32_t handle) const;
 
 private:
-    std::map<uint32_t, std::unique_ptr<BufferGL>> _buffers;
+    eastl::map<uint32_t, eastl::unique_ptr<BufferGL>> _buffers;
 };
