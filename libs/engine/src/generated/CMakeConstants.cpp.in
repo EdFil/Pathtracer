@@ -4,4 +4,4 @@
 // The values in this file have been generated during CMake's configure phase
 // --------------------------------------------------------------------------
 
-char CMakeConstants::ResourcesDir[] = "@RESOURCES_DIR@";
+char CMakeConstants::EngineResourcesDir[] = "@ENGINE_RESOURCES_DIR@";

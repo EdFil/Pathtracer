@@ -31,7 +31,7 @@ FileManager* FileManager::instance() {
 }
 
 FileManager::FileManager() {
-    _rootDir = CMakeConstants::ResourcesDir;
+    _rootDir = CMakeConstants::EngineResourcesDir;
 }
 
 eastl::vector<char> FileManager::loadFile(const char fileName[]) const {
