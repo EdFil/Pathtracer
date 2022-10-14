@@ -22,7 +22,6 @@ function(set_project_warnings project_name)
       /w14547 # 'operator': operator before comma has no effect; expected operator with side-effect
       /w14549 # 'operator': operator before comma has no effect; did you intend 'operator'?
       /w14555 # expression has no effect; expected expression with side- effect
-      /w14619 # pragma warning: there is no warning number 'number'
       /w14640 # Enable warning on thread un-safe static member initialization
       /w14826 # Conversion from 'type1' to 'type_2' is sign-extended. This may cause unexpected runtime behavior.
       /w14905 # wide string literal cast to 'LPSTR'
@@ -34,6 +33,7 @@ function(set_project_warnings project_name)
   set(CLANG_WARNINGS
       -Wall
       -Wextra # reasonable and standard
+      -Wextra-semi # Warn about semicolon after in-class function definition.
       -Wshadow # warn the user if a variable declaration shadows one from a parent context
       -Wnon-virtual-dtor # warn the user if a class with virtual functions has a non-virtual destructor. This helps
                          # catch hard to track down memory errors
@@ -47,6 +47,7 @@ function(set_project_warnings project_name)
       -Wnull-dereference # warn if a null dereference is detected
       -Wdouble-promotion # warn if float is implicit promoted to double
       -Wformat=2 # warn on security issues around functions that format output (ie printf)
+      -Wimplicit-fallthrough # warn on statements that fallthrough without an explicit annotation
   )
 
   if(WARNINGS_AS_ERRORS)

@@ -12,7 +12,7 @@ class Window;
 
 class Camera : public WindowsEventObserver {
 public:
-    ~Camera();
+    virtual ~Camera();
 
     bool init(eastl::string&& name, Window& window, IRenderingDevice& renderingDevice);
     void update(float deltaTime);

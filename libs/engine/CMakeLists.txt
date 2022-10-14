@@ -3,7 +3,12 @@ cmake_minimum_required(VERSION 3.6)
 set(CMAKE_TOOLCHAIN_FILE "${CMAKE_CURRENT_SOURCE_DIR}/submodules/vcpkg/scripts/buildsystems/vcpkg.cmake")
 project(Engine CXX)
 
+include("${CMAKE_CURRENT_SOURCE_DIR}/cmake/CompilerWarnings.cmake")
+include("${CMAKE_CURRENT_SOURCE_DIR}/cmake/PreventInSourceBuilds.cmake")
+include("${CMAKE_CURRENT_SOURCE_DIR}/cmake/StandardProjectSettings.cmake")
+
 # Project Variables
+set(WARNINGS_AS_ERRORS TRUE CACHE BOOL "Treat compiler warnings as errors" FORCE)
 set(ENGINE_RESOURCES_DIR "${CMAKE_CURRENT_SOURCE_DIR}/res")
 set(SOURCE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/src")
 set(TEST_DIR "${CMAKE_CURRENT_SOURCE_DIR}/test")
@@ -23,7 +28,7 @@ set(VCPKG_INCLUDES ${STB_INCLUDE_DIRS})
 set(VCPKG_LIBRARIES EASTL glad::glad glm::glm imgui::imgui SDL2::SDL2 SDL2::SDL2main xxHash::xxhash)
 
 # Local Dependencies
-add_subdirectory("libs/fast_obj")
+add_subdirectory("${CMAKE_CURRENT_SOURCE_DIR}/libs/fast_obj")
 
 # Generate constants file
 configure_file(${SOURCE_DIR}/generated/CMakeConstants.cpp.in ${SOURCE_DIR}/generated/CMakeConstants.cpp)
@@ -42,6 +47,8 @@ target_link_libraries(${PROJECT_NAME} PUBLIC fast_obj ${VCPKG_LIBRARIES})
 target_include_directories(${PROJECT_NAME} PUBLIC ${SOURCE_DIR} ${VCPKG_INCLUDES})
 
 # Project settings
+set_project_warnings(${PROJECT_NAME})
+assure_out_of_source_builds()
 set_property(GLOBAL PROPERTY USE_FOLDERS ON)
 
 # Source group generation for IDEs
@@ -76,4 +83,3 @@ add_custom_command(
 file(GLOB_RECURSE TEST_SOURCES "${TEST_DIR}/*.cc")
 add_executable(${PROJECT_NAME}_TEST ${TEST_SOURCES})
 target_link_libraries(${PROJECT_NAME}_TEST GTest::gtest_main GTest::gtest)
-install(TARGETS ${PROJECT_NAME}_TEST DESTINATION bin)
