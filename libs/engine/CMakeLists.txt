@@ -35,7 +35,18 @@ configure_file(${SOURCE_DIR}/generated/CMakeConstants.cpp.in ${SOURCE_DIR}/gener
 
 # Get lazy and glob all sources
 file(GLOB_RECURSE SOURCES "${SOURCE_DIR}/*.cpp" "${SOURCE_DIR}/*.hpp")
-list(APPEND SOURCES "${CMAKE_CURRENT_SOURCE_DIR}/Pathtracer.natvis")
+
+file(GLOB EASTL_NATVIS "${Z_VCPKG_ROOT_DIR}/buildtrees/eastl/src/*/doc/EASTL.natvis")
+file(GLOB IMGUI_NATVIS "${Z_VCPKG_ROOT_DIR}/buildtrees/imgui/src/*/misc/debuggers/imgui.natvis")
+file(GLOB GLM_NATVIS "${Z_VCPKG_ROOT_DIR}/buildtrees/glm/src/*/util/glm.natvis")
+message(STATUS "EASTL_NATVIS ----> ${EASTL_NATVIS}")
+message(STATUS "IMGUI_NATVIS ----> ${IMGUI_NATVIS}")
+message(STATUS "GLM_NATVIS ----> ${GLM_NATVIS}")
+list(APPEND SOURCES 
+	"${CMAKE_CURRENT_SOURCE_DIR}/Pathtracer.natvis"
+	${EASTL_NATVIS}
+	${IMGUI_NATVIS}
+	${GLM_NATVIS})
 
 # Glob all shader sources so that they also show in the IDEs
 set(SHADERS_DIR "${CMAKE_CURRENT_SOURCE_DIR}/res/shaders")

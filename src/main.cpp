@@ -1,9 +1,9 @@
 #include <SDL2/SDL.h>
 #include <stdio.h>
 
-#include <imgui_impl_sdl.h>
 #include <fast_obj.h>
 #include <imgui.h>
+#include <imgui_impl_sdl.h>
 #include <chrono>
 #include <cstring>
 #include <new>
@@ -14,6 +14,7 @@
 #include "base/Light.hpp"
 #include "base/Material.hpp"
 #include "base/ResourceManager.hpp"
+#include "core/Resource.hpp"
 #include "file/FileManager.hpp"
 #include "rendering/IFrameBuffer.hpp"
 #include "rendering/IProgram.hpp"
@@ -28,25 +29,33 @@ bool enable2 = false;
 // Required by EASTL.
 //
 // EASTL expects us to define these, see allocator.h. Around EASTL_USER_DEFINED_ALLOCATOR define...
-void* operator new[](size_t size, const char* /*pName*/, int /*flags*/,
-    unsigned /*debugFlags*/, const char* /*file*/, int /*line*/)
+void* operator new[](size_t size, const char* /*pName*/, int /*flags*/, unsigned /*debugFlags*/, const char* /*file*/, int /*line*/)
 {
     return ::new char[size];
 }
 
-void* operator new[](size_t size, size_t alignment, size_t /*alignmentOffset*/,
-    const char* /*pName*/, int /*flags*/, unsigned /*debugFlags*/, const char* /*file*/, int /*line*/)
+void* operator new[](size_t size, size_t alignment, size_t /*alignmentOffset*/, const char* /*pName*/, int /*flags*/, unsigned /*debugFlags*/,
+                     const char* /*file*/, int /*line*/)
 {
     (void)alignment;
     // this allocator doesn't support alignment
     EASTL_ASSERT(alignment <= 8);
-	return ::new char[size];
+    return ::new char[size];
 }
 
-int main(int /*argc*/, char* /*argv*/[]) {
+int main(int /*argc*/, char* /*argv*/ [])
+{
     Logger::init();
     FileManager::init();
-    
+
+    {
+        NewResourceManager newResourceManager;
+        BaseResource* baseResource = new BaseResource(&newResourceManager, "Res1");
+
+        Handle<BaseResource> handle1(baseResource);
+        Handle<BaseResource> handle2(baseResource);
+    }
+
     if (SDL_Init(SDL_INIT_VIDEO | SDL_INIT_TIMER) != 0) {
         LOG_ERROR("[SDL] Could not initialize! Check SDL related logs!");
         return -1;
@@ -112,8 +121,7 @@ int main(int /*argc*/, char* /*argv*/[]) {
                 renderer.onSDLWindowEvent(sdlEvent.window);
                 window.onSDLWindowEvent(sdlEvent.window);
 
-                if (sdlEvent.window.event == SDL_WindowEventID::SDL_WINDOWEVENT_RESIZED)
-                    otherFrameBuffer->resize(window.size().x, window.size().y);
+                if (sdlEvent.window.event == SDL_WindowEventID::SDL_WINDOWEVENT_RESIZED) otherFrameBuffer->resize(window.size().x, window.size().y);
             }
 
             if (sdlEvent.type == SDL_KEYDOWN && sdlEvent.key.keysym.sym == SDLK_1) {
@@ -127,15 +135,13 @@ int main(int /*argc*/, char* /*argv*/[]) {
             mainCamera.update(deltaTime);
         else
             renderCamera.update(deltaTime);
-        
-        
+
         light.update(deltaTime);
 
         IRenderingDevice* renderingDevice = renderer.renderingDevice();
 
         renderingDevice->preRender();
         {
-             
             otherFrameBuffer->bind();
             renderingDevice->clearScreen(0.1f);
             renderingDevice->render(&renderCamera, mesh, material);
@@ -146,7 +152,7 @@ int main(int /*argc*/, char* /*argv*/[]) {
                 ImGui::ShowMetricsWindow();
                 ImGui::Render();
 
-                //renderingDevice->render(&mainCamera, mesh, material);
+                // renderingDevice->render(&mainCamera, mesh, material);
                 renderingDevice->render(&mainCamera, quad, quadMaterial);
             }
         }
