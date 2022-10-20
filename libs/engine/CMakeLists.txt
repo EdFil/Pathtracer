@@ -93,4 +93,4 @@ add_custom_command(
 
 file(GLOB_RECURSE TEST_SOURCES "${TEST_DIR}/*.cc")
 add_executable(${PROJECT_NAME}_TEST ${TEST_SOURCES})
-target_link_libraries(${PROJECT_NAME}_TEST GTest::gtest_main GTest::gtest)
+target_link_libraries(${PROJECT_NAME}_TEST ${PROJECT_NAME} GTest::gtest_main GTest::gtest)

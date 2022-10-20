@@ -2,75 +2,113 @@
 
 #include "Resource.hpp"
 
-BaseResource::BaseResource(IResourceManager* resourceManager, eastl::string name) 
-	: _resourceManager(resourceManager)
-	, _name(std::move(name)), _state(State::Unused)
+#include <cctype>
+
+#include "algorithm/Hash.hpp"
+
+const eastl::string ResourcePath::SPathPrefix = "data:\\";
+
+bool ResourcePath::isValidPath(const eastl::string_view& path)
 {
-    if (resourceManager == nullptr) {
-        LOG_ERROR("[BaseResource::BaseResource] Creating resource with \"nullptr\" manager");
+    return !path.empty() && path.starts_with(SPathPrefix) && path[0] != '\\';
+}
+
+ResourcePath::ResourcePath(const eastl::string_view& path)
+{
+    setPath(path);
+}
+
+void ResourcePath::setPath(const eastl::string_view& path)
+{
+    if (isValidPath(path)) {
+        _path = path;
+        _hash = Hash::Hash32(path);
+    } else {
+        _path.clear();
+        _hash = 0;
     }
 }
 
-void BaseResource::add_ref(IHandle* handle)
+// -----------------
+
+uint32_t ResourceType::encodeType(const eastl::string_view& type)
 {
-    if (handle == nullptr) {
-        LOG_WARN("[BaseResource::add_ref] Adding a \"nullptr\" handle");
-        return;
+    const size_t length = type.length();
+    if (length == 0 || length > KMaxSize) return 0;
+
+    uint32_t hash = 0;
+    for (size_t i = 0; i < length; ++i) {
+        const char elem = type[i];
+        const bool isLowerCase = eastl::CharToLower(elem) != elem;
+        if (isLowerCase) return 0;
+
+        constexpr size_t byteSize = 8;
+        hash |= elem << (length - 1 - i) * byteSize;
     }
 
-    _references.push_back(handle);
-    if (_references.size() == 1) {
-        _resourceManager->changeState(this, State::Used);
-	}
+    return hash;
 }
 
-void BaseResource::rem_ref(IHandle* handle)
+bool ResourceType::decodeType(char outType[KMaxSize + 1], uint32_t hash)
 {
-    _references.erase_first_unsorted(handle);
-    if (_references.empty()) {
-        _resourceManager->changeState(this, State::Unused);
+    if (!isValidHash(hash)) return false;
+
+    int idx = 0;
+
+    outType[idx] = (uint8_t)(hash >> 24);
+    if (outType[idx] != 0) {
+        idx++;
     }
+
+    outType[idx] = (uint8_t)((hash & 0x00FF0000) >> 16);
+    if (outType[idx] != 0) {
+        idx++;
+    }
+
+    outType[idx] = (uint8_t)((hash & 0x0000FF00) >> 8);
+    if (outType[idx] != 0) {
+        idx++;
+    }
+
+    outType[idx] = (uint8_t)((hash & 0x000000FF));
+    if (outType[idx] != 0) {
+        idx++;
+    }
+
+    outType[idx] = 0;
+    return true;
 }
 
-void NewResourceManager::changeState(IResource* resource, IResource::State newState)
+bool ResourceType::isValidHash(uint32_t hash)
 {
-    if (resource == nullptr) {
-        LOG_ERROR("[ResourceManager::changeState] Resource is nullptr");
-        return;
+    if (hash == 0) return false;
+
+    const char result[4]{
+        (hash & 0xff000000) >> 24,
+        (hash & 0x00ff0000) >> 16,
+        (hash & 0x0000ff00) >> 8,
+        (hash & 0x000000ff),
+    };
+
+    // Find first non-zero value
+    size_t i = 0;
+    for (; i < KMaxSize; ++i)
+        if (result[i] != 0) break;
+
+    // All values from here should be either characters or non-zero decimal numbers
+    for (; i < KMaxSize; ++i) {
+        if (result[i] == 0) return false;
+        if (!std::islower(result[i]) && !std::isdigit(result[i])) return false;
     }
 
-    const IResource::State currentState = resource->state();
-    switch (newState) {
-        case IResource::State::Invalid:
-            LOG_WARN("[ResourceManager::changeState] Resource(%s) is invalid.", resource->name().data());
-            break;
-        case IResource::State::Used: {
-            auto removeIt = _resourcesToDelete.erase_first_unsorted(resource);
-            if (removeIt == _resourcesToDelete.end()) {
-                LOG_WARN("[ResourceManager::changeState] Could not remove Resource(%s) in _resourcesToDelete", resource->name().data());
-                auto findIt = eastl::find(_resources.cbegin(), _resources.cend(), resource);
-                if (findIt == _resources.cend()) {
-                    LOG_ERROR("[ResourceManager::changeState] Could not find Resource(%s) in _resources", resource->name().data());
-                }
-            }
+    return true;
+}
 
-            _resources.push_back(resource);
-            break;
-        }
-        case IResource::State::Unused: {
-            auto removeIt = _resources.erase_first_unsorted(resource);
-            if (removeIt == _resources.end()) {
-                LOG_WARN("[ResourceManager::changeState] Could not remove Resource(%s) in _resources", resource->name().data());
-                auto findIt = eastl::find(_resourcesToDelete.cbegin(), _resourcesToDelete.cend(), resource);
-                if (findIt == _resourcesToDelete.cend()) {
-                    LOG_ERROR("[ResourceManager::changeState] Could not find Resource(%s) in _resourcesToDelete", resource->name().data());
-                }
-            }
+ResourceType::ResourceType(const eastl::string_view& type) : _hash(encodeType(type))
+{
+}
 
-            _resourcesToDelete.push_back(resource);
-            break;
-        }
-        default:
-            break;
-    }
+void ResourceType::decode(char outType[5]) const
+{
+    decodeType(outType, _hash);
 }

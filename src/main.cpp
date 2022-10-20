@@ -25,36 +25,10 @@
 bool enable1 = true;
 bool enable2 = false;
 
-///////////////////////////////////////////////////////////////////////////////
-// Required by EASTL.
-//
-// EASTL expects us to define these, see allocator.h. Around EASTL_USER_DEFINED_ALLOCATOR define...
-void* operator new[](size_t size, const char* /*pName*/, int /*flags*/, unsigned /*debugFlags*/, const char* /*file*/, int /*line*/)
-{
-    return ::new char[size];
-}
-
-void* operator new[](size_t size, size_t alignment, size_t /*alignmentOffset*/, const char* /*pName*/, int /*flags*/, unsigned /*debugFlags*/,
-                     const char* /*file*/, int /*line*/)
-{
-    (void)alignment;
-    // this allocator doesn't support alignment
-    EASTL_ASSERT(alignment <= 8);
-    return ::new char[size];
-}
-
 int main(int /*argc*/, char* /*argv*/ [])
 {
     Logger::init();
     FileManager::init();
-
-    {
-        NewResourceManager newResourceManager;
-        BaseResource* baseResource = new BaseResource(&newResourceManager, "Res1");
-
-        Handle<BaseResource> handle1(baseResource);
-        Handle<BaseResource> handle2(baseResource);
-    }
 
     if (SDL_Init(SDL_INIT_VIDEO | SDL_INIT_TIMER) != 0) {
         LOG_ERROR("[SDL] Could not initialize! Check SDL related logs!");

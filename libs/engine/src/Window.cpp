@@ -5,6 +5,22 @@
 #include "Logger.hpp"
 #include "SDLUtils.hpp"
 
+// HACK!! MOVE THIS
+void* operator new[](size_t size, const char* /*pName*/, int /*flags*/, unsigned /*debugFlags*/, const char* /*file*/, int /*line*/)
+{
+    return ::new char[size];
+}
+
+// HACK!! MOVE THIS
+void* operator new[](size_t size, size_t alignment, size_t /*alignmentOffset*/, const char* /*pName*/, int /*flags*/, unsigned /*debugFlags*/,
+                     const char* /*file*/, int /*line*/)
+{
+    (void)alignment;
+    // this allocator doesn't support alignment
+    EASTL_ASSERT(alignment <= 8);
+    return ::new char[size];
+}
+
 Window::~Window() {
     if (_sdlWindow == nullptr) {
         LOG_WARN("[Window] Trying to destroy OSWindow when it's not created");

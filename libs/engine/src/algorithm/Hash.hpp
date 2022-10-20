@@ -1,9 +1,8 @@
 #pragma once
 
-#include <stddef.h>
-#include <cstdint>
+#include <eastl/string_view.h>
 
 namespace Hash {
-    uint32_t Hash32(const void* input, size_t length);
-    uint64_t Hash64(const void* input, size_t length);
+    uint32_t Hash32(eastl::string_view input);
+    uint64_t Hash64(eastl::string_view input);
 }

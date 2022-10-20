@@ -1,55 +1,48 @@
 #pragma once
 
-#include "EASTL/string.h"
-#include "EASTL/vector.h"
-#include "Handle.hpp"
+#include <EASTL/string.h>
+#include <EASTL/fixed_string.h>
 
-class IResourceManager;
-
-class IResource
+class ResourcePath
 {
 public:
-    enum class State { Invalid = -1, Unused = 0, Used };
+    static const eastl::string SPathPrefix;
+    
+    static bool isValidPath(const eastl::string_view& path);
 
-    virtual ~IResource() = default;
+public:
+    ResourcePath() = default;
+    explicit ResourcePath(const eastl::string_view& path);
 
-    virtual State state() const = 0;
-    virtual eastl::string_view name() const = 0;
-    virtual void add_ref(IHandle* handle) = 0;
-    virtual void rem_ref(IHandle* handle) = 0;
+    bool isValid() const { return _hash != 0 && isValidPath(_path); }
+    uint32_t hash() const { return _hash; }
+    const eastl::string& path() { return _path; }
 
 private:
+    eastl::string _path;
+    uint32_t _hash = 0;
+
+    void setPath(const eastl::string_view& path);
 };
 
-class IResourceManager
+class ResourceType
 {
 public:
-    virtual void changeState(IResource* resource, IResource::State state) = 0;
-};
+    static const uint8_t KMaxSize = 4;
 
-class BaseResource final : public IResource
-{
+    static uint32_t encodeType(const eastl::string_view& type);
+    static bool decodeType(char outType[KMaxSize + 1], uint32_t hash);
+    static bool isValidHash(uint32_t hash);
+
 public:
-    BaseResource(IResourceManager* resourceManager, eastl::string name);
+    
+    ResourceType() = default;
+    ResourceType(const eastl::string_view& type);
 
-    State state() const override { return _state; }
-    eastl::string_view name() const override { return _name; } 
-    void add_ref(IHandle* handle) override;
-    void rem_ref(IHandle* handle) override;
+    uint32_t hash() const { return _hash; }
+    void decode(char outType[5]) const;
+    bool isValid() const { return isValidHash(_hash); }
 
 private:
-    IResourceManager* _resourceManager = nullptr;
-    eastl::string _name;
-    State _state = State::Invalid;
-    eastl::vector<IHandle*> _references;
-};
-
-class NewResourceManager final : public IResourceManager
-{
-public:
-    void changeState(IResource* resource, IResource::State state) override;
-
-private:
-    eastl::vector<IResource*> _resources;
-    eastl::vector<IResource*> _resourcesToDelete;
+    uint32_t _hash;
 };
